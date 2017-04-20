@@ -87,13 +87,13 @@
       </div>
       <div class="systemSelect">
         <el-date-picker
-           v-model="dateQuery.startTime"
+           v-model="startTime"
            type="datetime"
            placeholder="选择日期">
          </el-date-picker>
          <span> —— </span>
          <el-date-picker
-           v-model="dateQuery.endTime"
+           v-model="endTime"
            type="datetime"
            placeholder="选择日期">
          </el-date-picker>
@@ -140,14 +140,26 @@
         </table>
         <div style="text-align:center;margin-top:40px;">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
+          <el-button type="primary" >导出EXCEl表格</el-button>
         </div>
       </div>
       <el-dialog title="更多数据" v-model="moreData">
-        <el-table :data="tableData">
-          <el-table-column property="date" label="日期" width="150"></el-table-column>
-          <el-table-column property="name" label="姓名" width="200"></el-table-column>
-          <el-table-column property="address" label="其他故障"></el-table-column>
-        </el-table>
+        <table cellspacing="0" cellpadding="0" class="dateTable">
+          <tr class="bgth">
+            <th>日期</th>
+            <th>省市区</th>
+            <th>小区</th>
+            <th>房间名</th>
+            <th v-for="table in tables">{{table.name}}</th>
+          </tr>
+          <tr v-for="(dateTable, index) in dateTables" class="bgtr">
+            <td>{{dateTable.time | time}}</td>
+            <td>{{dateTable.addressName}}</td>
+            <td>{{dateTable.locationName}}</td>
+            <td>{{dateTable.roomName}}</td>
+            <td v-for="table in tables">{{dateTable.data[table.number].data}}</td>
+          </tr>
+        </table>
       </el-dialog>
       </div>
 
@@ -164,14 +176,19 @@
         <div class="systemSelect">
           <el-tag
             :key="tag"
-            v-show="tagShow"
-            v-for="tag in tags"
+            v-for="(tag, index) in tags"
             :closable="true"
+            @close="closeTag(index)"
           >
           {{tag}}
           </el-tag>
           <div class="echarts">
-             <IEcharts :option="option" :legendShow="option.legend.data" type="line" ></IEcharts>
+            <echarts
+                :title="{'text':'标题'}"
+                :options="options"
+                type="line"
+                className="echarts">
+            </echarts>
            </div>
         </div>
       </div>
@@ -182,10 +199,9 @@
 <script>
 import global from '../global/global'
 import axios from 'axios'
-import Echarts from 'vue-echarts3'
 import Vue from 'vue'
-// import IEcharts from 'vue-echarts-v3'
-Vue.component('IEcharts', Echarts)
+import Echarts from 'vue-echarts3'
+Vue.component('chart', Echarts)
 export default {
   data () {
     return {
@@ -214,38 +230,42 @@ export default {
       selectRoom: null,
       selectController: null,
       multiSelects: [],
-      tableData: [{
-        date: '2016-05-02',
-        name: '1',
-        address: '不知道'
-      }, {
-        date: '2016-05-04',
-        name: '2',
-        address: '不知道'
-      }, {
-        date: '2016-05-01',
-        name: '3',
-        address: '不知道'
-      }, {
-        date: '2016-05-03',
-        name: '4',
-        address: '不知道'
-      }],
       tagShow: false,
       tags: [],
-      option: {
+      options: {
+        tooltip: {
+          trigger: 'axis'
+        },
         legend: {
-          data: []
+          data: ['邮件营销']
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
+          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        },
+        yAxis: {
+          type: 'value'
         },
         series: []
+        // series: [{
+        //   name: '邮件营销',
+        //   type: 'line',
+        //   data: [50, 200, 6, 100, 100, 20]
+        // }, {
+        //   name: '联盟广告',
+        //   type: 'line',
+        //   data: [500, 20, 306, 100, 10, 120]
+        // }, {
+        //   name: '视频广告',
+        //   type: 'line',
+        //   data: [5, 20, 36, 10, 10, 20]
+        // }]
       },
       systemLists: [],
       controllerLists: [],
+      startTime: null,
+      endTime: null,
       dateQuery: {
         deviceId: null,
         startTime: null,
@@ -297,6 +317,7 @@ export default {
     area () {
       this.locations = this.selectArea.location
     },
+    // 获取房间
     location () {
       var self = this
       axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + localStorage.token)
@@ -340,11 +361,12 @@ export default {
           this.tables.push(tableObj)
         }
       }
-      this.dateQuery.startTime = this.timeFilter(this.dateQuery.startTime)
-      this.dateQuery.endTime = this.timeFilter(this.dateQuery.endTime)
+      this.dateQuery.startTime = this.timeFilter(this.startTime)
+      this.dateQuery.endTime = this.timeFilter(this.endTime)
       var self = this
       axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
       .then((res) => {
+        console.log(res)
         self.dateTables = res.data.data
       })
     },
@@ -356,48 +378,28 @@ export default {
         self.multiSelects = res.data.data.fields
       })
     },
+    // 增加标签
     addTags () {
-      // var lis = document.querySelectorAll('.tableMulits li')
-      // console.log(lis)
       this.tags = []
-      // this.data.series = []
-      // {
-      //   name: '泵前压力',
-      //   type: 'line',
-      //   areaStyle: { normal: {} },
-      //   data: [ 320, 332, 301, 334, 390, 330, 2 ]
-      // },
-      // var data0 = this.option.series
-      // var data1 = this.option.legend.data
-      // for (let i = 0; i < lis.length; i++) {
-      //   if (lis[i].getAttribute('class') === 'active') {
-      //     this.tags.push(lis[i].innerHTML)
-      //     data1.push(lis[i].innerHTML)
-      //     var obj = {
-      //       name: lis[i].innerHTML,
-      //       type: 'line',
-      //       areaStyle: { normal: {} },
-      //       data: [ 200, 50, 401, 502, 602, 0, 15 ]
-      //     }
-      //     data0.push(obj)
-      //   }
-      // }
-      const that = this
-      let data = []
-      for (let i = 0, min = 5, max = 99; i < 7; i++) {
-        data.push(Math.floor(Math.random() * (max + 1 - min) + min))
+      var lis = document.querySelectorAll('.multiSelect li.active')
+      for (var i in lis) {
+        if (lis[i].innerHTML !== undefined) {
+          this.tags.push(lis[i].innerHTML)
+        }
       }
-      var obj = {
-        name: '价格',
-        type: 'line',
-        data: data
-      }
-      that.option.series.push(obj)
-      that.option.legend.data.push(obj.name)
-      // if (this.tags.length !== 0) {
-      //   this.tagShow = true
-      //   this.echart = true
-      // }
+      // console.log(this.tags)
+      this.options.series = [
+        {
+          name: '邮件营销',
+          type: 'line',
+          data: [50, 200, 6, 100, 100, 20]
+        }
+      ]
+      console.log(this.options)
+    },
+    // 删除标签
+    closeTag (index) {
+      this.tags.splice(index, 1)
     }
   },
   created () {
@@ -410,7 +412,7 @@ export default {
     // 控制器列表
     axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token)
     .then((res) => {
-      console.log(res)
+      // console.log(res)
       self.controllerLists = res.data.data
     })
   }
@@ -499,7 +501,7 @@ export default {
 .echarts{
   width: 900px;
   height: 360px;
-  margin: 0 auto;
+  margin: 50px auto 0;
 }
 .systemSelect{
   clear: both;

@@ -1,56 +1,56 @@
 <template>
   <div>
-    <el-select v-model="select" placeholder="请选择" @change="province">
-      <el-option
-        :key="item"
-        v-for="item in list"
-        :label="item.name"
-        :value="item.provinceId">
-      </el-option>
-    </el-select>
-    <el-select v-model="cityselect" placeholder="请选择">
-      <el-option
-        :key="item"
-        v-for="item in city"
-        :label="item.name"
-        :value="item.cityId">
-      </el-option>
-    </el-select>
+    <echarts
+        :title="{'text':'标题'}"
+        :options="data"
+        type="line"
+        className="echarts">
+    </echarts>
+    <button type="button" name="button" v-on:refresh="add">dianji</button>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
+import Vue from 'vue'
+import Echarts from 'vue-echarts3'
+Vue.component('chart', Echarts)
 export default {
   data () {
     return {
-      msg: 'nihao',
-      select: 150000,
-      list: [],
-      cityselect: 150100,
-      city: []
+      data: {
+        legend: {
+          data: [ '页面PV', '页面UV', '下载PV', '下载UV', '激活量', '注册量' ]
+        },
+        xAxis: [
+          {
+            type: 'category',
+            data: [ '20170201', '20170202', '20170203', '20170204', '20170205', '20170206', '20170207' ]
+          }
+        ],
+        series: [
+          {
+            name: '页面PV',
+            type: 'line',
+            stack: '总量',
+            areaStyle: { normal: {} },
+            data: [ 320, 332, 301, 334, 390, 330, 2 ]
+          }
+        ]
+      }
     }
   },
-  created () {
-    var self = this
-    axios.post('http://61.190.61.78:6784/iws/api/area/areas')
-    .then((res) => {
-      console.log(res)
-      self.list = res.data.data
-      self.$nextTick(function () {
-        self.province()
-      })
-    })
-  },
   methods: {
-    province () {
-      var self = this
-      axios.post('http://61.190.61.78:6784/iws/api/area/province?provinceId=' + this.select)
-      .then((res) => {
-        console.log(res)
-        console.log(123)
-        self.city = res.data.data.city
-      })
+    add () {
+      var obj = {
+        name: '页面UV',
+        type: 'line',
+        stack: '总量',
+        areaStyle: { normal: {} },
+        data: [ 30, 32, 301, 334, 30, 330, 20 ]
+      }
+      console.log(this.data)
+      this.data.series.push(obj)
     }
   }
 }

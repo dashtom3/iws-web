@@ -196,7 +196,7 @@ export default {
   methods: {
     getControllerLists () {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token)
+      axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token + '&type=0')
       .then((res) => {
         console.log(res)
         self.controllerlists = res.data.data

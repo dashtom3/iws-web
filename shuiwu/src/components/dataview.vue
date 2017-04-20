@@ -22,7 +22,7 @@
         </el-row>
       </div>
       <div class="systemSelect">
-        <!-- <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
+        <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
           <el-option
             :key="province"
             v-for="(province, index) in provinces"
@@ -45,14 +45,14 @@
             :label="area.name"
             :value="area">
           </el-option>
-        </el-select> -->
+        </el-select>
       </div>
       <div class="systemSelect">
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">小区：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="selctLocation" @change="location">
-               <el-radio-button :label="location"
+            <el-radio-group v-model="selectLocation" @change="location">
+               <el-radio-button :label="location.id"
                :key="location"
                v-for="(location, index) in locations">{{location.name}}</el-radio-button>
              </el-radio-group>
@@ -63,10 +63,10 @@
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
-            <el-radio-group v-model="selectRoom">
+            <el-radio-group  v-model="selectRoom">
                <el-radio-button
                :key="room"
-               v-for="(room, index) in rooms" :label="index">{{room}}</el-radio-button>
+               v-for="(room, index) in rooms" :label="room.id">{{room.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
@@ -75,10 +75,11 @@
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">控制器：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="selectController">
+            <el-radio-group v-model="dateQuery.deviceId">
                <el-radio-button label="0"
                :key="controllerList"
                v-for="controllerList in controllerLists"
+               :label="controllerList.id"
                >{{controllerList.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
@@ -86,25 +87,25 @@
       </div>
       <div class="systemSelect">
         <el-date-picker
-           v-model="startTime"
+           v-model="dateQuery.startTime"
            type="datetime"
            placeholder="选择日期"
-           @change="timeBegin">
+           @change="selectTimeStart">
          </el-date-picker>
          <span> —— </span>
          <el-date-picker
-           v-model="beginTime"
+           v-model="dateQuery.endTime"
            type="datetime"
            placeholder="选择日期">
          </el-date-picker>
          <span> —— </span>
          <el-button type="primary">不限</el-button>
-         <el-select v-model="timeInterval" placeholder="请选择时间间隔">
+         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔" @change="selcetTime">
              <el-option
                :key="time"
                v-for="(time, index) in times"
-               :label=time
-               :value=index>
+               :label=time.date
+               :value=time.seconds>
              </el-option>
           </el-select>
       </div>
@@ -120,7 +121,7 @@
       </div>
       <div v-show="tableShow">
         <div class="systemSelect" style="text-align:center;">
-            <el-button type="primary">确定</el-button>
+            <el-button type="primary" @click="dateQueryClick">确定</el-button>
         </div>
         <el-table
           :data="tableData"
@@ -203,20 +204,24 @@ export default {
       echart: false,
       systemId: '0',
       system: '0',
-      startTime: '',
-      beginTime: '',
-      timeInterval: '',
       moreData: false,
-      times: ['1秒', '1分钟', '1小时', '1天'],
-      selectProvince: '',
+      times: [
+        { date: '1秒', seconds: '1' },
+        { date: '1分钟', seconds: '60' },
+        { date: '1小时', seconds: '3600' },
+        { date: '1天', seconds: '86400' }
+      ],
+      selectProvince: null,
       provinces: [],
-      selectCity: '',
-      selectArea: '',
+      citys: [],
+      selectCity: null,
+      selectArea: null,
       areas: [],
       locations: [],
-      selctLocation: '',
-      selectRoom: '',
-      selectController: '',
+      selectLocation: null,
+      rooms: [],
+      selectRoom: null,
+      selectController: null,
       multiSelects: ['泵前压力', '泵后压力', '1#泵状态', '2#泵状态', '3#泵状态', '4#泵状态', '5#泵状态', '6#泵状态', '7#泵状态', '8#泵状态', '其他故障信号', '电机电流Ia', '电机电流Ib', '电机电流Ic', '电机电压Ua', '电机电压Ub', '电机电压Uc', '1#变频器频率', '2#变频器频率', '3#变频器频率', '4#变频器频率', '5#变频器频率', '6#变频器频率', '7#变频器频率', '8#变频器频率', '水箱水位', '出口流量', '累积流量低位', '累计流量高位', '累计电量低位', '累计电量高位', '远程切换自动/手动(手动时可以远程启停水泵)', '远程启停水泵1#', '远程启停水泵2#', '远程启停水泵3#', '远程启停水泵4#', '远程启停水泵5#', '远程启停水泵6#', '远程启停水泵7#', '远程启停水泵8#', '远程开灯'],
       tableData: [{
         date: '2016-05-02',
@@ -249,7 +254,14 @@ export default {
         series: []
       },
       systemLists: [],
-      controllerLists: []
+      controllerLists: [],
+      dateQuery: {
+        deviceId: null,
+        startTime: null,
+        endTime: null,
+        timeStep: null,
+        token: localStorage.token
+      }
     }
   },
   methods: {
@@ -261,6 +273,9 @@ export default {
     },
     timeBegin () {
       console.log(this.startTime)
+    },
+    selcetTime () {
+      console.log(this.timeInterval)
     },
     chart (obj) {
       this.tableShow = false
@@ -286,6 +301,7 @@ export default {
       })
     },
     province () {
+      console.log(this.selectProvince.city)
       this.citys = this.selectProvince.city
     },
     city () {
@@ -297,7 +313,50 @@ export default {
       this.locations = this.selectArea.location
     },
     location () {
-      this.rooms = this.selctLocation.room
+      console.log(this.selectLocation)
+      var self = this
+      axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + localStorage.token)
+      .then((res) => {
+        // console.log(res)
+        self.rooms = res.data.data.room
+      })
+      // this.rooms = this.selctLocation.room
+    },
+    selectTimeStart () {
+      console.log(this.timeFilter(this.dateQuery.startTime))
+    },
+    timeFilter (value) {
+      var month = value.getMonth() + 1
+      var date = value.getDate()
+      var hour = value.getHours()
+      var minutes = value.getMinutes()
+      var seconds = value.getSeconds()
+      if (seconds < 10) {
+        seconds = '0' + seconds
+      }
+      if (minutes < 10) {
+        minutes = '0' + minutes
+      }
+      if (hour < 10) {
+        hour = '0' + hour
+      }
+      if (month < 10) {
+        month = '0' + month
+      }
+      if (date < 10) {
+        date = '0' + date
+      }
+      return value.getFullYear() + '-' + month + '-' + date + ' ' + hour + ':' + minutes + ':' + seconds
+    },
+    // 查询数据
+    dateQueryClick () {
+      console.log(123)
+      this.dateQuery.startTime = this.timeFilter(this.dateQuery.startTime)
+      this.dateQuery.endTime = this.timeFilter(this.dateQuery.endTime)
+      axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
+      .then((res) => {
+        console.log(res)
+      })
     },
     addTags () {
       // var lis = document.querySelectorAll('.tableMulits li')

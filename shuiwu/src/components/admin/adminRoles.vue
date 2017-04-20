@@ -18,7 +18,7 @@
     v-for="user in rolelists" class="role" :class="{ active: divIsactive == user }">
       <el-col :span="8" style="position:absolute;"><span>{{user.name}}</span></el-col>
       <el-col :span="8" style="margin-left:33.33333%">
-        <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive(user)">{{list.systemName}}&nbsp;{{list.area.provinceName}}&nbsp;{{list.area.cityName}}&nbsp;{{list.area.name}}&nbsp;
+        <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive(user)">{{list.systemName}}&nbsp;{{list.areaName}}
           <span v-if="0 == list.limitation"><span class="kd"></span></span>
           <span v-if="1 == list.limitation"><span class="kd"></span><span class="kx"></span></span>
           <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span><span class="fz"></span></span>
@@ -219,7 +219,12 @@ export default {
       this.roleAlert = true
       this.editrolesub = false
       this.addrolesub = true
+      this.addRoleInfo.name = null
+      this.tags = []
       this.tagsMsg = []
+      this.addRoleInfo.selectSystem = null
+      this.addRoleInfo.selectProvince = null
+      this.addRoleInfo.selectJurisdiction = null
     },
     addRole () {
       var self = this
@@ -237,22 +242,43 @@ export default {
         }
       }
     },
+    // 修改角色
     edit (id) {
       // console.log(id)
       this.roleId = id
       this.addrolesub = false
       this.editrolesub = true
       this.roleAlert = true
-      // var self = this
+      this.addRoleInfo.selectSystem = null
+      this.addRoleInfo.selectProvince = null
+      this.addRoleInfo.selectJurisdiction = null
+      this.tags = []
+      var self = this
       axios.post(global.baseUrl + 'role/detail?roleId=' + id + '&token=' + localStorage.token)
       .then((res) => {
         console.log(res)
-        // self.addRoleInfo.name = res.data.data.name
-        // self.tagsMsg = res.data.data.subitem
+        self.addRoleInfo.name = res.data.data.name
+        for (let i in res.data.data.subitem) {
+          self.tags.push(res.data.data.subitem[i].systemName + res.data.data.subitem[i].areaName)
+          self.tagsMsg.push(res.data.data.subitem[i].systemId + res.data.data.subitem[i].areaId + res.data.data.subitem[i].limitation)
+        }
       })
     },
     editRole () {
-      console.log(this.roleId)
+      var self = this
+      this.roleAlert = false
+      var subitem = JSON.stringify(this.addRoleInfo.subitem)
+      // console.log(subitem)
+      var xhr = new XMLHttpRequest()
+      xhr.open('POST', 'http://61.190.61.78:6784/iws/api/role/update?roleId=' + this.roleId + '&name=' + this.addRoleInfo.name + '&token=' + localStorage.token)
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      xhr.send(subitem)
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          global.addSuccess(self, '修改成功')
+          self.getRoleLists()
+        }
+      }
     },
     getRoleLists () {
       var self = this

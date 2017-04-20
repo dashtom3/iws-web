@@ -12,7 +12,7 @@
             <el-option
             :key="type"
             v-for="type in controllerTypes"
-            :label="type.name" :value="type.name"></el-option>
+            :label="type.name" :value="type.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="名称" :label-width="width">
@@ -214,7 +214,8 @@ export default {
       for (let i in this.addControllerDate.fields) {
         this.addControllerDate.fields[i].number = parseInt(i) + 1
       }
-      console.log(this.addControllerDate.fields)
+      // console.log(this.addControllerDate.fields)
+      var self = this
       this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + localStorage.token + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
@@ -281,7 +282,7 @@ export default {
       var self = this
       this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
       var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'deviceTerm/update?name=' + this.addControllerDate.name + '&token=' + localStorage.token + '&id=' + this.controllerId + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
+      xhr.open('POST', global.baseUrl + 'deviceTerm/update?id=' + this.controllerId + '&name=' + this.addControllerDate.name + '&token=' + localStorage.token + '&id=' + this.controllerId + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(this.addControllerDate.fields)
       xhr.onreadystatechange = function () {

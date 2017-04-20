@@ -11,31 +11,41 @@
           <el-input v-model="addBaseMsg.name"></el-input>
         </el-form-item>
         <el-form-item label="设备类型" style="text-align:left">
-          <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+          <el-select v-model="addBaseMsg.region" placeholder="请选择设备类型">
+            <el-option
+            :key="baseType"
+            v-for="baseType in baseTypes"
+            :label="baseType.name" :value="baseType.id"></el-option>
           </el-select><br>
           <div style="height:20px;"></div>
           <label for="" class="left15">压力表</label>
           <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域" style="width:160px;">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option
+            :key="pressureList"
+            v-for="pressureList in pressureLists"
+            :label="pressureList.name" :value="pressureLists.id"></el-option>
           </el-select>
           <label for="" class="left15">电表</label>
           <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域"style="width:160px;">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option
+            :key="meter"
+            v-for="meter in meters"
+            :label="meter.name" :value="meter.id"></el-option>
           </el-select><br>
           <div style="height:20px;"></div>
           <label for="" class="left15">流量计</label>
           <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域"style="width:160px;">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option
+            :key="flowmeter"
+            v-for="flowmeter in flowmeters"
+            :label="flowmeter.name" :value="flowmeter.id"></el-option>
           </el-select>
           <label for="" class="left15">PLC控制器</label>
           <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域"style="width:160px;">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+            <el-option 
+            :key="controllerList"
+            v-for="controllerList in controllerLists"
+            :label="controllerList.name" :value="controllerList.id"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -44,6 +54,8 @@
         <el-button type="primary">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 设备列表 -->
     <div class="baseTitle baseWidth">
       <span>名称</span>
       <span>类型</span>
@@ -90,6 +102,11 @@ export default {
       addBaseAlert: false,
       editBaseAlert: false,
       baseLists: [],
+      baseTypes: [],
+      pressureLists: [],
+      meters: [],
+      flowmeters: [],
+      controllerLists: [],
       addBaseMsg: {
         name: null,
         devices: []
@@ -98,17 +115,31 @@ export default {
   },
   created () {
     this.getBaseList()
+    this.getbaseTypes()
+    this.getFourDate(1, this.pressureLists)
+    this.getFourDate(2, this.meters)
+    this.getFourDate(3, this.flowmeters)
+    this.getFourDate(4, this.controllerLists)
   },
   methods: {
     addBase () {
       console.log(123)
     },
+    // 获取设备列表
     getBaseList () {
       var self = this
       axios.get(global.baseUrl + 'device/list?token=' + localStorage.token)
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.baseLists = res.data.data
+      })
+    },
+    // 获取设备类型
+    getbaseTypes () {
+      var self = this
+      axios.get(global.baseUrl + 'device/groupType?token=' + localStorage.token)
+      .then((res) => {
+        self.baseTypes = res.data.data
       })
     },
     // 修改设备
@@ -118,6 +149,14 @@ export default {
       axios.get(global.baseUrl + 'device/deviceDetail?deviceId=' + baseId + '&token=' + localStorage.token)
       .then((res) => {
         self.addBaseMsg = res.data.data
+      })
+    },
+    // 获取四个表数据
+    getFourDate (type, obj) {
+      axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token + '&type=' + type)
+      .then((res) => {
+        // console.log(res)
+        obj = res.data.data
       })
     },
     // 删除设备

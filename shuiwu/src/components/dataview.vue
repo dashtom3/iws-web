@@ -75,8 +75,8 @@
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">控制器：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="dateQuery.deviceId">
-               <el-radio-button label="0"
+            <el-radio-group v-model="dateQuery.deviceId" @change="selectControllerId">
+               <el-radio-button
                :key="controllerList"
                v-for="controllerList in controllerLists"
                :label="controllerList.id"
@@ -89,8 +89,7 @@
         <el-date-picker
            v-model="dateQuery.startTime"
            type="datetime"
-           placeholder="选择日期"
-           @change="selectTimeStart">
+           placeholder="选择日期">
          </el-date-picker>
          <span> —— </span>
          <el-date-picker
@@ -100,7 +99,7 @@
          </el-date-picker>
          <span> —— </span>
          <el-button type="primary">不限</el-button>
-         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔" @change="selcetTime">
+         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔">
              <el-option
                :key="time"
                v-for="(time, index) in times"
@@ -114,7 +113,7 @@
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
             <ul class="multiSelect">
-              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect}}</li>
+              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect.name}}</li>
             </ul>
           </el-col>
         </el-row>
@@ -123,30 +122,22 @@
         <div class="systemSelect" style="text-align:center;">
             <el-button type="primary" @click="dateQueryClick">确定</el-button>
         </div>
-        <el-table
-          :data="tableData"
-          style="width: 100%">
-          <el-table-column
-            prop="date"
-            label="日期">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="编号">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="其他故障">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="其他故障">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="其他故障">
-          </el-table-column>
-        </el-table>
+        <table cellspacing="0" cellpadding="0" class="dateTable">
+          <tr class="bgth">
+            <th>日期</th>
+            <th>省市区</th>
+            <th>小区</th>
+            <th>房间名</th>
+            <th v-for="table in tables">{{table.name}}</th>
+          </tr>
+          <tr v-for="(dateTable, index) in dateTables" class="bgtr">
+            <td>{{dateTable.time | time}}</td>
+            <td>{{dateTable.addressName}}</td>
+            <td>{{dateTable.locationName}}</td>
+            <td>{{dateTable.roomName}}</td>
+            <td v-for="table in tables">{{dateTable.data[table.number].data}}</td>
+          </tr>
+        </table>
         <div style="text-align:center;margin-top:40px;">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
         </div>
@@ -222,7 +213,7 @@ export default {
       rooms: [],
       selectRoom: null,
       selectController: null,
-      multiSelects: ['泵前压力', '泵后压力', '1#泵状态', '2#泵状态', '3#泵状态', '4#泵状态', '5#泵状态', '6#泵状态', '7#泵状态', '8#泵状态', '其他故障信号', '电机电流Ia', '电机电流Ib', '电机电流Ic', '电机电压Ua', '电机电压Ub', '电机电压Uc', '1#变频器频率', '2#变频器频率', '3#变频器频率', '4#变频器频率', '5#变频器频率', '6#变频器频率', '7#变频器频率', '8#变频器频率', '水箱水位', '出口流量', '累积流量低位', '累计流量高位', '累计电量低位', '累计电量高位', '远程切换自动/手动(手动时可以远程启停水泵)', '远程启停水泵1#', '远程启停水泵2#', '远程启停水泵3#', '远程启停水泵4#', '远程启停水泵5#', '远程启停水泵6#', '远程启停水泵7#', '远程启停水泵8#', '远程开灯'],
+      multiSelects: [],
       tableData: [{
         date: '2016-05-02',
         name: '1',
@@ -261,7 +252,9 @@ export default {
         endTime: null,
         timeStep: null,
         token: localStorage.token
-      }
+      },
+      tables: [],
+      dateTables: []
     }
   },
   methods: {
@@ -270,12 +263,6 @@ export default {
       this.chartShow = false
       document.querySelectorAll('.kinds li')[1].setAttribute('class', '')
       obj.target.setAttribute('class', 'active')
-    },
-    timeBegin () {
-      console.log(this.startTime)
-    },
-    selcetTime () {
-      console.log(this.timeInterval)
     },
     chart (obj) {
       this.tableShow = false
@@ -296,12 +283,11 @@ export default {
       var self = this
       axios.post(global.baseUrl + 'customer/system/detailPack?systemId=' + this.systemId + '&token=' + localStorage.token)
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.provinces = res.data.data.locationPack
       })
     },
     province () {
-      console.log(this.selectProvince.city)
       this.citys = this.selectProvince.city
     },
     city () {
@@ -309,21 +295,14 @@ export default {
       this.areas = this.selectCity.area
     },
     area () {
-      // console.log(this.selectArea)
       this.locations = this.selectArea.location
     },
     location () {
-      console.log(this.selectLocation)
       var self = this
       axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + localStorage.token)
       .then((res) => {
-        // console.log(res)
         self.rooms = res.data.data.room
       })
-      // this.rooms = this.selctLocation.room
-    },
-    selectTimeStart () {
-      console.log(this.timeFilter(this.dateQuery.startTime))
     },
     timeFilter (value) {
       var month = value.getMonth() + 1
@@ -350,12 +329,31 @@ export default {
     },
     // 查询数据
     dateQueryClick () {
-      console.log(123)
+      this.tables = []
+      var actives = document.querySelectorAll('.multiSelect li.active')
+      for (var i in actives) {
+        if (actives[i].innerHTML !== undefined) {
+          var tableObj = {
+            name: actives[i].innerHTML,
+            number: actives[i].getAttribute('value')
+          }
+          this.tables.push(tableObj)
+        }
+      }
       this.dateQuery.startTime = this.timeFilter(this.dateQuery.startTime)
       this.dateQuery.endTime = this.timeFilter(this.dateQuery.endTime)
+      var self = this
       axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
       .then((res) => {
-        console.log(res)
+        self.dateTables = res.data.data
+      })
+    },
+    // 选择控制器
+    selectControllerId () {
+      var self = this
+      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + this.dateQuery.deviceId + '&token=' + localStorage.token)
+      .then((res) => {
+        self.multiSelects = res.data.data.fields
       })
     },
     addTags () {
@@ -407,7 +405,6 @@ export default {
     // 系统列表
     axios.post(global.baseUrl + 'customer/system/list')
     .then((res) => {
-      console.log(res)
       self.systemLists = res.data.data
     })
     // 控制器列表
@@ -428,6 +425,37 @@ export default {
   height: 71px;
   line-height: 71px;
   border-bottom: 1px solid rgb(20,135,202);
+}
+.bgtr td:nth-child(1){
+  border-left: 1px solid rgb( 220, 220, 220 );
+}
+.bgtr td{
+  border-right: 1px solid rgb( 220, 220, 220 );
+  border-bottom: 1px solid rgb( 220, 220, 220 );
+}
+.dateTable{
+  width: 100%;
+  text-align: center;
+}
+.dateTable tr th:nth-child(1),.dateTable tr td:nth-child(1){
+  width: 15%
+}
+.dateTable tr th:nth-child(2),.dateTable tr td:nth-child(2){
+  width: 15%
+}
+.dateTable tr th:nth-child(3),.dateTable tr td:nth-child(3){
+  width: 10%
+}
+.dateTable tr th:nth-child(4),.dateTable tr td:nth-child(4){
+  width: 10%
+}
+.dateTable tr th,.dateTable tr td{
+  height: 40px;
+}
+.bgth{
+  color: #fff;
+  border-radius: 6px;
+  background-color: rgb( 20, 135, 202 );
 }
 .dataviewLogin,.dataviewNavbar ul li{
   float: left;

@@ -271,7 +271,7 @@ export default {
       this.controllerId = controllerId
       var self = this
       axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + controllerId + '&token=' + localStorage.token).then((res) => {
-        console.log(res)
+        // console.log(res)
         self.addControllerDate = res.data.data
       })
     },
@@ -298,7 +298,7 @@ export default {
       var self = this
       axios.post(global.baseUrl + 'deviceTerm/delete?deviceTermId=' + controllerId + '&token=' + localStorage.token)
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '删除成功', '')
           self.getControllerLists()

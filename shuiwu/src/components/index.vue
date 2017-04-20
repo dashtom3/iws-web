@@ -217,6 +217,9 @@ export default {
   mounted () {
     var wh = document.body.scrollHeight
     console.log(wh)
+    if (!localStorage.token) {
+      this.$router.push('/login')
+    }
   }
 }
 </script>

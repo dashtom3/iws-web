@@ -31,7 +31,7 @@ import demo from '@/components/demo'
 var VueResource = require('vue-resource')
 
 Vue.use(VueResource)
-Vue.http.options.emulateHTTP = true
+// Vue.http.options.emulateHTTP = true
 
 Vue.use(Router)
 Vue.use(ElementUI)

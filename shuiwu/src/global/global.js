@@ -51,19 +51,6 @@ export default{
       }
     })
   },
-  // token时间
-  timeout (obj, msg, url) {
-    obj.$message({
-      message: msg,
-      type: 'error',
-      duration: '1000',
-      onClose: function () {
-        obj.$router.push(url)
-        localStorage.token = ''
-        localStorage.time = ''
-      }
-    })
-  },
   baseUrl: 'http://61.190.61.78:6784/iws/api/',
   setHeight: function (value) {
     var wh = document.body.scrollHeight
@@ -76,7 +63,6 @@ export default{
     obj.selectCity = ''
     obj.selectArea = ''
     obj.areas = ''
-    console.log(obj.selectProvince)
     axios.post(this.baseUrl + 'area/province?provinceId=' + obj.selectProvince.provinceId)
     .then(function (res) {
       self.citys = res.data.data.city
@@ -114,8 +100,33 @@ export default{
         temp.append(i, data[i])
       }
     }
-    temp.append('token', localStorage.token)
+    temp.append('token', this.getToken())
     return temp
+  },
+  postHttpDataWithTokenNoForm: function (data) {
+    data.token = this.getToken()
+    return data
+  },
+  postHttpData: function (data) {
+    var temp = new FormData()
+    for (var i in data) {
+      if (data[i] != null) {
+        temp.append(i, data[i])
+      }
+    }
+    return temp
+  },
+  setToken (token) {
+    localStorage.setItem('watertoken', token)
+    localStorage.setItem('watertokentime', new Date().getTime())
+  },
+  getToken () {
+    var date = localStorage.getItem('watertokentime')
+    if (new Date().getTime() - date > 36000000) {
+      // alert('登录过期')
+      return null
+    }
+    return localStorage.getItem('watertoken')
   },
   getToday: function (today) {
     today.setHours(0)

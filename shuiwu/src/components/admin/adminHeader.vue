@@ -26,8 +26,7 @@ import global from '../../global/global'
 export default {
   methods: {
     exit () {
-      localStorage.token = ''
-      localStorage.username = ''
+      global.setToken('')
       global.success(this, '退出成功', '/admin')
     }
   }

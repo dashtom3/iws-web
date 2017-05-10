@@ -33,7 +33,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="具体地址">
-          <input v-model="addressData.address" placeholder="输入完成后按Enter进行校验" auto-complete="off" class="w800 setaddress" v-on:keyup.13="setPosition()">
+          <input v-model="addressData.address" placeholder="输入完成后按Enter进行校验" auto-complete="off" class="w800 setaddress" v-on:blur="setPosition()">
         </el-form-item>
         <el-form-item label="经纬度">
           &nbsp;&nbsp; &nbsp;&nbsp; <span>X: </span><el-input v-model="addressData.x" auto-complete="off" class="w800 w50"></el-input>
@@ -85,7 +85,7 @@
 
     <!-- 地点列表 -->
     <el-row :gutter="20" class="areaList">
-      <div class="arealists" v-for="addresslist in addresslists" :class="{active: addressData.isOpen == addresslist}">
+      <div class="arealists" v-for="(addresslist, index) in addresslists" :class="{active: addressData.isOpen == addresslist}">
         <div class="areaListTitle">
           <el-col :span="10">
             <div class="areaName" v-on:click="areaIsActive(addresslist, addresslist.id)">
@@ -113,6 +113,8 @@
             </div>
           </el-col>
         </div>
+
+        <!-- 房间套餐之类的 -->
         <transition name="slide-fade">
         <div class="areaListDetial">
           <el-col :span="3" class="bor1">
@@ -131,8 +133,8 @@
                     <el-button type="primary" @click="editroom" v-if="editRoomBtn">确 定</el-button>
                   </div>
                 </el-dialog>
-
-                <p class="roomlist" v-for="room in rooms.roomlist" :class="{ active: isOpen == room }">
+                <!-- 泵房列表 -->
+                <p class="roomlist" v-for="(room, num) in rooms.roomlist" :class="{ active: isOpen == room }">
                   <i class="el-icon-delete" v-on:click="roomDelete(addresslist, addresslist.id, room.id)"></i>&nbsp;&nbsp;
                     <i class="el-icon-edit" v-on:click="roomEdit(room.id)"></i>&nbsp;&nbsp;
                      <span v-on:click="roomIsactive(room)">{{room.name}}</span>&nbsp;&nbsp;<i class="el-icon-arrow-right"></i>
@@ -141,33 +143,32 @@
           <el-col :span="3" class="bor1" v-show="addPackage">
               <a href="javascript:;" class="addRoom" v-on:click="addPackageAlert = true">添加</a><br>
 
-              <!-- 添加套餐 -->
+              <!-- 配置控制器 -->
               <el-dialog title="提示" v-model="addPackageAlert" size="tiny" style="text-align:left;">
-                <el-form :model="packageMsg">
+                <el-form :model="deviceMsg">
                   <el-form-item label="名称" :label-width="width">
-                    <el-input v-model="packageMsg.name" auto-complete="off"></el-input>
+                    <el-input v-model="deviceMsg.name" auto-complete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="端口号" :label-width="width">
+                    <el-input v-model="deviceMsg.port" auto-complete="off"></el-input>
                   </el-form-item>
                   <el-form-item label="选择设备" :label-width="width">
-                    <el-select v-model="packageMsg.region" placeholder="选择设备">
+                    <el-select v-model="deviceMsg.selectDeviceId" placeholder="选择设备" @change="selectDevice(deviceMsg.selectDeviceId)">
                       <el-option
                       :key="equipmentList"
                       v-for="equipmentList in equipmentLists"
-                      :label="equipmentList.name" value="shanghai"></el-option>
+                      :label="equipmentList.name" :value="equipmentList.id"></el-option>
                     </el-select>
                   </el-form-item>
                   <div class="tableContent">
-                    <table cellspacing="0" cellpadding="0" v-for="equipmentController in equipmentControllers">
+                    <table cellspacing="0" cellpadding="0" v-for="(equipmentController, index) in equipmentControllers">
                       <tr>
                         <th>名称</th>
-                        <th>类型</th>
-                        <th>串口号</th>
                         <th>站号</th>
                       </tr>
                       <tr>
                         <td>{{equipmentController.name}}</td>
-                        <td><input type="text" name="" value="" placeholder="请编辑"></td>
-                        <td><input type="text" name="" value="" placeholder="请编辑"></td>
-                        <td><input type="text" name="" value="" placeholder="请编辑"></td>
+                        <td><input type="text" placeholder="请编辑" v-on:blur="configController(equipmentController.id, index, $event.target.value)"></td>
                       </tr>
                     </table>
                   </div>
@@ -177,29 +178,26 @@
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="addPackageAlert = false">取 消</el-button>
-                  <el-button type="primary">确 定</el-button>
+                  <el-button type="primary" v-on:click="addControllerDevice">确 定</el-button>
                 </span>
               </el-dialog>
 
+              <!-- 配置后的控制器列表 -->
               <p class="roomlist" v-for="meal in packages" :class="{ isActive: meal.isActive }" v-on:click="packageIsactive(meal)">
-                   {{meal.packagename}}&nbsp;&nbsp;<i class="el-icon-arrow-right"></i>
+                   {{meal.name}}&nbsp;&nbsp;<i class="el-icon-arrow-right"></i>
               </p>
           </el-col>
-          <el-col :span="18" class="bor1" v-if="next">
+          <el-col :span="18" class="bor1" v-if="next" style="position:relative">
               <a href="javascript:;" class="addRoom">&nbsp;</a>
-              <p class="roomlist listDetial">
-                <span>001</span>
-                <span>设备A</span>
-                <span>标准设备</span>
-                <span>站号</span>
-                <span>开启</span>
-              </p>
-              <p class="roomlist listDetial">
-                <span>001</span>
-                <span>设备A</span>
-                <span>标准设备</span>
-                <span>站号</span>
-                <span>开启</span>
+              <span style="float:right;position:absolute;top:25px;right:25px;">
+                <el-button type="primary" size="small">开启</el-button>
+                <el-button type="danger" size="small">关闭</el-button>
+              </span>
+
+              <p class="roomlist listDetial" v-for="configControllerDetialInfo in configControllerDetialInfos">
+                <span style="text-align:left;">名称：{{configControllerDetialInfo.termName}}</span>
+                <span>状态：{{controllerStatus[configControllerDetialInfo.status]}}</span>
+                <span>站号：{{configControllerDetialInfo.number}}</span>
               </p>
           </el-col>
         </div>
@@ -212,7 +210,7 @@
       <div class="formMsg">
         <form class="el-form editForm">
           <div class="el-form-item">
-            <label for="" class="el-form-item__label">地点名称：</label><input class="el-input__inner w800" type="text" name="" v-model="editDate.name">
+            <label for="" class="el-form-item__label">地点名称：</label><input class="el-input__inner w800" type="text" v-model="editDate.name">
           </div>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">省/市/区：</label>
@@ -229,18 +227,18 @@
             </select>
           </div>
           <div class="el-form-item">
-            <label for="" class="el-form-item__label">详细地址：</label><input class="el-input__inner w800" type="text" name="" v-model="editDate.describes">
+            <label for="" class="el-form-item__label">详细地址：</label><input class="el-input__inner w800" type="text" name="" v-model="editDate.describes" v-on:blur="editBlur">
           </div>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">经纬度：</label>
             <span >X: </span><div class="w800 w50 el-input"><input type="text" autocomplete="off" class="el-input__inner" v-model="editDate.positionX"></div>
             <span >Y: </span><div class="w800 w50 el-input"><input type="text" autocomplete="off" class="el-input__inner" v-model="editDate.positionY"></div>
           </div>
-          <baidu-map class="map-container" :center="{lng: editDate.positionX, lat: editDate.positionY}" :zoom="zoom" style="width:990px;height:500px;margin:0 auto;">
+          <baidu-map class="map-container" :center="{lng: editDate.positionX, lat: editDate.positionY}" :zoom="zoom" style="width:990px;height:500px;margin:0 auto;" @moving="editCenter" @moveend="editCenter">
             <bm-view class="bm-view" >
             </bm-view>
             <bm-local-search
-             :auto-viewport="true" style="display:none"></bm-local-search>
+             :auto-viewport="true" :keyword="editkeyword" style="display:none"></bm-local-search>
           </baidu-map>
           <div slot="footer" class="dialog-footer">
             <el-button @click="editAlert = false">取 消</el-button>
@@ -276,36 +274,34 @@ export default {
         roomlist: [],
         name: null
       },
+      deviceMsg: {
+        roomId: null,
+        port: null,
+        name: null,
+        selectDeviceId: null,
+        terms: []
+      },
       select: '310000',
       addPackage: false,
       equipmentLists: [], // 设备列表
-      equipmentControllers: [
-        { name: '123' },
-        { name: '456' },
-        { name: '456' },
-        { name: '456' }
-      ], // 设备控制器
+      equipmentControllers: [], // 设备控制器列表
       packageMsg: {
         name: null,
         equipment: null
       },
-      packages: [
-        { packagename: '套餐1', isActive: false },
-        { packagename: '套餐2', isActive: false },
-        { packagename: '套餐3', isActive: false }
-      ],
+      packages: [], // 泵房下配置的控制器列表
       next: false,
       addressData: {
         systemId: this.$route.params.id,
         provinces: null,
         selectProvince: null,
         citys: null,
+        keyword: '北京',
         selectCity: null,
         areas: null,
         selectArea: null,
         name: null,
         address: null,
-        keyword: '北京',
         x: null,
         y: null,
         isOpen: null
@@ -324,24 +320,88 @@ export default {
         searchArea: null
       },
       editDate: null,
+      editkeyword: null,
       editCitys: [],
       editAreas: [],
-      isOpen: null
+      isOpen: null,
+      configControllerDetialInfos: [],
+      controllerStatus: ['关闭状态', '开启状态'],
+      addressArgs: {
+        systemId: this.$route.params.id,
+        currentPage: 1,
+        numberPerPage: 10,
+        totalPage: -1
+      }
     }
   },
   methods: {
     areaIsActive (item, id) {
       var self = this
+      this.addPackage = false
+      this.next = false
       this.addressData.isOpen = item
       this.rooms.locationid = id
-      axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
       .then((res) => {
         console.log(res)
         self.rooms.roomlist = res.data.data.room
       })
     },
-    packageIsactive (meal) {
+    selectDevice (id) {
       var self = this
+      if (id) {
+        axios.get(global.baseUrl + 'device/groupDetail?groupId=' + id + '&token=' + global.getToken())
+        .then((res) => {
+          self.equipmentControllers = res.data.data.deviceTerms
+          // console.log(res)
+          // if (res.data.callStatus === 'SUCCEED') {
+          //   self.editBaseMsg = res.data.data
+          // }
+        })
+      }
+      return false
+    },
+    configController (controllerId, index, value) {
+      var controllerObj = {
+        termId: controllerId,
+        number: value
+      }
+      this.deviceMsg.terms.splice(index, 1, controllerObj)
+    },
+    addControllerDevice () {
+      var self = this
+      this.deviceMsg.terms = JSON.stringify(this.deviceMsg.terms)
+      var xhr = new XMLHttpRequest()
+      xhr.open('POST', global.baseUrl + 'room/addDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId)
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      xhr.send(this.deviceMsg.terms)
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          global.addSuccess(self, '添加成功')
+          self.deviceMsg.name = null
+          self.deviceMsg.port = null
+          self.deviceMsg.selectDeviceId = null
+          self.deviceMsg.terms = []
+          self.addPackageAlert = false
+        }
+      }
+      // axios.post(global.baseUrl + 'room/addDevice', global.postHttpDataWithToken(this.deviceMsg))
+      // .then((res) => {
+      //   console.log(res)
+      // })
+      // axios.post(global.baseUrl + 'room/addDevice', global.postHttpDataWithTokenNoForm(this.deviceMsg))
+      // .then((res) => {
+      //   console.log(res)
+      // })
+      // console.log(this.deviceMsg)
+    },
+    packageIsactive (meal) {
+      // console.log(meal)
+      var self = this
+      axios.get(global.baseUrl + 'room/groupDetail?groupId=' + meal.groupId + '&token=' + global.getToken())
+      .then((res) => {
+        self.configControllerDetialInfos = res.data.data.devices
+      })
       this.$nextTick(function () {
         self.packages.forEach(function (item) {
           Vue.set(item, 'isActive', false)
@@ -395,19 +455,25 @@ export default {
       this.addressData.keyword = this.addressData.selectProvince.name + this.addressData.selectCity.name + this.addressData.selectArea.name
     },
     editArea () {
-      console.log(123213)
-      console.log(this.editData.provinceName)
-      // this.editData.keyword = this.editData.provinceName + this.editData.cityName + this.editData.areaName
+      this.editkeyword = this.editDate.provinceName + this.editDate.cityName + this.editDate.areaName
     },
     // 验证坐标
-    setPosition (e) {
-      this.addressData.keyword = this.addressData.keyword + this.addressData.address
+    setPosition () {
+      this.addressData.keyword = this.addressData.address
     },
     // 取坐标位置
     syncCenter (e) {
       const {lng, lat} = e.target.getCenter()
       this.addressData.x = lng
       this.addressData.y = lat
+    },
+    editCenter (e) {
+      const {lng, lat} = e.target.getCenter()
+      this.editDate.positionX = lng
+      this.editDate.positionY = lat
+    },
+    editBlur () {
+      this.editkeyword = this.editDate.describes
     },
     // 添加地点
     addAddress () {
@@ -422,19 +488,13 @@ export default {
       addAddressMsg.append('positionY', this.addressData.y)
       addAddressMsg.append('name', this.addressData.name)
       addAddressMsg.append('describes', this.addressData.address)
-      axios.post(global.baseUrl + 'location/add?token=' + localStorage.token, addAddressMsg)
+      axios.post(global.baseUrl + 'location/add?token=' + global.getToken(), addAddressMsg)
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           self.addressAlert = false
           global.addSuccess(self, '添加成功')
-          self.$nextTick(() => {
-            axios.post(global.baseUrl + 'location/list?systemId=' + self.addressData.systemId + '&token=' + localStorage.token)
-            .then((res) => {
-              console.log(res)
-              self.addresslists = res.data.data
-            })
-          })
+          self.getAddressLists(self.addressArgs)
         }
       })
     },
@@ -442,13 +502,21 @@ export default {
     searchByArea () {
       var searchMsg = new FormData()
       searchMsg.append('systemId', this.addressData.systemId)
-      searchMsg.append('provinceId', this.search.searchProvince.provinceId)
-      searchMsg.append('cityId', this.search.searchCity.cityId)
-      searchMsg.append('areaId', this.search.searchArea.areaId)
-      // console.log(this.search)
-      axios.post(global.baseUrl + 'location/query?token=' + localStorage.token, searchMsg)
+      if (this.search.searchProvince) {
+        searchMsg.append('provinceId', this.search.searchProvince.provinceId)
+      }
+      if (this.search.searchCity) {
+        searchMsg.append('cityId', this.search.searchCity.cityId)
+      }
+      if (this.search.searchArea) {
+        searchMsg.append('areaId', this.search.searchArea.areaId)
+      }
+      var self = this
+      axios.post(global.baseUrl + 'location/query?token=' + global.getToken(), searchMsg)
       .then((res) => {
-        console.log(res)
+        if (res.data.callStatus === 'SUCCEED') {
+          self.addresslists = res.data.data
+        }
       })
     },
     // 编辑地点
@@ -458,21 +526,16 @@ export default {
       var self = this
       var qingqiu = new FormData()
       qingqiu.append('locationId', id)
-      qingqiu.append('token', localStorage.token)
+      qingqiu.append('token', global.getToken())
       axios.post(global.baseUrl + 'location/detail', qingqiu)
       .then((res) => {
-        // console.log(res.data)
+        console.log(res.data)
         self.editDate = res.data.data
-        console.log(self.editDate)
         self.$nextTick(function () {
           self.editProvince()
           self.editCity()
-          self.editArea()
         })
       })
-    },
-    editaddress (id) {
-      console.log(id)
     },
     editaddressMsg () {
       var self = this
@@ -487,16 +550,16 @@ export default {
       addAddressMsg.append('positionY', this.editDate.positionY)
       addAddressMsg.append('name', this.editDate.name)
       addAddressMsg.append('describes', this.editDate.describes)
-      axios.post(global.baseUrl + 'location/update?token=' + localStorage.token, addAddressMsg)
+      axios.post(global.baseUrl + 'location/update?token=' + global.getToken(), addAddressMsg)
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           self.addressAlert = false
           global.addSuccess(self, '修改成功')
           self.$nextTick(() => {
-            axios.post(global.baseUrl + 'location/list?systemId=' + self.addressData.systemId + '&token=' + localStorage.token)
+            axios.post(global.baseUrl + 'location/list?systemId=' + self.addressData.systemId + '&token=' + global.getToken())
             .then((res) => {
-              console.log(res)
+              // console.log(res)
               self.addresslists = res.data.data
             })
           })
@@ -510,18 +573,13 @@ export default {
     },
     deladdress () {
       var self = this
-      axios.post(global.baseUrl + 'location/delete?token=' + localStorage.token + '&locationId=' + this.addressId)
+      axios.post(global.baseUrl + 'location/delete?token=' + global.getToken() + '&locationId=' + this.addressId)
       .then((res) => {
         console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           self.delAlert = false
           global.addSuccess(self, '删除成功')
-          self.$nextTick(() => {
-            axios.post(global.baseUrl + 'location/list?systemId=' + this.addressData.systemId + '&token=' + localStorage.token)
-            .then((res) => {
-              self.addresslists = res.data.data
-            })
-          })
+          self.getAddressLists(self.addressArgs)
         }
       })
     },
@@ -531,10 +589,10 @@ export default {
       this.addRoomAlert = !this.addRoomAlert
       var addroomMsg = new FormData()
       addroomMsg.append('name', this.rooms.name)
-      axios.post(global.baseUrl + 'room/add?locationId=' + this.rooms.locationid + '&token=' + localStorage.token, addroomMsg)
+      axios.post(global.baseUrl + 'room/add?locationId=' + this.rooms.locationid + '&token=' + global.getToken(), addroomMsg)
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
-          axios.post(global.baseUrl + 'location/detail?locationId=' + self.rooms.locationid + '&token=' + localStorage.token)
+          axios.post(global.baseUrl + 'location/detail?locationId=' + self.rooms.locationid + '&token=' + global.getToken())
           .then((res) => {
             console.log(res)
             self.rooms.roomlist = res.data.data.room
@@ -546,7 +604,7 @@ export default {
     roomDelete (item, id, roomId) {
       // console.log(roomId)
       var self = this
-      axios.post(global.baseUrl + 'room/delete?roomId=' + roomId + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'room/delete?roomId=' + roomId + '&token=' + global.getToken())
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
@@ -555,6 +613,13 @@ export default {
       })
     },
     roomIsactive (room) {
+      var self = this
+      this.deviceMsg.roomId = room.id
+      axios.get(global.baseUrl + 'room/groupList?roomId=' + room.id + '&token=' + global.getToken())
+      .then((res) => {
+        console.log(res)
+        self.packages = res.data.data
+      })
       this.addPackage = true
       this.isOpen = room
     },
@@ -563,13 +628,22 @@ export default {
       this.editRoomBtn = true
       var self = this
       this.addRoomAlert = !this.addRoomAlert
-      axios.post(global.baseUrl + 'room/detail?token=' + localStorage.token + '&roomId=' + roomid)
+      axios.post(global.baseUrl + 'room/detail?token=' + global.getToken() + '&roomId=' + roomid)
       .then((res) => {
         self.rooms = res.data.data
       })
     },
     editroom () {
       console.log(123)
+    },
+    // 获取地点列表
+    getAddressLists (args) {
+      var self = this
+      axios.post(global.baseUrl + 'location/list', global.postHttpDataWithToken(args))
+      .then((res) => {
+        // console.log(res)
+        self.addresslists = res.data.data
+      })
     }
   },
   created () {
@@ -580,18 +654,13 @@ export default {
       self.addressData.provinces = res.data.data
       self.search.searchProvinces = res.data.data
     })
-    // 获取地点列表
-    axios.post(global.baseUrl + 'location/list?systemId=' + this.addressData.systemId + '&token=' + localStorage.token)
+    // 获取设备列表
+    axios.get(global.baseUrl + 'device/list?token=' + global.getToken())
     .then((res) => {
       // console.log(res)
-      self.addresslists = res.data.data
-    })
-    // 获取设备列表
-    axios.get(global.baseUrl + 'device/list?token=' + localStorage.token)
-    .then((res) => {
-      console.log(res)
       self.equipmentLists = res.data.data
     })
+    this.getAddressLists(this.addressArgs)
   }
 }
 </script>
@@ -768,7 +837,7 @@ export default {
 }
 .listDetial span{
   display: inline-block;
-  width: 19%;
+  width: 30%;
 }
 .bor1{
   border: 1px solid;

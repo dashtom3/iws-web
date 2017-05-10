@@ -3,10 +3,10 @@
     <div class="adminCon">
       <h3>管理员登录</h3>
       <div class="username">
-        <input type="text" name="" v-model="adminName" value="" placeholder="用户名">
+        <input type="text" name="" v-model="adminMsg.username" placeholder="用户名">
       </div>
       <div class="password">
-        <input type="password" name="" v-model="adminPassword" value="" placeholder="密码">
+        <input type="password" name="" v-model="adminMsg.password" placeholder="密码">
       </div>
       <div class="login">
         <a href="javascript:;" v-on:click="goAdmin">登录</a>
@@ -23,25 +23,22 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      adminName: '',
-      adminPassword: ''
+      adminMsg: {
+        username: null,
+        password: null,
+        status: 0
+      }
     }
   },
   methods: {
     goAdmin () {
       var self = this
-      if (this.adminName === '123' && this.adminPassword === '123') {
-        var msg = new FormData()
-        msg.append('username', this.adminName)
-        msg.append('password', this.adminPassword)
-        axios.post(global.baseUrl + 'user/login', msg)
+      if (this.adminName !== '' && this.adminPassword !== '') {
+        axios.post(global.baseUrl + 'user/login', global.postHttpData(this.adminMsg))
         .then(function (res) {
           if (res.data.callStatus === 'SUCCEED') {
             global.success(self, '登录成功', '/admin/user')
-            localStorage.token = res.data.token
-            localStorage.time = ((Date.parse(new Date())) / 1000) + 1800
-            localStorage.username = res.data.data.username
-            global.userMsg = res.data.data
+            global.setToken(res.data.token)
           } else {
             global.error(self, '账号或密码错误', '/admin')
           }

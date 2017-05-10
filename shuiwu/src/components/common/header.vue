@@ -5,11 +5,11 @@
         <a href="javascript:;">欢迎来到舜禹水务</a>
       </div>
       <div class="headRight">
-        <span v-show="isShow"><a href="javascript:;" v-on:click="goLogin">登录</a></span>
-        <span v-show="isShow"><a href="javascript:;">|</a></span>
-        <span v-show="isShow"><a href="javascript:;" v-on:click="goRegister">注册</a></span>
-        <span v-show="isLogin" class="use">{{username}}</span>
-        <span v-show="isLogin" class="use" v-on:click="exit">退出</span>
+        <span v-if="isShow"><a href="/login">登录</a></span>
+        <span v-if="isShow"><a href="javascript:;">|</a></span>
+        <span v-if="isShow"><a href="/register">注册</a></span>
+        <span v-if="isLogin" class="use">{{username}}</span>
+        <span v-if="isLogin" class="use" v-on:click="exit">退出</span>
         <span><a href="/aboutUs" class="about">关于我们</a></span>
       </div>
     </div>
@@ -25,40 +25,22 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       isShow: true,
       isLogin: false,
-      username: ''
+      username: global.userMsg.username
     }
   },
   created () {
-    if (localStorage.time !== '') {
-      var time = (Date.parse(new Date()) / 1000)
-      if (time > localStorage.time) {
-        global.timeout(this, '登录已过期', '/login')
-      }
-      if (localStorage.token !== '') {
-        this.isShow = false
-        this.isLogin = true
-        // console.log(global.userMsg)
-        this.username = localStorage.username
-      } else {
-        this.isShow = true
-        this.isLogin = false
-      }
+    if (global.getToken()) {
+      this.isShow = false
+      this.isLogin = true
+    } else {
+      this.isShow = true
+      this.isLogin = false
     }
   },
   methods: {
-    goLogin () {
-      this.$router.push('/login')
-    },
-    goRegister () {
-      this.$router.push('/register')
-    },
     exit () {
-      localStorage.token = ''
-      localStorage.time = ''
-      localStorage.username = ''
-      this.isShow = true
-      this.isLogin = false
-      global.success(this, '退出成功', '/index')
+      global.setToken('')
+      global.success(this, '退出成功', '/login')
     }
   }
 }

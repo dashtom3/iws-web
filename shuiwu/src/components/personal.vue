@@ -36,14 +36,15 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      userMsg: '',
-      address: '',
-      describe: ''
+      userMsg: {
+        name: null,
+        describes: null
+      }
     }
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'user/detail?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'user/detail', global.postHttpDataWithToken())
     .then(function (res) {
       self.userMsg = res.data.data
     })
@@ -51,15 +52,11 @@ export default {
   methods: {
     update () {
       var self = this
-      var updataMsg = new FormData()
-      updataMsg.append('name', this.userMsg.name)
-      updataMsg.append('describes', this.userMsg.describes)
-      // updataMsg.append('address', this.userMsg.address)
-      axios.post(global.baseUrl + 'user/update?token=' + localStorage.token, updataMsg)
+      axios.post(global.baseUrl + 'user/update', global.postHttpDataWithToken(this.userMsg))
       .then(function (res) {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
-          global.success(self, '信息修改成功', '/personal')
+          global.success(self, '信息修改成功', '')
         }
       })
     }
@@ -67,6 +64,9 @@ export default {
   mounted () {
     var login = this.$refs.contentHeight
     global.setHeight(login)
+    if (!global.getToken()) {
+      this.$router.push('/login')
+    }
   }
   // components: {
   //   'v-header': header,

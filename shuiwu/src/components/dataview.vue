@@ -271,7 +271,7 @@ export default {
         startTime: null,
         endTime: null,
         timeStep: null,
-        token: localStorage.token
+        token: global.getToken()
       },
       tables: [],
       dateTables: []
@@ -301,26 +301,34 @@ export default {
     selectSystem: function () {
       this.selectProvince = null
       var self = this
-      axios.post(global.baseUrl + 'customer/system/detailPack?systemId=' + this.systemId + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'customer/system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
       .then((res) => {
         // console.log(res)
         self.provinces = res.data.data.locationPack
       })
     },
     province () {
-      this.citys = this.selectProvince.city
+      if (this.selectProvince) {
+        this.citys = this.selectProvince.city
+      }
+      this.selectCity = null
     },
     city () {
       this.selectArea = null
-      this.areas = this.selectCity.area
+      if (this.selectCity) {
+        this.areas = this.selectCity.area
+      }
     },
     area () {
-      this.locations = this.selectArea.location
+      console.log(this.selectArea)
+      if (this.selectArea) {
+        this.locations = this.selectArea.location
+      }
     },
     // 获取房间
     location () {
       var self = this
-      axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
       .then((res) => {
         self.rooms = res.data.data.room
       })
@@ -373,7 +381,7 @@ export default {
     // 选择控制器
     selectControllerId () {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + this.dateQuery.deviceId + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + this.dateQuery.deviceId + '&token=' + global.getToken())
       .then((res) => {
         self.multiSelects = res.data.data.fields
       })
@@ -405,15 +413,21 @@ export default {
   created () {
     var self = this
     // 系统列表
-    axios.post(global.baseUrl + 'customer/system/list')
+    axios.post(global.baseUrl + 'customer/system/list', global.postHttpDataWithToken())
     .then((res) => {
       self.systemLists = res.data.data
     })
     // 控制器列表
-    axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken())
     .then((res) => {
       // console.log(res)
       self.controllerLists = res.data.data
+    })
+    // 城市列表
+    axios.post(global.baseUrl + 'area/areas')
+    .then((res) => {
+      // console.log(res)
+      self.provinces = res.data.data
     })
   }
 }

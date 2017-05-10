@@ -17,16 +17,12 @@
 <script>
 import DataHeader from './adminHeader'
 import SideNav from './adminSlidenav'
+import global from '../../global/global'
 
 export default {
   name: 'app',
-  data () {
-    return {
-      pathName: this.$route.name
-    }
-  },
   created () {
-    if (!localStorage.token) {
+    if (!global.getToken()) {
       this.$router.push('/admin')
     }
   },

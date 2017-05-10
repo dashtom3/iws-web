@@ -20,11 +20,18 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       id: '',
       newsLists: [],
+      newsArgs: {
+        token: global.getToken(),
+        numberPerPage: 10,
+        currentPage: 1,
+        totalPage: -1,
+        status: 2
+      },
       status: ['已确认', '未确认']
     }
   },
   created () {
-    this.getNewsLists()
+    this.getNewsLists(this.newsArgs)
   },
   methods: {
     msgConfirm (newsid) {
@@ -35,7 +42,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        axios.get(global.baseUrl + 'news/confirm?token=' + localStorage.token + '&newsId=' + newsid)
+        axios.post(global.baseUrl + 'news/confirm?token=' + global.getToken() + '&newsId=' + newsid)
         .then((res) => {
           console.log(res)
           if (res.data.callStatus === 'SUCCEED') {
@@ -53,9 +60,9 @@ export default {
         })
       })
     },
-    getNewsLists () {
+    getNewsLists (args) {
       var self = this
-      axios.get(global.baseUrl + 'news/list?token=' + localStorage.token + '&status=2')
+      axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         self.newsLists = res.data.data
       })

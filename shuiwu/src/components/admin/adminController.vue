@@ -80,8 +80,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addControllerAlert = false">取 消</el-button>
-        <el-button type="primary" @click="addControllerPost" v-if="addControllerClick">确 定</el-button>
-        <el-button type="primary" @click="editControllerPost" v-if="editControllerClick" >确 定</el-button>
+        <el-button type="primary" @click="addControllerPost">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -96,10 +95,10 @@
         <span class="controllernumber">参数(个数)</span>
         <span class="controllerOs">操作</span>
       </div>
-      <div class="controllerContent" v-for="controller in controllerlists">
-        <span class="controllerid">{{controller.id}}</span>
+      <div class="controllerContent" v-for="(controller, index) in controllerlists">
+        <span class="controllerid">{{index + 1}}</span>
         <span class="controllername">{{controller.name}}</span>
-        <span class="controllerstate">{{controller.type}}</span>
+        <span class="controllerstate">{{controller.typeName}}</span>
         <span class="controllerintro">{{controller.describes}}</span>
         <span class="controllerhttp">{{controller.protocol}}</span>
         <span class="controllernumber">{{controller.count}}</span>
@@ -135,7 +134,21 @@
         </span>
       </div>
 
-      <!-- 查看控制器 -->
+      <!-- 修改控制器 -->
+      <el-dialog title="修改控制器" v-model="editControllerAlert">
+        <el-form :model="editControllerDate">
+          <el-form-item label="名称" :label-width="width">
+            <el-input v-model="editControllerDate.name" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="描述" :label-width="width">
+            <el-input v-model="editControllerDate.describes" auto-complete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="editControllerAlert = false">取 消</el-button>
+          <el-button type="primary" @click="editControllerPost">确 定</el-button>
+        </div>
+      </el-dialog>
 
     </div>
   </div>
@@ -150,8 +163,7 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       addControllerAlert: false,
       viewcontroller: false,
-      addControllerClick: true,
-      editControllerClick: false,
+      editControllerAlert: false,
       addControllerDate: {
         type: null,
         name: null,
@@ -175,28 +187,35 @@ export default {
       controllerId: null,
       controllerTypes: null,
       ParameterType: null,
-      controllerlists: null,
-      width: '50px'
+      controllerlists: [],
+      width: '50px',
+      editControllerDate: {},
+      controllerArgs: {
+        type: 0,
+        currentPage: 1,
+        numberPerPage: 10,
+        totalPage: -1
+      }
     }
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'deviceTerm/typeList?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'deviceTerm/typeList', global.postHttpDataWithToken())
     .then((res) => {
       // console.log(res)
       self.controllerTypes = res.data.data
     })
-    axios.post(global.baseUrl + 'deviceTerm/pointRole?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'deviceTerm/pointRole', global.postHttpDataWithToken())
     .then((res) => {
-      console.log(res)
+      // console.log(res)
       self.ParameterType = res.data.data
     })
-    this.getControllerLists()
+    this.getControllerLists(this.controllerArgs)
   },
   methods: {
-    getControllerLists () {
+    getControllerLists (args) {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token + '&type=0')
+      axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken(args))
       .then((res) => {
         console.log(res)
         self.controllerlists = res.data.data
@@ -206,7 +225,6 @@ export default {
     // 添加控制器
     addController () {
       this.addControllerClick = true
-      this.editControllerClick = false
       this.addControllerAlert = true
       this.emapyMsg()
     },
@@ -218,14 +236,14 @@ export default {
       var self = this
       this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
       var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + localStorage.token + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
+      xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(this.addControllerDate.fields)
       xhr.onreadystatechange = function () {
+        self.addControllerAlert = false
         if (xhr.readyState === 4 && xhr.status === 200) {
           global.success(self, '添加成功', '')
-          self.addControllerAlert = false
-          self.getControllerLists()
+          self.getControllerLists(self.controllerArgs)
         }
       }
     },
@@ -265,43 +283,43 @@ export default {
 
     // 修改控制器
     editController (controllerId) {
-      this.addControllerAlert = true
-      this.addControllerClick = false
-      this.editControllerClick = true
+      this.editControllerAlert = true
       this.controllerId = controllerId
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + controllerId + '&token=' + localStorage.token).then((res) => {
+      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + controllerId + '&token=' + global.getToken()).then((res) => {
         // console.log(res)
-        self.addControllerDate = res.data.data
+        self.editControllerDate = res.data.data
       })
     },
     editControllerPost () {
-      for (let i in this.addControllerDate.fields) {
-        this.addControllerDate.fields[i].number = parseInt(i) + 1
+      var obj = {
+        id: this.controllerId,
+        name: this.editControllerDate.name,
+        describes: this.editControllerDate.describes,
+        token: global.getToken()
       }
       var self = this
-      this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
-      var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'deviceTerm/update?id=' + this.controllerId + '&name=' + this.addControllerDate.name + '&token=' + localStorage.token + '&id=' + this.controllerId + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
-      xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.send(this.addControllerDate.fields)
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
+      axios.post(global.baseUrl + 'deviceTerm/update', global.postHttpData(obj))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          self.editControllerAlert = false
           global.success(self, '修改成功', '')
-          self.addControllerAlert = false
-          self.getControllerLists()
+          self.getControllerLists(self.controllerArgs)
         }
-      }
+      })
     },
     // 删除控制器
-    deleteController (controllerId) {
+    deleteController (deviceTermId) {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/delete?deviceTermId=' + controllerId + '&token=' + localStorage.token)
+      var controllerMsg = {
+        deviceTermId: deviceTermId
+      }
+      axios.post(global.baseUrl + 'deviceTerm/delete', global.postHttpDataWithToken(controllerMsg))
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '删除成功', '')
-          self.getControllerLists()
+          self.getControllerLists(self.controllerArgs)
         }
       })
     }

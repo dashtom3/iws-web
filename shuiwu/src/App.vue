@@ -45,6 +45,13 @@ a:active{
   font-family: "Microsoft YaHei";
   color: rgba( 0, 0, 0, 0.8 );
   margin-right: 40px;
+  position: relative;
+}
+.systemSelect .el-tag .el-tag__close{
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 15px;
 }
 .addcontro .el-dialog__footer .el-button,.controllerOs .el-dialog__footer .el-button--default{
   width: 200px;

@@ -6,9 +6,9 @@
         <div class="w361">
           <div class="msgTitle"></div>
           <span>帐号</span>
-          <el-input v-model="username" placeholder="请输入账号"></el-input>
+          <el-input v-model="userLoginMsg.username" placeholder="请输入账号"></el-input>
           <span>密码</span>
-          <el-input v-model="password" placeholder="请输入密码" type="password"></el-input>
+          <el-input v-model="userLoginMsg.password" placeholder="请输入密码" type="password"></el-input>
           <span class="goPhone"><a  v-on:click="goPhoneLogin" href="javascript:;">忘记密码</a></span>
           <el-button type="primary" style="width:100%" v-on:click="login">登录</el-button>
           <span class="goRegister"><a href="javascript:;" v-on:click="goRegister">注册</a></span>
@@ -78,8 +78,10 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       labelPosition: 'top',
-      username: '',
-      password: '',
+      userLoginMsg: {
+        username: '',
+        password: ''
+      },
       btnHtml: '获取',
       waitTime: 60,
       msgLogin: true,
@@ -137,25 +139,19 @@ export default {
         phone.append('username', this.phoneMsg.phone)
         axios.post(global.baseUrl + 'user/getVerifyCode', phone)
         .then(function (res) {
-          console.log(res)
+          // console.log(res)
         })
       }
     },
     // 登录发送请求
     login () {
       var self = this
-      var msg = new FormData()
-      msg.append('username', this.username)
-      msg.append('password', this.password)
-      console.log(msg)
-      axios.post(global.baseUrl + 'user/login', msg)
+      // console.log(msg)
+      axios.post(global.baseUrl + 'user/login', global.postHttpData(this.userLoginMsg))
       .then(function (res) {
-        console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '登录成功', '/index')
-          localStorage.token = res.data.token
-          localStorage.time = ((Date.parse(new Date())) / 1000) + 1800
-          localStorage.username = res.data.data.username
+          global.setToken(res.data.token)
           global.userMsg = res.data.data
         } else {
           global.error(self, '账号或密码错误', '/register')
@@ -171,10 +167,10 @@ export default {
           forgetPwdMsg.append('username', this.phoneMsg.phone)
           forgetPwdMsg.append('code', this.phoneMsg.code)
           forgetPwdMsg.append('password', this.phoneMsg.password)
-          console.log(forgetPwdMsg)
+          // console.log(forgetPwdMsg)
           axios.post(global.baseUrl + 'user/forgetPwd', forgetPwdMsg)
           .then(function (res) {
-            console.log(res)
+            // console.log(res)
             if (res.data.callStatus === 'SUCCEED') {
               global.forgetPwd(self, '密码设置成功', '/login')
             }

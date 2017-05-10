@@ -10,7 +10,6 @@ import login from '@/components/login'
 import register from '@/components/register'
 import aboutUs from '@/components/aboutUs'
 import personal from '@/components/personal'
-import personalDetial from '@/components/personalDetial'
 import index from '@/components/index'
 import dataview from '@/components/dataview'
 import alarminfo from '@/components/alarminfo'
@@ -97,10 +96,6 @@ export default new Router({
       name: 'personal',
       component: personal
     }, {
-      path: '/personalDetial/:id',
-      name: 'personalDetial',
-      component: personalDetial
-    }, {
       path: '/dataview',
       name: 'dataview',
       component: dataview
@@ -119,7 +114,7 @@ export default new Router({
         path: '/news/newshistory',
         component: newshistory
       }, {
-        path: '/news/system',
+        path: '/news/system/:id',
         component: system
       }]
     }]

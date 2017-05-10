@@ -1,17 +1,17 @@
 <template>
   <div class="base">
     <div class="addController">
-      <el-button type="primary" v-on:click="addBaseAlert = true">添加</el-button>
+      <el-button type="primary" v-on:click="addBaseClick">添加</el-button>
     </div>
 
     <!-- 添加设备 -->
     <el-dialog title="添加设备" v-model="addBaseAlert">
       <el-form ref="addBaseMsg" :model="addBaseMsg" label-width="80px">
         <el-form-item label="名称">
-          <el-input v-model="addBaseMsg.name"></el-input>
+          <el-input v-model="addBaseMsg.name" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="设备类型" style="text-align:left">
-          <el-select v-model="addBaseMsg.region" placeholder="请选择设备类型">
+          <el-select v-model="addBaseMsg.type" placeholder="请选择设备类型">
             <el-option
             :key="baseType"
             v-for="baseType in baseTypes"
@@ -19,14 +19,14 @@
           </el-select><br>
           <div style="height:20px;"></div>
           <label for="" class="left15">压力表</label>
-          <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域" style="width:160px;">
+          <el-select v-model="addBaseMsg.selectPressure" placeholder="请选择压力表" style="width:160px;">
             <el-option
             :key="pressureList"
             v-for="pressureList in pressureLists"
-            :label="pressureList.name" :value="pressureLists.id"></el-option>
+            :label="pressureList.name" :value="pressureList.id"></el-option>
           </el-select>
           <label for="" class="left15">电表</label>
-          <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域"style="width:160px;">
+          <el-select v-model="addBaseMsg.selectMeter" placeholder="请选择电表"style="width:160px;">
             <el-option
             :key="meter"
             v-for="meter in meters"
@@ -34,15 +34,16 @@
           </el-select><br>
           <div style="height:20px;"></div>
           <label for="" class="left15">流量计</label>
-          <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域"style="width:160px;">
+          <el-select v-model="addBaseMsg.selectFlowmeter" placeholder="请选择流量计"style="width:160px;">
             <el-option
             :key="flowmeter"
             v-for="flowmeter in flowmeters"
-            :label="flowmeter.name" :value="flowmeter.id"></el-option>
+            :label="flowmeter.name" :value="flowmeter.id"
+            ></el-option>
           </el-select>
           <label for="" class="left15">PLC控制器</label>
-          <el-select v-model="addBaseMsg.region" placeholder="请选择活动区域"style="width:160px;">
-            <el-option 
+          <el-select v-model="addBaseMsg.selectController" placeholder="请选择PLC控制器"style="width:160px;">
+            <el-option
             :key="controllerList"
             v-for="controllerList in controllerLists"
             :label="controllerList.name" :value="controllerList.id"></el-option>
@@ -51,7 +52,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addBaseAlert = false">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button type="primary" v-on:click="addBasePost">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -70,7 +71,7 @@
       <span>{{baseList.describes}}</span>
       <span><img src="" alt=""></span>
       <span>
-        <p v-for="device in baseList.devices">{{device.name}}</p>
+        <p v-for="device in baseList.deviceTerms" class="controllerMargin">{{device.name}}</p>
       </span>
       <span>
         <i class="controlleredit controllericon" v-on:click="editBase(baseList.id)"></i>
@@ -80,14 +81,14 @@
 
     <!-- 修改设备 -->
     <el-dialog title="修改设备" v-model="editBaseAlert" size="tiny">
-      <el-form ref="addBaseMsg" :model="addBaseMsg" label-width="80px">
+      <el-form ref="editBaseMsg" :model="editBaseMsg" label-width="80px">
         <el-form-item label="名称">
-          <el-input v-model="addBaseMsg.name"></el-input>
+          <el-input v-model="editBaseMsg.name"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editBaseAlert = false">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button type="primary" v-on:click="editBasePost">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -103,41 +104,76 @@ export default {
       editBaseAlert: false,
       baseLists: [],
       baseTypes: [],
-      pressureLists: [],
-      meters: [],
-      flowmeters: [],
-      controllerLists: [],
+      pressureLists: null,
+      meters: null,
+      flowmeters: null,
+      controllerLists: null,
       addBaseMsg: {
         name: null,
-        devices: []
+        terms: [],
+        type: null,
+        selectPressure: null,
+        selectMeter: null,
+        selectFlowmeter: null,
+        selectController: null,
+        token: global.getToken()
+      },
+      editBaseMsg: {
+        id: null,
+        name: null,
+        token: global.getToken()
+      },
+      baseListArgs: {
+        currentPage: 1,
+        numberPerPage: 10,
+        totalPage: -1,
+        token: global.getToken()
       }
     }
   },
   created () {
-    this.getBaseList()
+    this.getBaseList(this.baseListArgs)
     this.getbaseTypes()
-    this.getFourDate(1, this.pressureLists)
-    this.getFourDate(2, this.meters)
-    this.getFourDate(3, this.flowmeters)
-    this.getFourDate(4, this.controllerLists)
   },
   methods: {
-    addBase () {
+    selectP () {
       console.log(123)
     },
     // 获取设备列表
-    getBaseList () {
+    getBaseList (args) {
       var self = this
-      axios.get(global.baseUrl + 'device/list?token=' + localStorage.token)
+      axios.get(global.baseUrl + 'device/list?' + global.getHttpData(args))
       .then((res) => {
         // console.log(res)
         self.baseLists = res.data.data
       })
     },
+    // 添加设备
+    addBaseClick () {
+      this.addBaseAlert = true
+      var self = this
+      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=1')
+      .then((res) => {
+        self.controllerLists = res.data.data
+      })
+      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=2')
+      .then((res) => {
+        console.log(res)
+        self.pressureLists = res.data.data
+      })
+      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=3')
+      .then((res) => {
+        self.flowmeters = res.data.data
+      })
+      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=4')
+      .then((res) => {
+        self.meters = res.data.data
+      })
+    },
     // 获取设备类型
     getbaseTypes () {
       var self = this
-      axios.get(global.baseUrl + 'device/groupType?token=' + localStorage.token)
+      axios.get(global.baseUrl + 'device/groupType?token=' + global.getToken())
       .then((res) => {
         self.baseTypes = res.data.data
       })
@@ -145,23 +181,50 @@ export default {
     // 修改设备
     editBase (baseId) {
       this.editBaseAlert = true
+      this.editBaseMsg.id = baseId
       var self = this
-      axios.get(global.baseUrl + 'device/deviceDetail?deviceId=' + baseId + '&token=' + localStorage.token)
+      axios.get(global.baseUrl + 'device/groupDetail?groupId=' + baseId + '&token=' + global.getToken())
       .then((res) => {
-        self.addBaseMsg = res.data.data
+        if (res.data.callStatus === 'SUCCEED') {
+          self.editBaseMsg = res.data.data
+        }
       })
     },
-    // 获取四个表数据
-    getFourDate (type, obj) {
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + localStorage.token + '&type=' + type)
+    editBasePost () {
+      var self = this
+      axios.post(global.baseUrl + 'device/update?id=' + this.editBaseMsg.id + '&name=' + this.editBaseMsg.name + '&token=' + global.getToken())
       .then((res) => {
-        // console.log(res)
-        obj = res.data.data
+        if (res.data.callStatus === 'SUCCEED') {
+          self.editBaseAlert = false
+          global.success(self, '修改成功', '')
+          self.getBaseList(self.baseListArgs)
+        }
+      })
+    },
+    // 添加设备
+    addBasePost () {
+      this.addBaseMsg.terms = [this.addBaseMsg.selectController, this.addBaseMsg.selectFlowmeter, this.addBaseMsg.selectPressure, this.addBaseMsg.selectMeter].join(',')
+      var self = this
+      axios.post(global.baseUrl + 'device/addGroup', global.postHttpData(this.addBaseMsg))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          self.addBaseAlert = false
+          global.success(self, '添加成功', '')
+          self.getBaseList(self.baseListArgs)
+        }
       })
     },
     // 删除设备
     deleteBase (baseId) {
-      console.log(baseId)
+      var self = this
+      axios.post(global.baseUrl + 'device/delete?groupId=' + baseId + '&token=' + global.getToken())
+      .then((res) => {
+        // console.log(res)
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '删除成功', '')
+          self.getBaseList(self.baseListArgs)
+        }
+      })
     }
   }
 }
@@ -175,6 +238,9 @@ export default {
 .addController{
   text-align: right;
   margin-bottom: 20px;
+}
+.controllerMargin{
+  margin:3px 0;
 }
 .addController button{
   border-radius: 3px;

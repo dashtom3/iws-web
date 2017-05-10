@@ -33,6 +33,7 @@
             <el-tree :data="treeData"
               node-key="id"
               ref="tree"
+              accordion
               highlight-current
               :props="defaultProps"
               @current-change="clicktree"></el-tree>
@@ -82,6 +83,18 @@
         </div>
       </div>
     </div>
+
+    <el-dialog
+      title="泵房列表"
+      v-model="addressAlert"
+      size="tiny">
+      <ul>
+        <li v-for="addressRoomList in addressRoomLists">
+          <p class="roomTitle">{{addressRoomList.name}}</p>
+        </li>
+      </ul>
+    </el-dialog>
+
     <!-- <v-footer></v-footer> -->
     <!-- <el-dialog title="提示" v-model="dialogVisible" size="tiny">
       <img src="../images/test1.gif" alt="">
@@ -101,6 +114,7 @@ export default {
       dialogVisible: true,
       posters: [],
       items: [],
+      addressAlert: false,
       msg: 'Welcome to Your Vue.js App',
       showLeftNav: false,
       zoom: 14,
@@ -113,12 +127,13 @@ export default {
       defaultProps: {
         label: 'label',
         children: 'children'
-      }
+      },
+      addressRoomLists: [] // 泵房列表
     }
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'customer/system/listPack')
+    axios.post(global.baseUrl + 'system/listPack?token=' + global.getToken())
     .then((res) => {
       // console.log(res)
       self.items = res.data.data
@@ -126,9 +141,9 @@ export default {
       this.tree(mydata)
     })
     // 请求所有地点
-    axios.post(global.baseUrl + 'location/list?systemId=0')
+    axios.post(global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
     .then((res) => {
-      console.log(res)
+      // console.log(res)
       for (let i in res.data.data) {
         var arr = [
           {
@@ -139,7 +154,7 @@ export default {
                 self.markers[i][1].visible = true
               },
               mouseout: () => {
-                self.markers[i][1].visible = false
+                self.markers[i][1].visible = true
               }
             },
             visible: true,
@@ -147,14 +162,31 @@ export default {
           }, {
             icon: null,
             position: [res.data.data[i].positionX, res.data.data[i].positionY],
-            content: '<div style="width:124px;height:71px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-53px;left:15px;">' + res.data.data[i].system.name + '</br>' + res.data.data[i].describes + '456</div>',
+            content: '<div style="width:124px;height:71px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;">' + res.data.data[i].system.name + '</br>' + res.data.data[i].describes + '</div>',
+            events: {
+              mouseover: () => {
+                self.markers[i][1].visible = true
+              },
+              mouseout: () => {
+                self.markers[i][1].visible = false
+              },
+              click: () => {
+                // console.log(123)
+                axios.post(global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
+                .then((res) => {
+                  self.addressAlert = true
+                  self.addressRoomLists = res.data.data.room
+                  console.log(res)
+                })
+              }
+            },
             visible: false,
             draggable: false
           }
         ]
         self.markers.push(arr)
       }
-      console.log(self.markers)
+      // console.log(self.markers)
     })
   },
   methods: {
@@ -171,53 +203,63 @@ export default {
       }
     },
     clicktree (data) {
-      if (data.positon) {
-        this.center = data.positon
+      // console.log(data)
+      if (data.position) {
+        this.center = data.position
       } else {
         return false
       }
     },
     tree (mydata) {
-      for (var q = 0; q < mydata.length; q++) {
-        var onedataq = {}
-        onedataq.children = []
-        onedataq.label = mydata[q].name
-        var z = mydata[q].locationPack
-        for (var w = 0; w < z.length; w++) {
-          var obj = {}
-          obj.label = z[w].name
-          obj.children = []
-          var x = z[w].city
-          for (var e = 0; e < x.length; e++) {
-            var obj2 = {}
-            obj2.label = x[e].name
-            obj2.children = []
-            var c = x[e].area
-            for (var r = 0; r < c.length; r++) {
-              var obj3 = {}
-              obj3.children = []
-              obj3.label = c[r].name
-              var v = c[r].location
-              for (var t = 0; t < v.length; t++) {
-                var obj4 = {}
-                obj4.positon = [v[t].positionX, v[t].positionY]
-                obj4.label = v[t].name
-                obj3.children.push(obj4)
+      if (mydata) {
+        for (var q = 0; q < mydata.length; q++) {
+          var onedataq = {}
+          onedataq.children = []
+          onedataq.label = mydata[q].name
+          var z = mydata[q].locationPack
+          if (z) {
+            for (var w = 0; w < z.length; w++) {
+              var obj = {}
+              obj.label = z[w].name
+              obj.children = []
+              var x = z[w].city
+              if (x) {
+                for (var e = 0; e < x.length; e++) {
+                  var obj2 = {}
+                  obj2.label = x[e].name
+                  obj2.children = []
+                  var c = x[e].area
+                  if (c) {
+                    for (var r = 0; r < c.length; r++) {
+                      var obj3 = {}
+                      obj3.children = []
+                      obj3.label = c[r].name
+                      var v = c[r].location
+                      if (v) {
+                        for (var t = 0; t < v.length; t++) {
+                          var obj4 = {}
+                          obj4.position = [v[t].positionX, v[t].positionY]
+                          obj4.locationId = v[t].id
+                          obj4.label = v[t].name
+                          obj3.children.push(obj4)
+                        }
+                      }
+                      obj2.children.push(obj3)
+                    }
+                  }
+                  obj.children.push(obj2)
+                }
               }
-              obj2.children.push(obj3)
+              onedataq.children.push(obj)
             }
-            obj.children.push(obj2)
           }
-          onedataq.children.push(obj)
+          this.treeData.push(onedataq)
         }
-        this.treeData.push(onedataq)
       }
     }
   },
   mounted () {
-    var wh = document.body.scrollHeight
-    console.log(wh)
-    if (!localStorage.token) {
+    if (!global.getToken()) {
       this.$router.push('/login')
     }
   }
@@ -231,6 +273,9 @@ export default {
   height: 71px;
   line-height: 71px;
   margin: 0 auto 10px;
+}
+.roomTitle{
+  text-align: center;
 }
 .systemname{
   font-size: 24px;

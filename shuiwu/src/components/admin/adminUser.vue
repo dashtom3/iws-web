@@ -38,31 +38,49 @@ export default {
     return {
       value: '',
       options: [],
-      userlist: null
+      userlist: null,
+      userArgs: {
+        currentPage: 1,
+        numberPerPage: 10,
+        totalPage: -1,
+        token: global.getToken()
+      }
     }
   },
   created () {
+    this.getUserList(this.userArgs)
     var self = this
-    axios.get(global.baseUrl + 'userManage/list?token=' + localStorage.token)
-    .then((res) => {
-      for (let i in res.data.data) {
-        res.data.data[i].roleId = parseInt(res.data.data[i].roleId)
-      }
-      self.userlist = res.data.data
-      // console.log(res)
-    })
-    axios.post(global.baseUrl + 'role/list?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'role/list?token=' + global.getToken())
     .then((res) => {
       // console.log(res)
       self.options = res.data.data
     })
   },
   methods: {
-    setrole (userid, roleid) {
-      console.log(userid, roleid)
-      axios.get(global.baseUrl + 'userManage/role?userId=' + userid + '&roleId=' + roleid + '&token=' + localStorage.token)
+    setrole (userId, roleId) {
+      var roleMsg = {
+        userId: userId,
+        roleId: roleId,
+        token: global.getToken()
+      }
+      var self = this
+      axios.get(global.baseUrl + 'userManage/role?' + global.getHttpData(roleMsg))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '操作成功', '')
+          self.getUserList(self.userArgs)
+        }
+      })
+    },
+    getUserList (args) {
+      var self = this
+      axios.get(global.baseUrl + 'userManage/list?' + global.getHttpData(args))
+      .then((res) => {
+        for (let i in res.data.data) {
+          res.data.data[i].roleId = parseInt(res.data.data[i].roleId)
+        }
+        self.userlist = res.data.data
       })
     }
   }

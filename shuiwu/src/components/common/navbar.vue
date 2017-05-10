@@ -7,7 +7,7 @@
       </div>
       <div class="indexNav">
         <el-menu :default-active="activeIndex" class="el-menu-demo navbar" mode="horizontal" router>
-          <el-menu-item :index=isLogin>个人中心</el-menu-item>
+          <el-menu-item index='/personal'>个人中心</el-menu-item>
           <el-menu-item index="/news/unconfirmed">消息</el-menu-item>
           <el-menu-item index="/alarminfo">报警信息</el-menu-item>
           <el-menu-item index="/dataview">数据查看</el-menu-item>
@@ -28,15 +28,11 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      activeIndex: '',
-      isLogin: '/login'
+      activeIndex: this.$route.path
     }
   },
   created () {
     var self = this
-    if (localStorage.token !== '') {
-      this.isLogin = '/personal'
-    }
     this.$nextTick(function () {
       self.activeIndex = self.$route.path
     })

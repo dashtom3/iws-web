@@ -17,7 +17,7 @@
       <el-row>
         <el-col :span="20"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsList.describes}}</span></p>
         <p class="newsTime"><span class="time">{{newsList.alarmTime | time}}</span>
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">{{newsList.id}}</span></p></el-col>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">已确认</span></p></el-col>
       </el-col>
         <el-col :span="4">
           <div class="goPerson">
@@ -72,9 +72,12 @@ export default {
       userInfo: null,
       newsMsg: {
         status: 1,
-        token: localStorage.token,
+        token: global.getToken(),
         startTime: null,
-        endTime: null
+        endTime: null,
+        currentPage: 1,
+        numberPerPage: 10,
+        totalPage: -1
       }
     }
   },
@@ -83,10 +86,11 @@ export default {
   },
   methods: {
     showPersonalAlert (userId) {
-      console.log(userId)
+      // console.log(userId)
       this.personalAlert = true
-      axios.get(global.baseUrl + 'userManage/list?id=' + userId + '&token=' + localStorage.token)
+      axios.get(global.baseUrl + 'userManage/list?id=' + userId + '&token=' + global.getToken())
       .then((res) => {
+        // console.log(res)
         self.userInfo = res.data.data
       })
     },
@@ -123,6 +127,9 @@ export default {
 .lists li{
   height: 95px;
   border-bottom: 1px dashed
+}
+.state{
+  margin-left: 10px;
 }
 /*.lists li p{
   line-height: 59px;

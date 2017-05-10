@@ -146,8 +146,7 @@ export default {
         selectArea: '',
         jurisdictions: [
           { data: '可读', state: '0' },
-          { data: '可写', state: '1' },
-          { data: '管理员', state: '2' }
+          { data: '可写', state: '1' }
         ],
         selectJurisdiction: '',
         systemId: '',
@@ -157,7 +156,12 @@ export default {
         delivery: false,
         type: [],
         resource: '',
-        desc: ''
+        desc: '',
+        rolelistArgs: {
+          currentPage: 1,
+          numberPerPage: 10,
+          totalPage: -1
+        }
       }
     }
   },
@@ -169,12 +173,12 @@ export default {
     },
     delRole () {
       var self = this
-      axios.post(global.baseUrl + 'role/delete?roleId=' + this.roleId + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'role/delete?roleId=' + this.roleId + '&token=' + global.getToken())
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.isDel = false
           global.addSuccess(self, '删除成功')
-          self.getRoleLists()
+          self.getRoleLists(self.rolelistArgs)
         }
       })
     },
@@ -211,7 +215,6 @@ export default {
     },
     // 删除标签
     delTag (item, num) {
-      console.log(item, num)
       this.tags.splice(this.tags.indexOf(item), 1)
       this.addRoleInfo.subitem.splice(num, 1)
     },
@@ -225,20 +228,21 @@ export default {
       this.addRoleInfo.selectSystem = null
       this.addRoleInfo.selectProvince = null
       this.addRoleInfo.selectJurisdiction = null
+      this.addRoleInfo.subitem = []
+      // console.log(this.addRoleInfo)
     },
     addRole () {
       var self = this
       this.roleAlert = false
       var subitem = JSON.stringify(this.addRoleInfo.subitem)
-      // console.log(subitem)
       var xhr = new XMLHttpRequest()
-      xhr.open('POST', 'http://61.190.61.78:6784/iws/api/role/add?name=' + this.addRoleInfo.name + '&token=' + localStorage.token)
+      xhr.open('POST', global.baseUrl + 'role/add?name=' + this.addRoleInfo.name + '&token=' + global.getToken())
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(subitem)
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           global.addSuccess(self, '添加成功')
-          self.getRoleLists()
+          self.getRoleLists(self.rolelistArgs)
         }
       }
     },
@@ -254,12 +258,12 @@ export default {
       this.addRoleInfo.selectJurisdiction = null
       this.tags = []
       var self = this
-      axios.post(global.baseUrl + 'role/detail?roleId=' + id + '&token=' + localStorage.token)
+      axios.post(global.baseUrl + 'role/detail?roleId=' + id + '&token=' + global.getToken())
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.addRoleInfo.name = res.data.data.name
         for (let i in res.data.data.subitem) {
-          self.tags.push(res.data.data.subitem[i].systemName + res.data.data.subitem[i].areaName)
+          self.tags.push(res.data.data.subitem[i].systemName + res.data.data.subitem[i].areaName + res.data.data.subitem[i].limitName)
           self.tagsMsg.push(res.data.data.subitem[i].systemId + res.data.data.subitem[i].areaId + res.data.data.subitem[i].limitation)
         }
       })
@@ -268,40 +272,40 @@ export default {
       var self = this
       this.roleAlert = false
       var subitem = JSON.stringify(this.addRoleInfo.subitem)
-      // console.log(subitem)
       var xhr = new XMLHttpRequest()
-      xhr.open('POST', 'http://61.190.61.78:6784/iws/api/role/update?roleId=' + this.roleId + '&name=' + this.addRoleInfo.name + '&token=' + localStorage.token)
+      xhr.open('POST', global.baseUrl + 'role/update?id=' + this.roleId + '&name=' + this.addRoleInfo.name + '&token=' + global.getToken())
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(subitem)
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           global.addSuccess(self, '修改成功')
-          self.getRoleLists()
+          self.getRoleLists(self.rolelistArgs)
         }
       }
     },
-    getRoleLists () {
+    // 获取角色列表
+    getRoleLists (args) {
       var self = this
-      axios.post(global.baseUrl + 'role/list?token=' + localStorage.token)
+      axios.post(global.baseUrl + 'role/list', global.postHttpDataWithToken(args))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.rolelists = res.data.data
       })
     }
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'area/provinces?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'area/provinces?token=' + global.getToken())
     .then((res) => {
       self.addRoleInfo.provinces = res.data.data
     })
     // 获取系统列表
-    axios.post(global.baseUrl + 'customer/system/list?token=' + localStorage.token)
+    axios.post(global.baseUrl + 'system/list?token=' + global.getToken())
     .then((res) => {
       self.addRoleInfo.systemlists = res.data.data
     })
     // 角色列表
-    this.getRoleLists()
+    this.getRoleLists(this.rolelistArgs)
   }
 }
 </script>

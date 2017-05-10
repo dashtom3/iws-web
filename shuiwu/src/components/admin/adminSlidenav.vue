@@ -1,5 +1,5 @@
 <template>
-    <el-menu class="el-menu-vertical-demo navbg" default-active="/admin/user" router ref="contentHeight">
+    <el-menu class="el-menu-vertical-demo navbg" :default-active=defaultActive router ref="contentHeight">
     <el-menu-item index="/admin/user"><i class="userbg"></i><span>用户管理</span></el-menu-item>
     <el-menu-item index="/admin/roles"><i class="qxbg"></i><span>角色权限管理</span></el-menu-item>
     <el-menu-item index="/admin/system"><i class="systembg"></i><span>系统管理</span></el-menu-item>
@@ -15,7 +15,8 @@
 export default {
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      defaultActive: this.$route.path
     }
   },
   mounted () {

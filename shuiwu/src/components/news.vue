@@ -12,14 +12,13 @@
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router>
           <el-menu-item index="/news/unconfirmed">未确认</el-menu-item>
           <el-menu-item index="/news/newshistory">历史消息</el-menu-item>
-          <el-submenu index="">
-             <template slot="title">系统</template>
+          <el-submenu index="/news/system">
+             <template slot="title">{{systemName}}</template>
              <el-menu-item
              :key="system"
              v-for="(system, index) in systems"
-             :label="system"
-             v-on:click="goSelect(index)"
-             index="">{{system}}</el-menu-item>
+             v-on:click="goSelect(system)"
+             :index="'/news/system/'+system.id">{{system.name}}</el-menu-item>
            </el-submenu>
         </el-menu>
       </div>
@@ -31,19 +30,29 @@
 </template>
 
 <script>
+import axios from 'axios'
+import global from '../global/global'
 export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      systems: ['水厂监测', '二次供水', '加压泵站', '管网检测', '污水处理', '生产调度', '水利模型', '数据分析', '报警记录'],
+      systems: [],
       activeIndex: '/news/unconfirmed',
+      systemName: '系统',
       searchVal: '',
       selectSystem: ''
     }
   },
+  created () {
+    var self = this
+    axios.post(global.baseUrl + 'customer/system/list?token=' + global.getToken())
+    .then((res) => {
+      self.systems = res.data.data
+    })
+  },
   methods: {
-    goSelect (item) {
-      console.log(item)
+    goSelect (obj) {
+      this.systemName = obj.name
     }
   }
 }

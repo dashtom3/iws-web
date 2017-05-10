@@ -128,6 +128,12 @@ export default{
     }
     return localStorage.getItem('watertoken')
   },
+  getUser: function () {
+    return JSON.parse(localStorage.getItem('wateruser'))
+  },
+  setUser: function (wateruser) {
+    localStorage.setItem('wateruser', JSON.stringify(wateruser))
+  },
   getToday: function (today) {
     today.setHours(0)
     today.setMinutes(0)

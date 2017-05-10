@@ -152,7 +152,7 @@ export default {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '登录成功', '/index')
           global.setToken(res.data.token)
-          global.userMsg = res.data.data
+          global.setUser(res.data.data)
         } else {
           global.error(self, '账号或密码错误', '/register')
         }

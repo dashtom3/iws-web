@@ -25,7 +25,7 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       isShow: true,
       isLogin: false,
-      username: global.userMsg.username
+      username: global.getUser().username
     }
   },
   created () {

@@ -2,6 +2,7 @@
   <div class="login">
     <v-header></v-header>
     <div class="loginCon" ref="contentHeight">
+      <div class="h75"></div>
       <div class="loginMsg" v-show="msgLogin">
         <div class="w361">
           <div class="msgTitle"></div>
@@ -197,7 +198,9 @@ export default {
 .loginCon{
   background: url('../images/loginbg.png') no-repeat;
   background-size: cover;
-  padding-top: 75px;
+}
+.h75{
+  height: 75px;
 }
 .loginMsg{
   width: 500px;

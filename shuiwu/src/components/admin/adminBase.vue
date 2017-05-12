@@ -158,7 +158,6 @@ export default {
       })
       axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=2')
       .then((res) => {
-        console.log(res)
         self.pressureLists = res.data.data
       })
       axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=3')

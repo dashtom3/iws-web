@@ -86,13 +86,19 @@
 
     <el-dialog
       title="泵房列表"
-      v-model="addressAlert"
-      size="tiny">
-      <ul>
-        <li v-for="addressRoomList in addressRoomLists">
+      v-model="addressAlert">
+      <ul class="maxHeight">
+        <li v-for="addressRoomList in addressRoomLists" class="addressRoomlist">
           <p class="roomTitle">{{addressRoomList.name}}</p>
+          <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/detail/'+locationId" target="_blank">
+            <img :src="'http://61.190.61.78:6784/iws/api/'+configControllerList.pic" alt="">
+            <p>{{configControllerList.name}}</p>
+          </a>
         </li>
       </ul>
+      <div class="qxAlert">
+        <el-button v-on:click="addressAlert = false">取消</el-button>
+      </div>
     </el-dialog>
 
     <!-- <v-footer></v-footer> -->
@@ -128,6 +134,7 @@ export default {
         label: 'label',
         children: 'children'
       },
+      locationId: null,
       addressRoomLists: [] // 泵房列表
     }
   },
@@ -143,7 +150,6 @@ export default {
     // 请求所有地点
     axios.post(global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
     .then((res) => {
-      // console.log(res)
       for (let i in res.data.data) {
         var arr = [
           {
@@ -176,7 +182,7 @@ export default {
                 .then((res) => {
                   self.addressAlert = true
                   self.addressRoomLists = res.data.data.room
-                  console.log(res)
+                  self.locationId = res.data.data.id
                 })
               }
             },
@@ -274,8 +280,33 @@ export default {
   line-height: 71px;
   margin: 0 auto 10px;
 }
+.addressRoomlist{
+  margin-bottom: 20px;
+  background-color: #ededed;
+}
+.configControllerlist{
+  display: inline-block;
+  color: #000;
+  text-align: center;
+  width: 25%;
+}
+.configControllerlist p{
+  font-size: 14px;
+  font-family: "Microsoft YaHei";
+  color: rgba( 0, 0, 0, 0.8 );
+  position: relative;
+  top: -40px;
+}
 .roomTitle{
   text-align: center;
+  margin-bottom: 10px;
+}
+.qxAlert{
+  text-align: center;
+}
+.maxHeight{
+  max-height: 600px;
+  overflow-y: auto;
 }
 .systemname{
   font-size: 24px;

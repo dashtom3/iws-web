@@ -18,7 +18,7 @@
              :key="system"
              v-for="(system, index) in systems"
              v-on:click="goSelect(system)"
-             :index="'/news/system/'+system.id">{{system.name}}</el-menu-item>
+             index="/news/system">{{system.name}}</el-menu-item>
            </el-submenu>
         </el-menu>
       </div>
@@ -37,7 +37,7 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       systems: [],
-      activeIndex: '/news/unconfirmed',
+      activeIndex: this.$route.path,
       systemName: '系统',
       searchVal: '',
       selectSystem: ''

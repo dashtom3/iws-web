@@ -11,6 +11,7 @@ import register from '@/components/register'
 import aboutUs from '@/components/aboutUs'
 import personal from '@/components/personal'
 import index from '@/components/index'
+import detail from '@/components/configControllerDetail'
 import dataview from '@/components/dataview'
 import alarminfo from '@/components/alarminfo'
 import news from '@/components/news'
@@ -36,7 +37,7 @@ Vue.use(Router)
 Vue.use(ElementUI)
 Vue.use(AMap)
 AMap.initAMapApiLoader({
-  key: 'your amap key',
+  key: '28966b6be8e4fa0e4c4f4c9b4bf8d3ce',
   plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor']
 })
 Vue.use(BaiduMap, {
@@ -77,6 +78,9 @@ export default new Router({
     name: 'login',
     component: login
   }, {
+    path: '/detail/:id',
+    component: detail
+  }, {
     path: '/register',
     name: 'register',
     component: register
@@ -114,7 +118,7 @@ export default new Router({
         path: '/news/newshistory',
         component: newshistory
       }, {
-        path: '/news/system/:id',
+        path: '/news/system',
         component: system
       }]
     }]

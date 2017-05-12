@@ -22,6 +22,13 @@ export default {
 ul li{
   list-style: none;
 }
+.selectController input{
+  width: 100px;
+  border: none;
+}
+.selectController i{
+  color: #000!important;
+}
 a,a:hover{
   text-decoration: none;
 }

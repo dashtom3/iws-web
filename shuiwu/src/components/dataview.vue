@@ -1,5 +1,5 @@
 <template>
-  <div class="dataviews">
+  <div class="dataviews" ref="contentHeight">
     <div class="dataviewsHeader">
       <div class="dataviewNavbar">
         <ul class="kinds">
@@ -140,7 +140,7 @@
         </table>
         <div style="text-align:center;margin-top:40px;">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
-          <el-button type="primary" >导出EXCEl表格</el-button>
+          <el-button type="primary" @click="tableDatePrint">导出EXCEl表格</el-button>
         </div>
       </div>
       <el-dialog title="更多数据" v-model="moreData">
@@ -301,7 +301,7 @@ export default {
     selectSystem: function () {
       this.selectProvince = null
       var self = this
-      axios.post(global.baseUrl + 'customer/system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
+      axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
       .then((res) => {
         // console.log(res)
         self.provinces = res.data.data.locationPack
@@ -378,6 +378,28 @@ export default {
         self.dateTables = res.data.data
       })
     },
+    // 导出excel
+    tableDatePrint () {
+      this.tables = []
+      var actives = document.querySelectorAll('.multiSelect li.active')
+      for (var i in actives) {
+        if (actives[i].innerHTML !== undefined) {
+          var tableObj = {
+            name: actives[i].innerHTML,
+            number: actives[i].getAttribute('value')
+          }
+          this.tables.push(tableObj)
+        }
+      }
+      this.dateQuery.startTime = this.timeFilter(this.startTime)
+      this.dateQuery.endTime = this.timeFilter(this.endTime)
+      // var self = this
+      axios.get(global.baseUrl + 'data/outputExcel?' + global.getHttpData(this.dateQuery))
+      .then((res) => {
+        console.log(res)
+        // self.dateTables = res.data.data
+      })
+    },
     // 选择控制器
     selectControllerId () {
       var self = this
@@ -413,7 +435,7 @@ export default {
   created () {
     var self = this
     // 系统列表
-    axios.post(global.baseUrl + 'customer/system/list', global.postHttpDataWithToken())
+    axios.post(global.baseUrl + 'system/list', global.postHttpDataWithToken())
     .then((res) => {
       self.systemLists = res.data.data
     })
@@ -429,6 +451,10 @@ export default {
       // console.log(res)
       self.provinces = res.data.data
     })
+  },
+  mounted () {
+    var login = this.$refs.contentHeight
+    global.setNavHeight(login)
   }
 }
 </script>

@@ -63,7 +63,7 @@ export default {
   },
   mounted () {
     var login = this.$refs.contentHeight
-    global.setHeight(login)
+    global.setNavHeight(login)
     if (!global.getToken()) {
       this.$router.push('/login')
     }

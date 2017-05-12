@@ -24,14 +24,14 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       isShow: true,
-      isLogin: false,
-      username: global.getUser().username
+      isLogin: false
     }
   },
   created () {
     if (global.getToken()) {
       this.isShow = false
       this.isLogin = true
+      this.username = global.getUser().username
     } else {
       this.isShow = true
       this.isLogin = false

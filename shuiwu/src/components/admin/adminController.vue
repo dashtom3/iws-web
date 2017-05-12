@@ -213,11 +213,12 @@ export default {
     this.getControllerLists(this.controllerArgs)
   },
   methods: {
+    // 获取控制器列表
     getControllerLists (args) {
       var self = this
       axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken(args))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.controllerlists = res.data.data
       })
     },
@@ -232,15 +233,14 @@ export default {
       for (let i in this.addControllerDate.fields) {
         this.addControllerDate.fields[i].number = parseInt(i) + 1
       }
-      // console.log(this.addControllerDate.fields)
       var self = this
+      self.addControllerAlert = false
       this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(this.addControllerDate.fields)
       xhr.onreadystatechange = function () {
-        self.addControllerAlert = false
         if (xhr.readyState === 4 && xhr.status === 200) {
           global.success(self, '添加成功', '')
           self.getControllerLists(self.controllerArgs)

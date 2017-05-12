@@ -69,7 +69,7 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       newsLists: [],
       personalAlert: false,
-      userInfo: null,
+      userInfo: [],
       newsMsg: {
         status: 1,
         token: global.getToken(),
@@ -88,10 +88,16 @@ export default {
     showPersonalAlert (userId) {
       // console.log(userId)
       this.personalAlert = true
-      axios.get(global.baseUrl + 'userManage/list?id=' + userId + '&token=' + global.getToken())
+      var personalMsg = {
+        userId: userId,
+        token: global.getToken()
+      }
+      var self = this
+      self.userInfo = []
+      axios.get(global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
       .then((res) => {
         // console.log(res)
-        self.userInfo = res.data.data
+        self.userInfo.push(res.data.data)
       })
     },
     getNewsLists (args) {

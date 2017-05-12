@@ -33,19 +33,18 @@
           </el-select>
         </el-form-item>
         <el-form-item label="具体地址">
-          <input v-model="addressData.address" placeholder="输入完成后按Enter进行校验" auto-complete="off" class="w800 setaddress" v-on:blur="setPosition()">
+          <input v-model="addressData.address" placeholder="请输入详细地址" auto-complete="off" class="w800 setaddress" v-on:blur="addressDetail()">
         </el-form-item>
         <el-form-item label="经纬度">
           &nbsp;&nbsp; &nbsp;&nbsp; <span>X: </span><el-input v-model="addressData.x" auto-complete="off" class="w800 w50"></el-input>
           &nbsp;&nbsp; <span>Y: </span><el-input v-model="addressData.y" auto-complete="off" class="w800 w50"></el-input>
         </el-form-item>
       </el-form>
-      <baidu-map class="map-container" :center="center" :zoom="zoom" @moving="syncCenter" @moveend="syncCenter">
-        <bm-view class="bm-view" >
-        </bm-view>
-        <bm-local-search
-        :keyword="addressData.keyword" :auto-viewport="true" style="display:none"></bm-local-search>
-      </baidu-map>
+      <div id="demoComponent" class="demo-component">
+        <el-amap vid="amap" zoom="14" :center="addressData.center">
+          <el-amap-marker :position="addressData.center"></el-amap-marker>
+        </el-amap>
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addressAlert = false">取 消</el-button>
         <el-button type="primary" @click="addAddress">确 定</el-button>
@@ -173,7 +172,8 @@
                     </table>
                   </div>
                   <div style="height:20px;"></div>
-                  <el-button type="primary">测试</el-button>
+                  <el-button type="primary" v-on:click="testDate">测试</el-button>
+                  <p v-model="testResponeMsg"></p>
 
                 </el-form>
                 <span slot="footer" class="dialog-footer">
@@ -190,11 +190,13 @@
           <el-col :span="18" class="bor1" v-if="next" style="position:relative">
               <a href="javascript:;" class="addRoom">&nbsp;</a>
               <span style="float:right;position:absolute;top:25px;right:25px;">
-                <el-button type="primary" size="small">开启</el-button>
-                <el-button type="danger" size="small">关闭</el-button>
+                <el-button type="primary" size="small" :disabled="configControllerDetialInfos.status === 1" v-on:click="openConfigController(configControllerDetialInfos.groupId)">开启</el-button>
+                <el-button type="danger" size="small" :disabled="configControllerDetialInfos.status === 0"
+                v-on:click="closeConfigController(configControllerDetialInfos.groupId)"
+                >关闭</el-button>
               </span>
 
-              <p class="roomlist listDetial" v-for="configControllerDetialInfo in configControllerDetialInfos">
+              <p class="roomlist listDetial" v-for="configControllerDetialInfo in configControllerDetialInfos.devices">
                 <span style="text-align:left;">名称：{{configControllerDetialInfo.termName}}</span>
                 <span>状态：{{controllerStatus[configControllerDetialInfo.status]}}</span>
                 <span>站号：{{configControllerDetialInfo.number}}</span>
@@ -214,14 +216,14 @@
           </div>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">省/市/区：</label>
-            <select class="select el-select-dropdown__list" v-model="editDate.provinceId"  @change="editProvince">
+            <select class="select el-select-dropdown__list" id="editProvince" v-model="editDate.provinceId"  @change="editProvince">
               <option v-for="province in addressData.provinces" :value="province.provinceId" class="el-select-dropdown__item">{{province.name}}</option>
             </select>
-            <select class="select" v-model="editDate.cityId" @change="editCity">
+            <select class="select" v-model="editDate.cityId" @change="editCity" id="editCity">
               <option class="el-select-dropdown__item"
               v-for="city in editCitys" :value="city.cityId">{{city.name}}</option>
             </select>
-            <select class="select" v-model="editDate.areaId" @change="editArea">
+            <select class="select" v-model="editDate.areaId" @change="editArea" id="editArea">
               <option class="el-select-dropdown__item"
               v-for="area in editAreas" :value="area.areaId">{{area.name}}</option>
             </select>
@@ -234,12 +236,17 @@
             <span >X: </span><div class="w800 w50 el-input"><input type="text" autocomplete="off" class="el-input__inner" v-model="editDate.positionX"></div>
             <span >Y: </span><div class="w800 w50 el-input"><input type="text" autocomplete="off" class="el-input__inner" v-model="editDate.positionY"></div>
           </div>
-          <baidu-map class="map-container" :center="{lng: editDate.positionX, lat: editDate.positionY}" :zoom="zoom" style="width:990px;height:500px;margin:0 auto;" @moving="editCenter" @moveend="editCenter">
+          <div id="demoComponent" class="demo-component">
+            <el-amap vid="amap" zoom="14" :center="[editDate.positionX, editDate.positionY]">
+              <el-amap-marker :position="[editDate.positionX, editDate.positionY]"></el-amap-marker>
+            </el-amap>
+          </div>
+          <!-- <baidu-map class="map-container" :center="{lng: editDate.positionX, lat: editDate.positionY}" :zoom="zoom" style="width:990px;height:500px;margin:0 auto;" @moving="editCenter" @moveend="editCenter">
             <bm-view class="bm-view" >
             </bm-view>
             <bm-local-search
              :auto-viewport="true" :keyword="editkeyword" style="display:none"></bm-local-search>
-          </baidu-map>
+          </baidu-map> -->
           <div slot="footer" class="dialog-footer">
             <el-button @click="editAlert = false">取 消</el-button>
             <el-button type="primary" v-on:click="editaddressMsg">确 定</el-button>
@@ -258,6 +265,12 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
+      searchMsg: {
+        s: 'rsv3',
+        key: '28966b6be8e4fa0e4c4f4c9b4bf8d3ce',
+        offset: '1',
+        keywords: null
+      },
       addRoomName: '',
       addRoomAlert: false,
       addressAlert: false,
@@ -296,14 +309,29 @@ export default {
         provinces: null,
         selectProvince: null,
         citys: null,
-        keyword: '北京',
+        center: [116.404, 39.915],
         selectCity: null,
         areas: null,
         selectArea: null,
         name: null,
         address: null,
-        x: null,
-        y: null,
+        x: '116.404',
+        y: '39.915',
+        isOpen: null
+      },
+      addressDataNull: {
+        systemId: this.$route.params.id,
+        provinces: null,
+        selectProvince: null,
+        citys: null,
+        center: [116.404, 39.915],
+        selectCity: null,
+        areas: null,
+        selectArea: null,
+        name: null,
+        address: null,
+        x: '116.404',
+        y: '39.915',
         isOpen: null
       },
       center: {
@@ -321,6 +349,7 @@ export default {
       },
       editDate: null,
       editkeyword: null,
+      testResponeMsg: null,
       editCitys: [],
       editAreas: [],
       isOpen: null,
@@ -331,10 +360,18 @@ export default {
         currentPage: 1,
         numberPerPage: 10,
         totalPage: -1
+      },
+      events: {
+        init (obj) {
+          console.log(obj)
+        }
       }
     }
   },
   methods: {
+    onSearchResult (pois) {
+      console.log(pois)
+    },
     areaIsActive (item, id) {
       var self = this
       this.addPackage = false
@@ -343,7 +380,7 @@ export default {
       this.rooms.locationid = id
       axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.rooms.roomlist = res.data.data.room
       })
     },
@@ -353,10 +390,6 @@ export default {
         axios.get(global.baseUrl + 'device/groupDetail?groupId=' + id + '&token=' + global.getToken())
         .then((res) => {
           self.equipmentControllers = res.data.data.deviceTerms
-          // console.log(res)
-          // if (res.data.callStatus === 'SUCCEED') {
-          //   self.editBaseMsg = res.data.data
-          // }
         })
       }
       return false
@@ -368,11 +401,26 @@ export default {
       }
       this.deviceMsg.terms.splice(index, 1, controllerObj)
     },
+    // 测试配置好的数据
+    testDate () {
+      // var self = this
+      this.deviceMsg.terms = JSON.stringify(this.deviceMsg.terms)
+      var xhr = new XMLHttpRequest()
+      xhr.open('POST', global.baseUrl + 'room/test?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      xhr.send(this.deviceMsg.terms)
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log(JSON.parse(xhr.responseText).data)
+        }
+      }
+    },
+    // 添加配置控制器
     addControllerDevice () {
       var self = this
       this.deviceMsg.terms = JSON.stringify(this.deviceMsg.terms)
       var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'room/addDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId)
+      xhr.open('POST', global.baseUrl + 'room/addDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(this.deviceMsg.terms)
       xhr.onreadystatechange = function () {
@@ -383,24 +431,23 @@ export default {
           self.deviceMsg.selectDeviceId = null
           self.deviceMsg.terms = []
           self.addPackageAlert = false
+          self.equipmentControllers = []
+          self.testResponeMsg = null
+          axios.get(global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
+          .then((res) => {
+            // console.log(res)
+            self.packages = res.data.data
+            self.next = false
+          })
         }
       }
-      // axios.post(global.baseUrl + 'room/addDevice', global.postHttpDataWithToken(this.deviceMsg))
-      // .then((res) => {
-      //   console.log(res)
-      // })
-      // axios.post(global.baseUrl + 'room/addDevice', global.postHttpDataWithTokenNoForm(this.deviceMsg))
-      // .then((res) => {
-      //   console.log(res)
-      // })
-      // console.log(this.deviceMsg)
     },
     packageIsactive (meal) {
       // console.log(meal)
       var self = this
       axios.get(global.baseUrl + 'room/groupDetail?groupId=' + meal.groupId + '&token=' + global.getToken())
       .then((res) => {
-        self.configControllerDetialInfos = res.data.data.devices
+        self.configControllerDetialInfos = res.data.data
       })
       this.$nextTick(function () {
         self.packages.forEach(function (item) {
@@ -418,7 +465,6 @@ export default {
     province () {
       this.addressData.selectCity = ''
       this.addressData.selectArea = ''
-      console.log(this.addressData.selectProvince)
       this.addressData.citys = this.addressData.selectProvince.city
     },
     searchProvince () {
@@ -452,33 +498,60 @@ export default {
       this.search.searchAreas = this.search.searchCity.area
     },
     area () {
-      this.addressData.keyword = this.addressData.selectProvince.name + this.addressData.selectCity.name + this.addressData.selectArea.name
+      this.searchMsg.keywords = this.addressData.selectProvince.name + this.addressData.selectArea.name
+      this.setPosition(this.searchMsg.keywords)
     },
     editArea () {
-      this.editkeyword = this.editDate.provinceName + this.editDate.cityName + this.editDate.areaName
+      var provinceName = document.getElementById('editProvince')
+      var areaName = document.getElementById('editArea')
+      this.editDate.provinceName = provinceName.options[provinceName.selectedIndex].text
+      this.editDate.areaName = areaName.options[areaName.selectedIndex].text
+      this.searchMsg.keywords = this.editDate.provinceName + this.editDate.areaName
+      this.editSetPosition(this.searchMsg.keywords)
     },
-    // 验证坐标
-    setPosition () {
-      this.addressData.keyword = this.addressData.address
+    editSetPosition (keywords) {
+      if (keywords) {
+        var self = this
+        axios.get('https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
+        .then((res) => {
+          if (res.data.pois[0].location) {
+            self.editDate.positionX = res.data.pois[0].location.split(',')[0]
+            self.editDate.positionY = res.data.pois[0].location.split(',')[1]
+          }
+        })
+      }
     },
-    // 取坐标位置
-    syncCenter (e) {
-      const {lng, lat} = e.target.getCenter()
-      this.addressData.x = lng
-      this.addressData.y = lat
+    // 高德地图
+    addressDetail () {
+      this.searchMsg.keywords += this.addressData.address
+      this.setPosition(this.searchMsg.keywords)
     },
-    editCenter (e) {
-      const {lng, lat} = e.target.getCenter()
-      this.editDate.positionX = lng
-      this.editDate.positionY = lat
+    setPosition (keywords) {
+      if (keywords) {
+        var self = this
+        axios.get('https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
+        .then((res) => {
+          if (res.data.pois[0].location) {
+            self.addressData.center = res.data.pois[0].location.split(',')
+            self.addressData.x = res.data.pois[0].location.split(',')[0]
+            self.addressData.y = res.data.pois[0].location.split(',')[1]
+          }
+        })
+      }
     },
     editBlur () {
-      this.editkeyword = this.editDate.describes
+      var provinceName = document.getElementById('editProvince')
+      var areaName = document.getElementById('editArea')
+      this.editDate.provinceName = provinceName.options[provinceName.selectedIndex].text
+      this.editDate.areaName = areaName.options[areaName.selectedIndex].text
+      this.searchMsg.keywords = this.editDate.provinceName + this.editDate.areaName
+      this.searchMsg.keywords += this.editDate.describes
+      this.editSetPosition(this.searchMsg.keywords)
     },
     // 添加地点
     addAddress () {
       var self = this
-      console.log(this.$route.params.id)
+      // console.log(this.$route.params.id)
       var addAddressMsg = new FormData()
       addAddressMsg.append('systemId', this.addressData.systemId)
       addAddressMsg.append('provinceId', this.addressData.selectProvince.provinceId)
@@ -494,6 +567,8 @@ export default {
         if (res.data.callStatus === 'SUCCEED') {
           self.addressAlert = false
           global.addSuccess(self, '添加成功')
+          self.addressData = null
+          self.addressData = self.addressDataNull
           self.getAddressLists(self.addressArgs)
         }
       })
@@ -594,7 +669,7 @@ export default {
         if (res.data.callStatus === 'SUCCEED') {
           axios.post(global.baseUrl + 'location/detail?locationId=' + self.rooms.locationid + '&token=' + global.getToken())
           .then((res) => {
-            console.log(res)
+            // console.log(res)
             self.rooms.roomlist = res.data.data.room
           })
         }
@@ -617,7 +692,7 @@ export default {
       this.deviceMsg.roomId = room.id
       axios.get(global.baseUrl + 'room/groupList?roomId=' + room.id + '&token=' + global.getToken())
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.packages = res.data.data
       })
       this.addPackage = true
@@ -634,7 +709,32 @@ export default {
       })
     },
     editroom () {
-      console.log(123)
+      // console.log(123)
+    },
+    // 开启配置好的控制器
+    openConfigController (groupId) {
+      var groupMsg = {
+        groupId: groupId
+      }
+      var self = this
+      axios.post(global.baseUrl + 'room/start', global.postHttpDataWithToken(groupMsg))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '操作成功', '')
+        }
+      })
+    },
+    closeConfigController (groupId) {
+      var groupMsg = {
+        groupId: groupId
+      }
+      var self = this
+      axios.post(global.baseUrl + 'room/close', global.postHttpDataWithToken(groupMsg))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '操作成功', '')
+        }
+      })
     },
     // 获取地点列表
     getAddressLists (args) {
@@ -657,7 +757,6 @@ export default {
     // 获取设备列表
     axios.get(global.baseUrl + 'device/list?token=' + global.getToken())
     .then((res) => {
-      // console.log(res)
       self.equipmentLists = res.data.data
     })
     this.getAddressLists(this.addressArgs)
@@ -750,6 +849,14 @@ export default {
 }
 .areaRevise:hover,.areaDel:hover{
   cursor: pointer;
+}
+#demoComponent{
+  height: 500px;
+  width: 100%;
+}
+.amap-cointainer{
+  height: 500px;
+  width: 500px;
 }
 .map-container,.bm-view{
   height: 500px;

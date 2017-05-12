@@ -1,11 +1,6 @@
 <template>
-  <div class="dataviews">
-    <!-- <v-header></v-header>
-    <v-navbar></v-navbar> -->
+  <div class="dataviews" ref="contentHeight">
     <div class="dataviewsHeader">
-      <!-- <div class="dataviewLogin">
-        <a href="javascript:;"><img src="../images/login_03.png" alt=""></a>
-      </div> -->
       <div class="dataviewNavbar">
         <ul class="kinds">
           <li class="active" v-on:click="table($event)">表格显示</li>
@@ -13,22 +8,16 @@
         </ul>
       </div>
     </div>
-    <div class="select" v-show="tableShow">
+    <div class="select">
       <div class="systemSelect">
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">系统：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="selectSystem">
-               <el-radio-button label="9">全部</el-radio-button>
-               <el-radio-button label="0">水厂监测</el-radio-button>
-               <el-radio-button label="1">二次供水</el-radio-button>
-               <el-radio-button label="2">加压泵站</el-radio-button>
-               <el-radio-button label="3">管网检测</el-radio-button>
-               <el-radio-button label="4">污水处理</el-radio-button>
-               <el-radio-button label="5">生产调度</el-radio-button>
-               <el-radio-button label="6">水利模型</el-radio-button>
-               <el-radio-button label="7">数据分析</el-radio-button>
-               <el-radio-button label="8">报警记录</el-radio-button>
+            <el-radio-group v-model="systemId" @change="selectSystem">
+              <el-radio-button label="0">全部</el-radio-button>
+               <el-radio-button :label="systemList.id"
+               :key="systemList"
+               v-for="(systemList, index) in systemLists">{{systemList.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
@@ -37,7 +26,7 @@
         <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
           <el-option
             :key="province"
-            v-for="province in provinces"
+            v-for="(province, index) in provinces"
             :label="province.name"
             :value="province">
           </el-option>
@@ -63,13 +52,11 @@
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">小区：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="system">
-               <el-radio-button label="0" style="border:none">小区0</el-radio-button>
-               <el-radio-button label="1">小区1</el-radio-button>
-               <el-radio-button label="2">小区2</el-radio-button>
-               <el-radio-button label="3">小区3</el-radio-button>
-               <el-radio-button label="4">小区4</el-radio-button>
-               <el-radio-button label="5">小区5</el-radio-button>
+            <el-radio-group v-model="selectLocation" @change="location">
+              <el-radio-button label="0">全部</el-radio-button>
+               <el-radio-button :label="location.id"
+               :key="location"
+               v-for="(location, index) in locations">{{location.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
@@ -78,10 +65,10 @@
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
-            <el-radio-group v-model="selectRoom">
+            <el-radio-group  v-model="selectRoom">
                <el-radio-button
                :key="room"
-               v-for="(room, index) in rooms" :label="index">{{room}}</el-radio-button>
+               v-for="(room, index) in rooms" :label="room.id">{{room.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
@@ -90,12 +77,13 @@
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">控制器：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="selectController">
-               <el-radio-button label="4">全部</el-radio-button>
-               <el-radio-button label="0">管网叠压</el-radio-button>
-               <el-radio-button label="1">户外叠压</el-radio-button>
-               <el-radio-button label="2">水箱变频</el-radio-button>
-               <el-radio-button label="3">箱式叠压</el-radio-button>
+            <el-radio-group v-model="groupId">
+              <el-radio-button label="0">全部</el-radio-button>
+               <el-radio-button
+               :key="controllerList"
+               v-for="controllerList in controllerLists"
+               :label="controllerList.id"
+               >{{controllerList.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
@@ -103,228 +91,132 @@
       <div class="systemSelect">
         <el-date-picker
            v-model="startTime"
-           type="date"
+           type="datetime"
            placeholder="选择日期">
          </el-date-picker>
          <span> —— </span>
          <el-date-picker
-           v-model="beginTime"
-           type="date"
+           v-model="endTime"
+           type="datetime"
            placeholder="选择日期">
          </el-date-picker>
          <span> —— </span>
          <el-button type="primary">不限</el-button>
-         <el-select v-model="timeInterval" placeholder="请选择时间间隔">
+         <!-- <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔">
              <el-option
                :key="time"
                v-for="(time, index) in times"
-               :label=time
-               :value=index>
+               :label=time.date
+               :value=time.seconds>
              </el-option>
-          </el-select>
+          </el-select> -->
       </div>
       <!-- <div class="systemSelect">
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
             <ul class="multiSelect">
-              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect}}</li>
+              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect.name}}</li>
             </ul>
           </el-col>
         </el-row>
       </div> -->
-      <div class="systemSelect" style="text-align:center">
-          <el-button type="primary">确定</el-button>
-      </div>
-      <el-table
-        :data="tableData"
-        style="width: 100%">
-        <el-table-column
-          prop="date"
-          label="日期">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="编号">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="其他故障">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="其他故障">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="其他故障">
-        </el-table-column>
-      </el-table>
-      <div style="text-align:center;margin-top:40px;">
-        <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
-      </div>
-    </div>
-    <el-dialog title="更多数据" v-model="moreData">
-      <el-table :data="tableData">
-        <el-table-column property="date" label="日期" width="150"></el-table-column>
-        <el-table-column property="name" label="姓名" width="200"></el-table-column>
-        <el-table-column property="address" label="其他故障"></el-table-column>
-      </el-table>
-    </el-dialog>
-    <!-- 图表显示 -->
-    <div class="select" v-show="chartShow">
-      <div class="systemSelect">
-        <el-row :gutter="20">
-          <el-col :span="2"><span class="title">系统：</span></el-col>
-          <el-col :span="22">
-            <el-radio-group v-model="selectSystem"
-               <el-radio-button label="9">全部</el-radio-button>
-               <el-radio-button label="0">水厂监测</el-radio-button>
-               <el-radio-button label="1">二次供水</el-radio-button>
-               <el-radio-button label="2">加压泵站</el-radio-button>
-               <el-radio-button label="3">管网检测</el-radio-button>
-               <el-radio-button label="4">污水处理</el-radio-button>
-               <el-radio-button label="5">生产调度</el-radio-button>
-               <el-radio-button label="6">水利模型</el-radio-button>
-               <el-radio-button label="7">数据分析</el-radio-button>
-               <el-radio-button label="8">报警记录</el-radio-button>
-             </el-radio-group>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="systemSelect">
-        <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
-          <el-option
-            :key="province"
-            v-for="(province, index) in provinces"
-            :label="province.name"
-            :value="province">
-          </el-option>
-        </el-select>
-        <el-select v-model="selectCity" placeholder="请选择市" @change="city">
-          <el-option
-            :key="city"
-            v-for="(city, index) in citys"
-            :label="city.name"
-            :value="city">
-          </el-option>
-        </el-select>
-        <el-select v-model="selectArea" placeholder="请选择地区">
-          <el-option
-            :key="area"
-            v-for="(area, index) in areas"
-            :label="area.name"
-            :value="area">
-          </el-option>
-        </el-select>
-      </div>
-      <div class="systemSelect">
-        <el-row :gutter="20">
-          <el-col :span="2"><span class="title">小区：</span></el-col>
-          <el-col :span="22">
-            <el-radio-group v-model="system">
-               <el-radio-button label="0">小区0</el-radio-button>
-               <el-radio-button label="1">小区1</el-radio-button>
-               <el-radio-button label="2">小区2</el-radio-button>
-               <el-radio-button label="3">小区3</el-radio-button>
-               <el-radio-button label="4">小区4</el-radio-button>
-               <el-radio-button label="5">小区5</el-radio-button>
-             </el-radio-group>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="systemSelect">
-        <el-row :gutter="20">
-          <el-col :span="2">&nbsp;</el-col>
-          <el-col :span="22">
-            <el-radio-group v-model="selectRoom">
-               <el-radio-button
-               :key="room"
-               v-for="(room, index) in rooms" :label="index">{{room}}</el-radio-button>
-             </el-radio-group>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="systemSelect">
-        <el-row :gutter="20">
-          <el-col :span="2"><span class="title">控制器：</span></el-col>
-          <el-col :span="22">
-            <el-radio-group v-model="selectController">
-               <el-radio-button label="4">全部</el-radio-button>
-               <el-radio-button label="0">管网叠压</el-radio-button>
-               <el-radio-button label="1">户外叠压</el-radio-button>
-               <el-radio-button label="2">水箱变频</el-radio-button>
-               <el-radio-button label="3">箱式叠压</el-radio-button>
-             </el-radio-group>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="systemSelect">
-        <el-date-picker
-           v-model="startTime"
-           type="date"
-           placeholder="选择日期">
-         </el-date-picker>
-         <span> —— </span>
-         <el-date-picker
-           v-model="beginTime"
-           type="date"
-           placeholder="选择日期">
-         </el-date-picker>
-         <span> —— </span>
-         <el-button type="primary">不限</el-button>
-         <el-select v-model="timeInterval" placeholder="请选择时间间隔">
-            <el-option
-              :key="time"
-              v-for="(time, index) in times"
-              :label=time
-              :value=index>
-            </el-option>
-          </el-select>
-      </div>
-      <div class="systemSelect">
-        <el-row :gutter="20">
-          <el-col :span="2">&nbsp;</el-col>
-          <el-col :span="22">
-            <!-- <ul class="multiSelect tableMulits">
-              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect}}</li>
-            </ul> -->
-            <el-button type="primary" class="addTags" v-on:click="addTags">添加</el-button>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="systemSelect">
-        <el-tag
-          :key="tag"
-          v-show="tagShow"
-          v-for="tag in tags"
-          :closable="true"
-        >
-        {{tag}}
-        </el-tag>
-        <div class="echarts">
-          <echarts
-              :options="option"
-              :legendShow=multiSelects
-              type="line"
-              className="first-echarts">
-          </echarts>
+      <div v-show="tableShow">
+        <div class="systemSelect" style="text-align:center;">
+            <el-button type="primary" @click="dateQueryClick">确定</el-button>
+        </div>
+        <table cellspacing="0" cellpadding="0" class="dateTable">
+          <tr class="bgth">
+            <th>报警名称</th>
+            <th>设备名称</th>
+            <th>所属小区</th>
+            <th>所属泵房</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>描述</th>
+            <th>状态</th>
+          </tr>
+          <tr v-for="(dateTable, index) in dateTables" class="bgtr">
+            <td>{{dateTable.name}}</td>
+            <td>{{dateTable.groupName}}</td>
+            <td>{{dateTable.locationName}}</td>
+            <td>{{dateTable.roomName}}</td>
+            <td>{{dateTable.startTime | time}}</td>
+            <td>{{dateTable.endTime | time}}</td>
+            <td>{{dateTable.describes}}</td>
+            <td>{{alarmStatus[dateTable.confirm]}}</td>
+          </tr>
+        </table>
+        <div style="text-align:center;margin-top:40px;">
+          <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
+          <el-button type="primary" >导出EXCEl表格</el-button>
         </div>
       </div>
-    </div>
-    <!-- <v-footer></v-footer> -->
+      <el-dialog title="更多数据" v-model="moreData">
+        <table cellspacing="0" cellpadding="0" class="dateTable">
+          <tr class="bgth">
+            <th>报警名称</th>
+            <th>设备名称</th>
+            <th>所属小区</th>
+            <th>所属泵房</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>描述</th>
+            <th>状态</th>
+          </tr>
+          <tr v-for="(dateTable, index) in dateTables" class="bgtr">
+            <td>{{dateTable.name}}</td>
+            <td>{{dateTable.groupName}}</td>
+            <td>{{dateTable.locationName}}</td>
+            <td>{{dateTable.roomName}}</td>
+            <td>{{dateTable.startTime | time}}</td>
+            <td>{{dateTable.endTime | time}}</td>
+            <td>{{dateTable.describes}}</td>
+            <td>{{alarmStatus[dateTable.status]}}</td>
+          </tr>
+        </table>
+      </el-dialog>
+      </div>
+
+      <!-- 图标添加 -->
+      <div v-show="chartShow" style="width:1280px;margin:0 auto;">
+        <div class="systemSelect">
+          <el-row :gutter="20">
+            <el-col :span="2">&nbsp;</el-col>
+            <el-col :span="22">
+              <el-button type="primary" class="addTags" v-on:click="addTags">添加</el-button>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="systemSelect">
+          <el-tag
+            :key="tag"
+            v-for="(tag, index) in tags"
+            :closable="true"
+            @close="closeTag(index)"
+          >
+          {{tag}}
+          </el-tag>
+          <div class="echarts">
+            <echarts
+                :title="{'text':'标题'}"
+                :options="options"
+                type="line"
+                className="echarts">
+            </echarts>
+           </div>
+        </div>
+      </div>
+
   </div>
 </template>
 
 <script>
-// import header from './common/header'
-// import footer from './common/footer'
-// import navbar from './common/navbar'
-import Echarts from 'vue-echarts3'
-import Vue from 'vue'
 import global from '../global/global'
 import axios from 'axios'
-Vue.component('echarts', Echarts)
+import Vue from 'vue'
+import ECharts from 'vue-echarts3'
+Vue.component('chart', ECharts)
 export default {
   data () {
     return {
@@ -332,63 +224,75 @@ export default {
       tableShow: true,
       chartShow: false,
       echart: false,
-      selectSystem: '0',
-      system: '0',
-      startTime: '',
-      beginTime: '',
-      timeInterval: '',
+      systemId: '0',
+      groupId: '0',
       moreData: false,
-      times: ['1秒', '1分钟', '1小时', '1天'],
-      selectProvince: '',
+      times: [
+        { date: '1秒', seconds: '1' },
+        { date: '1分钟', seconds: '60' },
+        { date: '1小时', seconds: '3600' },
+        { date: '1天', seconds: '86400' }
+      ],
+      alarmStatus: ['未确认', '已确认'],
+      selectProvince: null,
       provinces: [],
-      selectArea: '',
       citys: [],
-      selectCity: '',
-      selectRoom: '',
-      rooms: ['101', '102', '103', '104', '105'],
-      selectController: '',
-      areas: '',
-      multiSelects: ['全部', '泵前压力', '泵后压力', '1#泵状态', '2#泵状态', '3#泵状态', '4#泵状态', '5#泵状态', '6#泵状态', '7#泵状态', '8#泵状态', '其他故障信号', '电机电流Ia', '电机电流Ib', '电机电流Ic', '电机电压Ua', '电机电压Ub', '电机电压Uc', '1#变频器频率', '2#变频器频率', '3#变频器频率', '4#变频器频率', '5#变频器频率', '6#变频器频率', '7#变频器频率', '8#变频器频率', '水箱水位', '出口流量', '累积流量低位', '累计流量高位', '累计电量低位', '累计电量高位', '远程切换自动/手动(手动时可以远程启停水泵)', '远程启停水泵1#', '远程启停水泵2#', '远程启停水泵3#', '远程启停水泵4#', '远程启停水泵5#', '远程启停水泵6#', '远程启停水泵7#', '远程启停水泵8#', '远程开灯'],
-      tableData: [{
-        date: '2016-05-02',
-        name: '1',
-        address: '不知道'
-      }, {
-        date: '2016-05-04',
-        name: '2',
-        address: '不知道'
-      }, {
-        date: '2016-05-01',
-        name: '3',
-        address: '不知道'
-      }, {
-        date: '2016-05-03',
-        name: '4',
-        address: '不知道'
-      }],
+      selectCity: null,
+      selectArea: null,
+      areas: [],
+      locations: [],
+      selectLocation: '0',
+      rooms: [],
+      selectRoom: null,
+      selectController: null,
+      multiSelects: [],
       tagShow: false,
       tags: [],
-      option: {
+      options: {
+        tooltip: {
+          trigger: 'axis'
+        },
         legend: {
           data: ['邮件营销']
         },
-        xAxis: [
-          {
-            type: 'category',
-            boundaryGap: false,
-            data: [ '周一', '周二', '周三', '周四', '周五', '周六', '周日' ]
-          }
-        ],
-        series: [
-          {
-            name: '邮件营销',
-            type: 'line',
-            stack: '总量',
-            areaStyle: {normal: {}},
-            data: [120, 132, 101, 134, 90, 230, 210]
-          }
-        ]
-      }
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: []
+        // series: [{
+        //   name: '邮件营销',
+        //   type: 'line',
+        //   data: [50, 200, 6, 100, 100, 20]
+        // }, {
+        //   name: '联盟广告',
+        //   type: 'line',
+        //   data: [500, 20, 306, 100, 10, 120]
+        // }, {
+        //   name: '视频广告',
+        //   type: 'line',
+        //   data: [5, 20, 36, 10, 10, 20]
+        // }]
+      },
+      systemLists: [],
+      controllerLists: [],
+      startTime: null,
+      endTime: null,
+      dateQuery: {
+        groupId: null,
+        systemId: null,
+        locationId: null,
+        startTime: null,
+        endTime: null,
+        timeStep: null,
+        token: global.getToken()
+      },
+      tables: [],
+      dateTables: []
     }
   },
   methods: {
@@ -411,55 +315,147 @@ export default {
         obj.target.setAttribute('class', 'active')
       }
     },
+    // 系统筛选
     selectSystem: function () {
-      console.log(this.selectSystem)
+      this.selectProvince = null
+      var self = this
+      axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
+      .then((res) => {
+        // console.log(res)
+        self.provinces = res.data.data.locationPack
+      })
     },
-    province: function () {
-      global.province(this)
+    province () {
+      if (this.selectProvince) {
+        this.citys = this.selectProvince.city
+      }
+      this.selectCity = null
     },
     city () {
-      global.city(this)
+      this.selectArea = null
+      if (this.selectCity) {
+        this.areas = this.selectCity.area
+      }
     },
-    area: function () {
-      global.area(this)
+    area () {
+      console.log(this.selectArea)
+      if (this.selectArea) {
+        this.locations = this.selectArea.location
+      }
     },
+    // 获取房间
+    location () {
+      var self = this
+      axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
+      .then((res) => {
+        self.rooms = res.data.data.room
+      })
+    },
+    timeFilter (value) {
+      var month = value.getMonth() + 1
+      var date = value.getDate()
+      var hour = value.getHours()
+      var minutes = value.getMinutes()
+      var seconds = value.getSeconds()
+      if (seconds < 10) {
+        seconds = '0' + seconds
+      }
+      if (minutes < 10) {
+        minutes = '0' + minutes
+      }
+      if (hour < 10) {
+        hour = '0' + hour
+      }
+      if (month < 10) {
+        month = '0' + month
+      }
+      if (date < 10) {
+        date = '0' + date
+      }
+      return value.getFullYear() + '-' + month + '-' + date + ' ' + hour + ':' + minutes + ':' + seconds
+    },
+    // 查询数据
+    dateQueryClick () {
+      this.empy(this.dateQuery)
+      if (this.systemId !== '0') {
+        this.dateQuery.systemId = this.systemId
+      }
+      if (this.groupId !== '0') {
+        this.dateQuery.groupId = this.groupId
+      }
+      if (this.startTime) {
+        this.dateQuery.startTime = this.timeFilter(this.startTime)
+      }
+      if (this.endTime) {
+        this.dateQuery.endTime = this.timeFilter(this.endTime)
+      }
+      this.getAlarmInfo(this.dateQuery)
+    },
+    empy (value) {
+      for (let i in value) {
+        value[i] = null
+      }
+      value.token = global.getToken()
+      return value
+    },
+    // 增加标签
     addTags () {
-      var lis = document.querySelectorAll('.tableMulits li')
       this.tags = []
-      var data0 = this.option.series
-      var data1 = this.option.legend.data
-      for (let i = 0; i < lis.length; i++) {
-        if (lis[i].getAttribute('class') === 'active') {
+      var lis = document.querySelectorAll('.multiSelect li.active')
+      for (var i in lis) {
+        if (lis[i].innerHTML !== undefined) {
           this.tags.push(lis[i].innerHTML)
-          data1.push(lis[i].innerHTML)
-          var obj = {
-            name: lis[i].innerHTML,
-            type: 'line',
-            areaStyle: { normal: {} },
-            data: [ 200, 50, 401, 502, 602, 0, 15 ]
-          }
-          data0.push(obj)
         }
       }
-      if (this.tags.length !== 0) {
-        this.tagShow = true
-        this.echart = true
-      }
+      // console.log(this.tags)
+      this.options.series = [
+        {
+          name: '邮件营销',
+          type: 'line',
+          data: [50, 200, 6, 100, 100, 20]
+        }
+      ]
+      console.log(this.options)
+    },
+    // 删除标签
+    closeTag (index) {
+      this.tags.splice(index, 1)
+    },
+    // 获取报警信息的列表
+    getAlarmInfo (args) {
+      var self = this
+      axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
+      .then((res) => {
+        self.dateTables = res.data.data
+        console.log(res)
+      })
     }
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'area/provinces')
-    .then(function (res) {
+    // 系统列表
+    axios.post(global.baseUrl + 'system/list', global.postHttpDataWithToken())
+    .then((res) => {
+      self.systemLists = res.data.data
+    })
+    // 控制器列表
+    axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken())
+    .then((res) => {
+      // console.log(res)
+      self.controllerLists = res.data.data
+    })
+    // 城市列表
+    axios.post(global.baseUrl + 'area/areas')
+    .then((res) => {
       // console.log(res)
       self.provinces = res.data.data
     })
+    this.getAlarmInfo(this.dateQuery)
+  },
+  mounted () {
+    var login = this.$refs.contentHeight
+    global.setNavHeight(login)
   }
-  // components: {
-  //   'v-header': header,
-  //   'v-footer': footer,
-  //   'v-navbar': navbar
-  // }
 }
 </script>
 
@@ -471,6 +467,46 @@ export default {
   height: 71px;
   line-height: 71px;
   border-bottom: 1px solid rgb(20,135,202);
+}
+.bgtr td:nth-child(1){
+  border-left: 1px solid rgb( 220, 220, 220 );
+}
+.bgtr td{
+  border-right: 1px solid rgb( 220, 220, 220 );
+  border-bottom: 1px solid rgb( 220, 220, 220 );
+}
+.dateTable{
+  width: 100%;
+  text-align: center;
+}
+.dateTable tr th:nth-child(1),.dateTable tr td:nth-child(1){
+  width: 10%
+}
+.dateTable tr th:nth-child(2),.dateTable tr td:nth-child(2){
+  width: 10%
+}
+.dateTable tr th:nth-child(3),.dateTable tr td:nth-child(3){
+  width: 10%
+}
+.dateTable tr th:nth-child(4),.dateTable tr td:nth-child(4){
+  width: 10%
+}
+.dateTable tr th:nth-child(5),.dateTable tr td:nth-child(5){
+  width: 12%;
+}
+.dateTable tr th:nth-child(6),.dateTable tr td:nth-child(6){
+  width: 12%;
+}
+.dateTable tr th:last-child,.dateTable tr td:last-child{
+  width: 10%;
+}
+.dateTable tr th,.dateTable tr td{
+  height: 40px;
+}
+.bgth{
+  color: #fff;
+  border-radius: 6px;
+  background-color: rgb( 20, 135, 202 );
 }
 .dataviewLogin,.dataviewNavbar ul li{
   float: left;
@@ -514,7 +550,7 @@ export default {
 .echarts{
   width: 900px;
   height: 360px;
-  margin: 0 auto;
+  margin: 50px auto 0;
 }
 .systemSelect{
   clear: both;

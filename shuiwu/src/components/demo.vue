@@ -1,11 +1,6 @@
 <template>
   <div>
-    <echarts
-        :title="{'text':'标题'}"
-        :options="data"
-        type="line"
-        className="echarts">
-    </echarts>
+    <chart :options="options"></chart>
     <button type="button" name="button" v-on:refresh="add">dianji</button>
   </div>
 </template>
@@ -13,44 +8,52 @@
 <script>
 // import axios from 'axios'
 import Vue from 'vue'
-import Echarts from 'vue-echarts3'
-Vue.component('chart', Echarts)
+import ECharts from 'vue-echarts3'
+Vue.component('chart', ECharts)
 export default {
   data () {
     return {
-      data: {
-        legend: {
-          data: [ '页面PV', '页面UV', '下载PV', '下载UV', '激活量', '注册量' ]
+      options: {
+        tooltip: {
+          trigger: 'axis'
         },
-        xAxis: [
-          {
-            type: 'category',
-            data: [ '20170201', '20170202', '20170203', '20170204', '20170205', '20170206', '20170207' ]
-          }
-        ],
-        series: [
-          {
-            name: '页面PV',
-            type: 'line',
-            stack: '总量',
-            areaStyle: { normal: {} },
-            data: [ 320, 332, 301, 334, 390, 330, 2 ]
-          }
-        ]
+        legend: {
+          data: ['邮件营销']
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [{
+          name: '邮件营销',
+          type: 'line',
+          data: [50, 200, 6, 100, 100, 20]
+        }, {
+          name: '联盟广告',
+          type: 'line',
+          data: [500, 20, 306, 100, 10, 120]
+        }, {
+          name: '视频广告',
+          type: 'line',
+          data: [5, 20, 36, 10, 10, 20]
+        }]
       }
     }
   },
   methods: {
     add () {
+      console.log(123)
       var obj = {
-        name: '页面UV',
+        name: '不知道',
         type: 'line',
-        stack: '总量',
-        areaStyle: { normal: {} },
-        data: [ 30, 32, 301, 334, 30, 330, 20 ]
+        data: [20, 30, 40, 50, 60, 80]
       }
-      console.log(this.data)
-      this.data.series.push(obj)
+      this.options.series = []
+      this.options.series.push(obj)
     }
   }
 }

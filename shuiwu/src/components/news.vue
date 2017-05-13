@@ -12,13 +12,13 @@
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router>
           <el-menu-item index="/news/unconfirmed">未确认</el-menu-item>
           <el-menu-item index="/news/newshistory">历史消息</el-menu-item>
-          <el-submenu index="/news/system">
+          <el-submenu index="3">
              <template slot="title">{{systemName}}</template>
              <el-menu-item
              :key="system"
              v-for="(system, index) in systems"
              v-on:click="goSelect(system)"
-             index="/news/system">{{system.name}}</el-menu-item>
+             :index="'/news/system/'+system.id">{{system.name}}</el-menu-item>
            </el-submenu>
         </el-menu>
       </div>
@@ -53,6 +53,7 @@ export default {
   methods: {
     goSelect (obj) {
       this.systemName = obj.name
+      location.reload()
     }
   }
 }

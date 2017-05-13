@@ -20,22 +20,26 @@
               </el-option>
             </el-select>
           </div>
-          <div class="">
-            <ul>
-              <li v-for="controllerDetailInfo in controllerDetailInfos">
-                <p>{{controllerDetailInfo.name}}</p>
-                <p>{{controllerDetailInfo.data}}</p>
-              </li>
-            </ul>
+          <div class="controlllerDeailBlock" v-if="showData">
+            <el-carousel trigger="click" height="265px">
+              <el-carousel-item v-for="item in Math.ceil(controllerDetailInfos.length/9)" :key="item">
+                <div class="controllerDataList" v-for="itemDate in 9" v-if="controllerDetailInfos[(item-1)*9+itemDate-1] != null">
+                  <p>{{controllerDetailInfos[(item-1)*9+itemDate-1].name}}</p>
+                  <div class="h130"></div>
+                  <p>&nbsp;{{controllerDetailInfos[(item-1)*9+itemDate-1].data}}</p>
+                </div>
+              </el-carousel-item>
+            </el-carousel>
           </div>
-          <!-- <ul>
-            <li v-for="controllerDate in controllerDates"></li>
-          </ul> -->
         </div>
       </div>
       <div class="baseImg">
         <div class="baseImgLeft">
-          <p><a href=""><img src="../images/control.png" alt=""><br>远程控制</a></p>
+          <p><a href="javascript:;" v-on:click="remoteDate = true"><img src="../images/control.png" alt=""><br>远程控制</a></p>
+          <ul class="remoteDate" v-show="remoteDate">
+            <div class="h20"></div>
+            <li v-for="remoteDate in remoteDates">{{remoteDate.name}}&nbsp;&nbsp;&nbsp;<el-button type="primary" size="mini" :disabled="remoteDate.value === 1" @click="openData(remoteDate.number)">开启</el-button><el-button type="primary" size="mini":disabled="remoteDate.value === 0" @click="closeData(remoteDate.number)">关闭</el-button></li>
+          </ul>
         </div>
         <div class="baseImgRight">
           <ul>
@@ -62,11 +66,14 @@ export default {
       controllerDetials: [],
       controllerlists: [],
       controllerId: null,
+      remoteDates: [],
+      remoteDate: false,
       controllerDetailInfos: null,
       locationMsg: {
         locationId: this.$route.params.id
       },
-      isActive: 0
+      isActive: null,
+      showData: false
     }
   },
   created () {
@@ -77,9 +84,6 @@ export default {
     })
   },
   methods: {
-    conso (id) {
-      console.log(id)
-    },
     selectBase (index, groupId) {
       this.isActive = index
       var groupMsg = {
@@ -90,18 +94,59 @@ export default {
       axios.get(global.baseUrl + 'room/groupDetail?' + global.getHttpData(groupMsg))
       .then((res) => {
         self.controllerlists = res.data.data.devices
+        self.showData = false
+        self.remoteDate = false
+        self.controllerId = null
       })
     },
     selectController () {
       var self = this
-      var controllerMsg = {
-        deviceId: this.controllerId,
-        token: global.getToken()
+      if (this.controllerId) {
+        var controllerMsg = {
+          deviceId: this.controllerId,
+          token: global.getToken()
+        }
+        axios.get(global.baseUrl + 'data/presentData?' + global.getHttpData(controllerMsg))
+        .then((res) => {
+          self.showData = true
+          self.remoteDate = false
+          self.controllerDetailInfos = res.data.data.data
+        })
+        axios.get(global.baseUrl + 'data/pumpStatus?' + global.getHttpData(controllerMsg))
+        .then((res) => {
+          self.remoteDates = res.data.data
+        })
       }
-      axios.get(global.baseUrl + 'data/presentData?' + global.getHttpData(controllerMsg))
+    },
+    // 开启操作
+    openData (number) {
+      var obj = {
+        number: number,
+        pumpStatus: 1,
+        deviceId: this.controllerId
+      }
+      var self = this
+      axios.post(global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
       .then((res) => {
-        console.log(res)
-        self.controllerDetailInfos = res.data.data.data
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '操作成功', '')
+          self.selectController()
+        }
+      })
+    },
+    closeData (number) {
+      var obj = {
+        number: number,
+        pumpStatus: 0,
+        deviceId: this.controllerId
+      }
+      var self = this
+      axios.post(global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '操作成功', '')
+          self.selectController()
+        }
       })
     }
   },
@@ -117,6 +162,22 @@ export default {
 .h40{
   height: 40px;
 }
+.remoteDate{
+  border-radius: 4px;
+  background-color: rgba( 255, 255, 255, .1 );
+  width: 231px;
+  height: 399px;
+  margin: 10px auto;
+}
+.h20{
+  height: 10px;
+}
+.remoteDate li{
+  margin: 15px auto;
+}
+.remoteDate li:hover{
+  cursor: pointer;
+}
 .detailController{
   width: 1280px;
   min-height: 800px;
@@ -125,9 +186,24 @@ export default {
   background-image: url('../images/background.png');
   background-size: cover;
 }
+.controlllerDeailBlock{
+  clear: both;
+  height: 230px;
+}
 .baselist ul{
   width: 250px;
   display: inline-block;
+}
+.controllerDataList{
+  display: inline-block;
+  width: 11%;
+  text-align: center;
+}
+.h130{
+  height: 130px;
+}
+.controllerDataList p{
+  font-size: 14px;
 }
 .baselist ul li:hover{
   cursor: pointer;

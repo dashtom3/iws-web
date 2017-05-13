@@ -198,7 +198,7 @@
 
               <p class="roomlist listDetial" v-for="configControllerDetialInfo in configControllerDetialInfos.devices">
                 <span style="text-align:left;">名称：{{configControllerDetialInfo.termName}}</span>
-                <span>状态：{{controllerStatus[configControllerDetialInfo.status]}}</span>
+                <span>状态：{{controllerStatus[configControllerDetialInfos.status]}}</span>
                 <span>站号：{{configControllerDetialInfo.number}}</span>
               </p>
           </el-col>

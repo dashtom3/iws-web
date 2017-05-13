@@ -5,7 +5,7 @@
         <el-col :span="20"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsMsg.describes}}</span></p>
         <p class="newsTime"><span class="time">{{newsMsg.alarmTime | time}}</span><span class="newsid">编号:</span><span>{{newsMsg.id}}</span><span class="state">{{status[newsMsg.status-1]}}</span></p></el-col>
       </el-col>
-        <el-col :span="4"><el-button class="confirm" v-on:click="msgConfirm(newsMsg.id)">确认</el-button></el-col>
+        <el-col :span="4" style="text-align:center;"><el-button class="confirm" v-on:click="msgConfirm(newsMsg.id)">确认</el-button></el-col>
       </el-row>
     </li>
   </ul>
@@ -74,7 +74,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .lists li{
-  height: 95px;
+  min-height: 95px;
   border-bottom: 1px dashed
 }
 /*.lists li p{
@@ -94,7 +94,6 @@ export default {
   display: inline-block;
   width: 15px;
   height:19px;
-  margin-right: 10px;
   background:url('../images/report.png') no-repeat;
 }
 .newsinfo{
@@ -102,6 +101,8 @@ export default {
   font-family: "Microsoft YaHei";
   color: rgba( 0, 0, 0, 0.8 );
   letter-spacing:1.5px;
+  position: relative;
+  left: 25px;
 }
 .time,.newsid,.state{
   font-size: 14px;

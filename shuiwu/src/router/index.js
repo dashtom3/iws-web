@@ -118,7 +118,7 @@ export default new Router({
         path: '/news/newshistory',
         component: newshistory
       }, {
-        path: '/news/system',
+        path: '/news/system/:id',
         component: system
       }]
     }]

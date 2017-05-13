@@ -4,7 +4,7 @@
       <div class="dataviewNavbar">
         <ul class="kinds">
           <li class="active" v-on:click="table($event)">表格显示</li>
-          <li v-on:click="chart($event)">图表显示</li>
+          <!-- <li v-on:click="chart($event)">图表显示</li> -->
         </ul>
       </div>
     </div>
@@ -149,7 +149,7 @@
         </table>
         <div style="text-align:center;margin-top:40px;">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
-          <el-button type="primary" >导出EXCEl表格</el-button>
+          <!-- <el-button type="primary" @click="printExcel">导出EXCEl表格</el-button> -->
         </div>
       </div>
       <el-dialog title="更多数据" v-model="moreData">
@@ -175,11 +175,20 @@
             <td>{{alarmStatus[dateTable.status]}}</td>
           </tr>
         </table>
+        <!-- 分页 -->
+        <div class="block" v-if="dateQuery.totalPage > 1">
+          <el-pagination
+            layout="prev, pager, next"
+            @current-change="currentPageChange"
+            :current-page.sync="dateQuery.currentPage"
+            :page-count="dateQuery.totalPage">
+          </el-pagination>
+        </div>
       </el-dialog>
       </div>
 
       <!-- 图标添加 -->
-      <div v-show="chartShow" style="width:1280px;margin:0 auto;">
+      <!-- <div v-show="chartShow" style="width:1280px;margin:0 auto;">
         <div class="systemSelect">
           <el-row :gutter="20">
             <el-col :span="2">&nbsp;</el-col>
@@ -206,7 +215,7 @@
             </echarts>
            </div>
         </div>
-      </div>
+      </div> -->
 
   </div>
 </template>
@@ -214,9 +223,9 @@
 <script>
 import global from '../global/global'
 import axios from 'axios'
-import Vue from 'vue'
-import ECharts from 'vue-echarts3'
-Vue.component('chart', ECharts)
+// import Vue from 'vue'
+// import ECharts from 'vue-echarts3'
+// Vue.component('chart', ECharts)
 export default {
   data () {
     return {
@@ -289,6 +298,9 @@ export default {
         startTime: null,
         endTime: null,
         timeStep: null,
+        numberPerPage: '10',
+        currentPage: '1',
+        totalPage: '-1',
         token: global.getToken()
       },
       tables: [],
@@ -319,11 +331,12 @@ export default {
     selectSystem: function () {
       this.selectProvince = null
       var self = this
-      axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
-      .then((res) => {
-        // console.log(res)
-        self.provinces = res.data.data.locationPack
-      })
+      if (this.systemId !== '0') {
+        axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
+        .then((res) => {
+          self.provinces = res.data.data.locationPack
+        })
+      }
     },
     province () {
       if (this.selectProvince) {
@@ -427,9 +440,22 @@ export default {
       axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
       .then((res) => {
         self.dateTables = res.data.data
-        console.log(res)
+        self.dateQuery.currentPage = res.data.currentPage
+        self.dateQuery.totalPage = res.data.totalPage
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.dateQuery.currentPage = value
+      this.getAlarmInfo(this.dateQuery)
     }
+    // 导出excel
+    // printExcel () {
+    //   axios.get(global.baseUrl + 'data/outputExcel?' + global.getHttpData(this.dateQuery))
+    //   .then((res) => {
+    //     console.log(res)
+    //   })
+    // }
   },
   created () {
     var self = this
@@ -441,13 +467,11 @@ export default {
     // 控制器列表
     axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken())
     .then((res) => {
-      // console.log(res)
       self.controllerLists = res.data.data
     })
     // 城市列表
     axios.post(global.baseUrl + 'area/areas')
     .then((res) => {
-      // console.log(res)
       self.provinces = res.data.data
     })
     this.getAlarmInfo(this.dateQuery)

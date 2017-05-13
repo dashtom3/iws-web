@@ -22,9 +22,21 @@ export default {
 ul li{
   list-style: none;
 }
+.remoteDate button.el-button--primary{
+  color: #fff;
+  background-color: rgba( 240, 255, 207, .4);
+  border-color: rgba( 240, 255, 207, .4);
+}
+.remoteDate button.is-disabled{
+  color: #bfcbd9;
+    cursor: not-allowed;
+    background-image: none;
+    background-color: #eef1f6;
+    border-color: #d1dbe5;
+}
 .selectController input{
   width: 100px;
-  border: none;
+  border-color: #fff;
 }
 .selectController i{
   color: #000!important;

@@ -1,13 +1,13 @@
 <template>
   <div class="">
     <el-date-picker
-      v-model="newsMsg.startTime"
+      v-model="newsArgs.startTime"
        type="date"
        placeholder="选择日期">
      </el-date-picker>
      <span> —— </span>
      <el-date-picker
-      v-model="newsMsg.endTime"
+      v-model="newsArgs.endTime"
        type="date"
        placeholder="选择日期">
      </el-date-picker>
@@ -57,6 +57,14 @@
       </el-row>
     </li>
   </ul>
+  <!-- 分页 -->
+  <div class="block" v-if="newsArgs.totalPage > 1">
+    <el-pagination
+      layout="prev, pager, next"
+      :page-count="newsArgs.totalPage"
+      @current-change="currentPageChange">
+    </el-pagination>
+  </div>
 </div>
 </template>
 
@@ -70,7 +78,7 @@ export default {
       newsLists: [],
       personalAlert: false,
       userInfo: [],
-      newsMsg: {
+      newsArgs: {
         status: 1,
         token: global.getToken(),
         startTime: null,
@@ -82,11 +90,11 @@ export default {
     }
   },
   created () {
-    this.getNewsLists(this.newsMsg)
+    this.getNewsLists(this.newsArgs)
   },
   methods: {
+    // 个人信息
     showPersonalAlert (userId) {
-      // console.log(userId)
       this.personalAlert = true
       var personalMsg = {
         userId: userId,
@@ -100,18 +108,21 @@ export default {
         self.userInfo.push(res.data.data)
       })
     },
+    // 新闻列表
     getNewsLists (args) {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         // console.log(res)
         self.newsLists = res.data.data
+        self.newsArgs.totalPage = res.data.totalPage
+        self.newsArgs.numberPerPage = res.data.numberPerPage
       })
     },
     searchByTime () {
-      this.newsMsg.startTime = this.timeFilter(this.newsMsg.startTime)
-      this.newsMsg.endTime = this.timeFilter(this.newsMsg.endTime)
-      this.getNewsLists(this.newsMsg)
+      this.newsArgs.startTime = this.timeFilter(this.newsArgs.startTime)
+      this.newsArgs.endTime = this.timeFilter(this.newsArgs.endTime)
+      this.getNewsLists(this.newsArgs)
     },
     timeFilter (value) {
       var month = value.getMonth() + 1
@@ -123,6 +134,11 @@ export default {
         date = '0' + date
       }
       return value.getFullYear() + '-' + month + '-' + date
+    },
+    // 分页
+    currentPageChange (value) {
+      this.newsArgs.currentPage = value
+      this.getNewsLists(this.newsArgs)
     }
   }
 }
@@ -131,7 +147,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .lists li{
-  height: 95px;
+  min-height: 95px;
   border-bottom: 1px dashed
 }
 .state{
@@ -175,7 +191,7 @@ export default {
   display: inline-block;
   width: 15px;
   height:19px;
-  margin-right: 10px;
+  /*margin-right: 10px;*/
   background:url('../images/report.png') no-repeat;
 }
 .newsinfo{
@@ -183,6 +199,8 @@ export default {
   font-family: "Microsoft YaHei";
   color: rgba( 0, 0, 0, 0.8 );
   letter-spacing:1.5px;
+  position: relative;
+  left: 25px;
 }
 .time,.newsid,.state{
   font-size: 14px;

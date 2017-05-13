@@ -6,11 +6,11 @@
           <el-col :span="20"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsList.describes}}</span></p>
           <p class="newsTime"><span class="time">{{newsList.alarmTime | time}}</span><span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">{{status[newsList.status]}}</span></p></el-col>
         </el-col>
-          <el-col :span="4" v-if="newsList.status === 1" style="position:relative;top:15px;"><el-button class="confirm" v-on:click="msgConfirm(newsList.id)" type="success">确认</el-button></el-col>
+          <el-col :span="4" v-if="newsList.status === 1" style="position:relative;top:15px;text-align:center;"><el-button class="confirm" v-on:click="msgConfirm(newsList.id)" type="success">确认</el-button></el-col>
           <el-col :span="4" style="position:relative;top:15px;">
             <div class="goPerson" v-if="newsList.status === 0">
               <p class="userMsg">用户名称:<span class="name" v-on:click="showPersonalAlert(newsList.id)">{{newsList.userName}}</span></p>
-              <!-- <el-dialog title="用户信息" v-model="personalAlert">
+              <el-dialog title="用户信息" v-model="personalAlert">
                 <div class="personalDiv">
                   <el-table
                     :data="userInfo"
@@ -38,13 +38,21 @@
                       <el-button @click="personalAlert = false">关 闭</el-button>
                     </span>
                   </div>
-                </el-dialog> -->
+                </el-dialog>
               <p class="userMsg">{{newsList.confirmTime | time}}<span class="msgstate">已确认</span></p>
             </div>
           </el-col>
         </el-row>
       </li>
     </ul>
+    <!-- 分页 -->
+    <div class="block" v-if="newsArgs.totalPage > 1">
+      <el-pagination
+        layout="prev, pager, next"
+        :page-count="newsArgs.totalPage"
+        @current-change="currentPageChange">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -54,12 +62,10 @@ import global from '../global/global'
 export default {
   data () {
     return {
-      systemId: this.$route.params.id,
-      newsLists: [
-        {alarmId: 3, alarmTime: 1494239934000, describes: '2017-04-11 21:19:39 供水系统 北京市市辖区东城区XX小区 XX泵房:泵前压力 出现异常', id: 4, status: 1, userName: '你好', userId: '1'},
-        {alarmId: 3, alarmTime: 1494239934000, describes: '2017-04-11 21:19:39 供水系统 北京市市辖区东城区XX小区 XX泵房:泵前压力 出现异常', id: 4, status: 0, userName: '你好', userId: '1'}
-      ],
+      newsLists: [],
+      userInfo: [],
       newsArgs: {
+        systemId: this.$route.params.id,
         token: global.getToken(),
         numberPerPage: 10,
         currentPage: 1,
@@ -71,16 +77,15 @@ export default {
   created () {
     this.getNewsLists(this.newsArgs)
   },
-  watch: {
-    systemId (val, oldVal) {
-      console.log(val, oldVal)
-    }
-  },
   methods: {
     getNewsLists (args) {
+      var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
+        self.newsLists = res.data.data
+        self.newsArgs.totalPage = res.data.totalPage
+        self.newsArgs.numberPerPage = res.data.numberPerPage
       })
     },
     msgConfirm (newsid) {
@@ -93,9 +98,7 @@ export default {
       }).then(() => {
         axios.post(global.baseUrl + 'news/confirm?token=' + global.getToken() + '&newsId=' + newsid)
         .then((res) => {
-          console.log(res)
           if (res.data.callStatus === 'SUCCEED') {
-            self.getNewsLists()
             self.$message({
               type: 'success',
               message: '确认成功!',
@@ -109,6 +112,24 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    showPersonalAlert (userId) {
+      this.personalAlert = true
+      var personalMsg = {
+        userId: userId,
+        token: global.getToken()
+      }
+      var self = this
+      self.userInfo = []
+      axios.get(global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
+      .then((res) => {
+        self.userInfo.push(res.data.data)
+      })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.newsArgs.currentPage = value
+      this.getNewsLists(this.newsArgs)
     }
   }
 }
@@ -117,7 +138,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .lists li{
-  height: 95px;
+  min-height: 95px;
   border-bottom: 1px dashed
 }
 .newsquer{
@@ -150,7 +171,6 @@ p.userMsg:nth-child(2){
   display: inline-block;
   width: 15px;
   height:19px;
-  margin-right: 10px;
   background:url('../images/report.png') no-repeat;
 }
 .newsinfo{
@@ -158,6 +178,8 @@ p.userMsg:nth-child(2){
   font-family: "Microsoft YaHei";
   color: rgba( 0, 0, 0, 0.8 );
   letter-spacing:1.5px;
+  position: relative;
+  left: 25px;
 }
 .newsTime{
   margin: 10px 0 20px 25px;

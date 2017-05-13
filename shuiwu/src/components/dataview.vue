@@ -4,7 +4,7 @@
       <div class="dataviewNavbar">
         <ul class="kinds">
           <li class="active" v-on:click="table($event)">表格显示</li>
-          <li v-on:click="chart($event)">图表显示</li>
+          <!-- <li v-on:click="chart($event)">图表显示</li> -->
         </ul>
       </div>
     </div>
@@ -122,7 +122,7 @@
         <div class="systemSelect" style="text-align:center;">
             <el-button type="primary" @click="dateQueryClick">确定</el-button>
         </div>
-        <table cellspacing="0" cellpadding="0" class="dateTable">
+        <table cellspacing="0" cellpadding="0" class="dateTable" v-show="tableDataShow">
           <tr class="bgth">
             <th>日期</th>
             <th>省市区</th>
@@ -138,7 +138,7 @@
             <td v-for="table in tables">{{dateTable.data[table.number].data}}</td>
           </tr>
         </table>
-        <div style="text-align:center;margin-top:40px;">
+        <div style="text-align:center;margin-top:40px;" v-show="tableDataShow">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
           <el-button type="primary" @click="tableDatePrint">导出EXCEl表格</el-button>
         </div>
@@ -160,11 +160,20 @@
             <td v-for="table in tables">{{dateTable.data[table.number].data}}</td>
           </tr>
         </table>
+        <!-- 分页 -->
+        <div class="block" v-if="dateQuery.totalPage > 1">
+          <el-pagination
+            layout="prev, pager, next"
+            @current-change="currentPageChange"
+            :current-page.sync="dateQuery.currentPage"
+            :page-count="dateQuery.totalPage">
+          </el-pagination>
+        </div>
       </el-dialog>
       </div>
 
       <!-- 图标添加 -->
-      <div v-show="chartShow" style="width:1280px;margin:0 auto;">
+      <!-- <div v-show="chartShow" style="width:1280px;margin:0 auto;">
         <div class="systemSelect">
           <el-row :gutter="20">
             <el-col :span="2">&nbsp;</el-col>
@@ -191,7 +200,7 @@
             </echarts>
            </div>
         </div>
-      </div>
+      </div> -->
 
   </div>
 </template>
@@ -199,9 +208,9 @@
 <script>
 import global from '../global/global'
 import axios from 'axios'
-import Vue from 'vue'
-import Echarts from 'vue-echarts3'
-Vue.component('chart', Echarts)
+// import Vue from 'vue'
+// import Echarts from 'vue-echarts3'
+// Vue.component('chart', Echarts)
 export default {
   data () {
     return {
@@ -209,6 +218,7 @@ export default {
       tableShow: true,
       chartShow: false,
       echart: false,
+      tableDataShow: false,
       systemId: '0',
       system: '0',
       moreData: false,
@@ -270,6 +280,9 @@ export default {
         deviceId: null,
         startTime: null,
         endTime: null,
+        currentPage: 1,
+        totalPage: -1,
+        numberPerPage: 10,
         timeStep: null,
         token: global.getToken()
       },
@@ -320,7 +333,6 @@ export default {
       }
     },
     area () {
-      console.log(this.selectArea)
       if (this.selectArea) {
         this.locations = this.selectArea.location
       }
@@ -374,8 +386,11 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
+        self.tableDataShow = true
         self.dateTables = res.data.data
+        self.dateQuery.totalPage = res.data.totalPage
+        self.dateQuery.currentPage = res.data.currentPage
       })
     },
     // 导出excel
@@ -430,6 +445,11 @@ export default {
     // 删除标签
     closeTag (index) {
       this.tags.splice(index, 1)
+    },
+    // 分页
+    currentPageChange (value) {
+      this.dateQuery.currentPage = value
+      this.getAlarmInfo(this.dateQuery)
     }
   },
   created () {

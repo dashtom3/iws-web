@@ -212,9 +212,8 @@
       <el-pagination
         @current-change="currentPageChange"
         :current-page.sync="addressArgs.currentPage"
-        :page-size="100"
         layout="total, prev, pager, next"
-        :total="addressArgs.totalPage">
+        :page-count="addressArgs.totalPage">
       </el-pagination>
     </div>
 

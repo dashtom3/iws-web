@@ -207,6 +207,17 @@
       </div>
     </el-row>
 
+    <!-- 分页 -->
+    <div class="block" v-if="addressArgs.totalPage > 1">
+      <el-pagination
+        @current-change="currentPageChange"
+        :current-page.sync="addressArgs.currentPage"
+        :page-size="100"
+        layout="total, prev, pager, next"
+        :total="addressArgs.totalPage">
+      </el-pagination>
+    </div>
+
     <!-- 修改地点 -->
     <div class="editAlert" v-if="editAlert">
       <div class="formMsg">
@@ -743,7 +754,14 @@ export default {
       .then((res) => {
         // console.log(res)
         self.addresslists = res.data.data
+        self.addressArgs.currentPage = res.data.currentPage
+        self.addressArgs.totalPage = res.data.totalPage
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.addressArgs.currentPage = value
+      this.getAddressLists(this.addressArgs)
     }
   },
   created () {

@@ -37,16 +37,16 @@
       </el-col>
     </el-row>
 
-   <!-- <div class="block">
-     <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage3"
+    <!-- 分页 -->
+    <div class="block" v-if="rolelistArgs.totalPage > 1">
+      <el-pagination
+        @current-change="currentPageChange"
+        :current-page.sync="rolelistArgs.currentPage"
         :page-size="100"
-        layout="prev, pager, next, jumper"
-        :total="1000">
+        layout="total, prev, pager, next"
+        :total="rolelistArgs.totalPage">
       </el-pagination>
-   </div> -->
+    </div>
 
    <!-- 添加角色 -->
    <div class="addroles">
@@ -122,7 +122,6 @@ import global from '../../global/global'
 export default {
   data () {
     return {
-      currentPage3: 3,
       roleAlert: false,
       formLabelWidth: '100px',
       isDel: false,
@@ -156,12 +155,12 @@ export default {
         delivery: false,
         type: [],
         resource: '',
-        desc: '',
-        rolelistArgs: {
-          currentPage: 1,
-          numberPerPage: 10,
-          totalPage: -1
-        }
+        desc: ''
+      },
+      rolelistArgs: {
+        currentPage: 1,
+        numberPerPage: 10,
+        totalPage: -1
       }
     }
   },
@@ -289,8 +288,15 @@ export default {
       axios.post(global.baseUrl + 'role/list', global.postHttpDataWithToken(args))
       .then((res) => {
         // console.log(res)
+        self.rolelistArgs.currentPage = res.data.currentPage
+        self.rolelistArgs.totalPage = res.data.totalPage
         self.rolelists = res.data.data
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.rolelistArgs.currentPage = value
+      this.getRoleLists(this.rolelistArgs)
     }
   },
   created () {

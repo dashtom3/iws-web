@@ -78,6 +78,16 @@
         <i class="controllerdel controllericon" v-on:click="deleteBase(baseList.id)"></i>
       </span>
     </div>
+    <!-- 分页 -->
+    <div class="block" v-if="baseListArgs.totalPage > 1">
+      <el-pagination
+        @current-change="currentPageChange"
+        :current-page.sync="baseListArgs.currentPage"
+        :page-size="100"
+        layout="total, prev, pager, next"
+        :total="baseListArgs.totalPage">
+      </el-pagination>
+    </div>
 
     <!-- 修改设备 -->
     <el-dialog title="修改设备" v-model="editBaseAlert" size="tiny">
@@ -146,6 +156,8 @@ export default {
       .then((res) => {
         // console.log(res)
         self.baseLists = res.data.data
+        self.baseListArgs.currentPage = res.data.currentPage
+        self.baseListArgs.totalPage = res.data.totalPage
       })
     },
     // 添加设备
@@ -224,6 +236,11 @@ export default {
           self.getBaseList(self.baseListArgs)
         }
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.baseListArgs.currentPage = value
+      this.getBaseList(this.baseListArgs)
     }
   }
 }

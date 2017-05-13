@@ -27,6 +27,15 @@
         </el-select>
       </el-col>
     </el-row>
+    <div class="block" v-if="userArgs.totalPage > 1">
+      <el-pagination
+        @current-change="currentPageChange"
+        :current-page.sync="userArgs.currentPage"
+        :page-size="100"
+        layout="total, prev, pager, next"
+        :total="userArgs.totalPage">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -81,7 +90,14 @@ export default {
           res.data.data[i].roleId = parseInt(res.data.data[i].roleId)
         }
         self.userlist = res.data.data
+        self.userArgs.currentPage = res.data.currentPage
+        self.userArgs.totalPage = res.data.totalPage
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.userArgs.currentPageChange = value
+      this.getUserList(this.userArgs)
     }
   }
 }

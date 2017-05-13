@@ -134,6 +134,7 @@
         </span>
       </div>
 
+
       <!-- 修改控制器 -->
       <el-dialog title="修改控制器" v-model="editControllerAlert">
         <el-form :model="editControllerDate">
@@ -150,6 +151,15 @@
         </div>
       </el-dialog>
 
+    </div>
+    <div class="block" v-if="controllerArgs.totalPage > 1">
+      <el-pagination
+        @current-change="currentPageChange"
+        :current-page.sync="controllerArgs.currentPage"
+        :page-size="100"
+        layout="total, prev, pager, next"
+        :total="controllerArgs.totalPage">
+      </el-pagination>
     </div>
   </div>
 </template>
@@ -220,6 +230,8 @@ export default {
       .then((res) => {
         // console.log(res)
         self.controllerlists = res.data.data
+        self.controllerArgs.currentPage = res.data.currentPage
+        self.controllerArgs.totalPage = res.data.totalPage
       })
     },
 
@@ -322,6 +334,11 @@ export default {
           self.getControllerLists(self.controllerArgs)
         }
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      this.controllerArgs.currentPageChange = value
+      this.getControllerLists(this.controllerArgs)
     }
   }
 }

@@ -3,11 +3,12 @@
     <v-header></v-header>
     <div class="indexHeader">
       <div class="indexLog">
-        <a href="javascript:;"><img src="../../images/login_03.png" alt=""></a>
+        <a href="/index"><img src="../../images/login_03.png" alt=""></a>
       </div>
       <div class="indexNav">
         <el-menu :default-active="activeIndex" class="el-menu-demo navbar" mode="horizontal" router>
           <el-menu-item index='/personal'>个人中心</el-menu-item>
+          <el-menu-item index='/video'>视频监控</el-menu-item>
           <el-menu-item index="/news/unconfirmed">消息</el-menu-item>
           <el-menu-item index="/alarminfo">报警信息</el-menu-item>
           <el-menu-item index="/dataview">数据查看</el-menu-item>
@@ -69,7 +70,7 @@ export default {
 .navbar li{
   float: right;
   font-size: 18px;
-  width: 151px;
+  width: 120px;
   text-align: center;
   margin:0 40px;
 }

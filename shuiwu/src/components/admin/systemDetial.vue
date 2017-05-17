@@ -414,14 +414,16 @@ export default {
     // 测试配置好的数据
     testDate () {
       // var self = this
+      console.log(this.deviceMsg.terms)
       this.deviceMsg.terms = JSON.stringify(this.deviceMsg.terms)
       var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'room/test?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
+      xhr.open('POST', global.baseUrl + 'room/testDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(this.deviceMsg.terms)
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log(JSON.parse(xhr.responseText).data)
+          console.log(123)
+          // console.log(JSON.parse(xhr.responseText).data)
         }
       }
     },

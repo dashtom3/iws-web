@@ -17,7 +17,7 @@
       <el-col :span="5"><span>{{user.describes}}&nbsp;</span></el-col>
       <el-col :span="5"><span>{{user.address}}&nbsp;</span></el-col>
       <el-col :span="5">
-        <el-select v-model="user.roleId" placeholder="请选择" @change="setrole(user.id, user.roleId)">
+        <el-select v-model="user.roleName" placeholder="请选择" @change="setrole(user.id, user.roleName)">
           <el-option
             :key="item"
             v-for="item in options"

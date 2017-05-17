@@ -2,11 +2,27 @@
   <ul class="lists">
     <li v-for="newsMsg in newsLists">
       <el-row>
-        <el-col :span="20"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsMsg.describes}}</span></p>
-        <p class="newsTime"><span class="time">{{newsMsg.alarmTime | time}}</span><span class="newsid">编号:</span><span>{{newsMsg.id}}</span><span class="state">{{status[newsMsg.status-1]}}</span></p></el-col>
+        <el-col :span="24"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsMsg.describes}}</span></p>
+        <p class="newsTime"><span class="time">{{newsMsg.alarmTime | time}}</span><span class="newsid">编号:</span><span>{{newsMsg.id}}</span><span class="state">该消息未确认</span></p></el-col>
       </el-col>
-        <el-col :span="4" style="text-align:center;"><el-button class="confirm" v-on:click="msgConfirm(newsMsg.id)">确认</el-button></el-col>
+      <br>
+
+      <!-- 用户列表 -->
+      <el-col :span="6" style="text-align:center;">
+        <div class="selectController" v-if="userInfo.roleId === 1 || userInfo.roleId === -1">
+          <el-select v-model="newsMsg.userName" :placeholder="newsMsg.userId | state" style="inputWidth">
+            <el-option
+              v-for="item in userLists"
+              :key="item"
+              :label="item.name"
+              :value="item.id">
+              </el-option>
+            </el-select>
+          <el-button class="confirm" v-on:click="msgConfirm(newsMsg.id, newsMsg.userName)">确认</el-button>
+        </div>
+        </el-col>
       </el-row>
+      <div class="h20"></div>
     </li>
   </ul>
 </template>
@@ -20,6 +36,7 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       id: '',
       newsLists: [],
+      userLists: [],
       newsArgs: {
         token: global.getToken(),
         numberPerPage: 10,
@@ -27,44 +44,30 @@ export default {
         totalPage: -1,
         status: 2
       },
+      userInfo: global.getUser(),
       status: ['已确认', '未确认']
     }
   },
   created () {
     this.getNewsLists(this.newsArgs)
+    this.getUserLists()
   },
   methods: {
-    msgConfirm (newsid) {
-      var self = this
-      this.id = newsid
-      this.$confirm('是否确认？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        axios.post(global.baseUrl + 'news/confirm?token=' + global.getToken() + '&newsId=' + newsid)
-        .then((res) => {
-          console.log(res)
-          if (res.data.callStatus === 'SUCCEED') {
-            self.getNewsLists()
-            self.$message({
-              type: 'success',
-              message: '确认成功! 请在历史消息中查看'
-            })
-          }
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
+    msgConfirm (newsId, userId) {
+      console.log(newsId, userId)
     },
     getNewsLists (args) {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         self.newsLists = res.data.data
+      })
+    },
+    getUserLists () {
+      var self = this
+      axios.get(global.baseUrl + 'userManage/list?token=' + global.getToken())
+      .then((res) => {
+        self.userLists = res.data.data
       })
     }
   }
@@ -76,6 +79,12 @@ export default {
 .lists li{
   min-height: 95px;
   border-bottom: 1px dashed
+}
+.h20{
+  height: 20px;
+}
+.inputWidth{
+  width: 200px;
 }
 /*.lists li p{
   line-height: 59px;
@@ -91,6 +100,7 @@ export default {
 }
 .report{
   float: left;
+  position: absolute;
   display: inline-block;
   width: 15px;
   height:19px;

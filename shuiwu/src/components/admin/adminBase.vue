@@ -67,7 +67,7 @@
     </div>
     <div class="baseList baseWidth" v-for="baseList in baseLists">
       <span>{{baseList.name}}</span>
-      <span>{{baseList.type}}</span>
+      <span>{{baseListTypes[baseList.type-1]}}</span>
       <span>{{baseList.describes}}</span>
       <span><img src="" alt=""></span>
       <span>
@@ -117,6 +117,7 @@ export default {
       meters: null,
       flowmeters: null,
       controllerLists: null,
+      baseListTypes: ['水箱变频', '户外叠压', '管网叠压', '箱式叠压'],
       addBaseMsg: {
         name: null,
         terms: [],
@@ -145,9 +146,6 @@ export default {
     this.getbaseTypes()
   },
   methods: {
-    selectP () {
-      console.log(123)
-    },
     // 获取设备列表
     getBaseList (args) {
       var self = this

@@ -200,7 +200,6 @@ export default {
       width: '50px',
       editControllerDate: {},
       controllerArgs: {
-        type: 0,
         currentPage: 1,
         numberPerPage: 10,
         totalPage: -1

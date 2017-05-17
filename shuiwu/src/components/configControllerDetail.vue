@@ -11,17 +11,25 @@
         </ul>
         <div class="baseRight">
           <div class="selectController">
-            <el-select placeholder="控制器" v-model="controllerId" @change="selectController">
+            <el-select placeholder="控制器" v-model="deviceMsg.deviceId" @change="selectController">
               <el-option
                 :key="controller"
                 v-for="controller in controllerlists"
                 :label="controller.termName"
-                :value="controller.termId">
+                :value="controller.id">
               </el-option>
             </el-select>
           </div>
           <div class="controlllerDeailBlock" v-if="showData">
-            <el-carousel trigger="click" height="265px">
+            <div class="dataShow">
+              <ul>
+                <li v-for="controllerDetailInfo in controllerDetailInfos">
+                  <p>{{controllerDetailInfo.name}}</p>
+                  <p>{{controllerDetailInfo.value}}</p>
+                </li>
+              </ul>
+            </div>
+            <!-- <el-carousel trigger="click" height="265px">
               <el-carousel-item v-for="item in Math.ceil(controllerDetailInfos.length/9)" :key="item">
                 <div class="controllerDataList" v-for="itemDate in 9" v-if="controllerDetailInfos[(item-1)*9+itemDate-1] != null">
                   <p>{{controllerDetailInfos[(item-1)*9+itemDate-1].name}}</p>
@@ -29,7 +37,7 @@
                   <p>&nbsp;{{controllerDetailInfos[(item-1)*9+itemDate-1].data}}</p>
                 </div>
               </el-carousel-item>
-            </el-carousel>
+            </el-carousel> -->
           </div>
         </div>
       </div>
@@ -72,6 +80,10 @@ export default {
       locationMsg: {
         locationId: this.$route.params.id
       },
+      deviceMsg: {
+        deviceId: null,
+        token: global.getToken()
+      },
       isActive: null,
       showData: false
     }
@@ -100,23 +112,24 @@ export default {
       })
     },
     selectController () {
-      var self = this
-      if (this.controllerId) {
-        var controllerMsg = {
-          deviceId: this.controllerId,
-          token: global.getToken()
-        }
-        axios.get(global.baseUrl + 'data/presentData?' + global.getHttpData(controllerMsg))
-        .then((res) => {
-          self.showData = true
-          self.remoteDate = false
-          self.controllerDetailInfos = res.data.data.data
-        })
-        axios.get(global.baseUrl + 'data/pumpStatus?' + global.getHttpData(controllerMsg))
-        .then((res) => {
-          self.remoteDates = res.data.data
-        })
+      if (this.deviceMsg.deviceId) {
+        this.getDate(this.deviceMsg)
       }
+    },
+    getDate (args) {
+      var self = this
+      axios.get(global.baseUrl + 'data/presentData?' + global.getHttpData(args))
+      .then((res) => {
+        self.showData = true
+        self.remoteDate = false
+        self.controllerDetailInfos = res.data.data.data
+      })
+      axios.get(global.baseUrl + 'data/pumpStatus?' + global.getHttpData(args))
+      .then((res) => {
+        self.remoteDates = res.data.data
+      })
+      console.log(1)
+      // setTimeout(this.selectController, 10000000)
     },
     // 开启操作
     openData (number) {
@@ -161,6 +174,18 @@ export default {
 <style scoped>
 .h40{
   height: 40px;
+}
+.dataShow ul{
+  width: 980px!important;
+}
+.dataShow ul li{
+  display: inline-block;
+  text-align: center;
+  width: 12%;
+  margin: 0 20px 20px 0!important;
+}
+.dataShow ul li p{
+  margin-bottom: 20px;
 }
 .remoteDate{
   border-radius: 4px;
@@ -211,13 +236,14 @@ export default {
 .baseRight{
   width:1000px;
   display: inline-block;
-  overflow: hidden;
+  overflow-y: auto;
   border-width: 1px;
   border-color: rgb( 255, 255, 255 );
   border-style: solid;
   border-radius: 4px;
   vertical-align: top;
-  height: 265px;
+  height: 384px;
+  margin-left: 15px;
 }
 .baseImg{
   margin-top: 30px;
@@ -285,6 +311,13 @@ export default {
   opacity: .4;
   left:35px;
   transition: left .5s;
+}
+.baselist ul.baseLists{
+  height:384px;
+  border: 1px solid #fff;
+  width: 228px;
+  overflow-y: auto;
+  margin-left: 5px;
 }
 .baselist ul.baseLists li::before{
   content: '';

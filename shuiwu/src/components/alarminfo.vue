@@ -61,11 +61,13 @@
           </el-col>
         </el-row>
       </div>
+
+      <!-- 所有地点 -->
       <div class="systemSelect">
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
-            <el-radio-group  v-model="selectRoom">
+            <el-radio-group  v-model="selectRoom" @change="room">
                <el-radio-button
                :key="room"
                v-for="(room, index) in rooms" :label="room.id">{{room.name}}</el-radio-button>
@@ -73,21 +75,41 @@
           </el-col>
         </el-row>
       </div>
+
+      <!-- 控制器组列表 -->
       <div class="systemSelect">
         <el-row :gutter="20">
-          <el-col :span="2"><span class="title">控制器：</span></el-col>
+          <el-col :span="2"><span class="title">控制器组：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="groupId">
+            <el-radio-group v-model="deviceTermId" @change="selectControllerId">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button
                :key="controllerList"
                v-for="controllerList in controllerLists"
+               :label="controllerList.groupId"
+               >{{controllerList.name}}</el-radio-button>
+             </el-radio-group>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 控制器 -->
+      <div class="systemSelect">
+        <el-row :gutter="20">
+          <el-col :span="2"><span class="title">控制器：</span></el-col>
+          <el-col :span="22">
+            <el-radio-group v-model="controllerInfo">
+              <el-radio-button label="0">全部</el-radio-button>
+               <el-radio-button
+               :key="controllerList"
+               v-for="controllerList in deviceTermLists"
                :label="controllerList.id"
                >{{controllerList.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
       </div>
+
       <div class="systemSelect">
         <el-date-picker
            v-model="startTime"
@@ -100,8 +122,8 @@
            type="datetime"
            placeholder="选择日期">
          </el-date-picker>
-         <span> —— </span>
-         <el-button type="primary">不限</el-button>
+         <!-- <span> —— </span>
+         <el-button type="primary">不限</el-button> -->
          <!-- <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔">
              <el-option
                :key="time"
@@ -242,6 +264,9 @@ export default {
         { date: '1小时', seconds: '3600' },
         { date: '1天', seconds: '86400' }
       ],
+      deviceTermId: '0',
+      controllerInfo: '0',
+      deviceTermLists: [],
       alarmStatus: ['未确认', '已确认'],
       selectProvince: null,
       provinces: [],
@@ -257,42 +282,12 @@ export default {
       multiSelects: [],
       tagShow: false,
       tags: [],
-      options: {
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['邮件营销']
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: []
-        // series: [{
-        //   name: '邮件营销',
-        //   type: 'line',
-        //   data: [50, 200, 6, 100, 100, 20]
-        // }, {
-        //   name: '联盟广告',
-        //   type: 'line',
-        //   data: [500, 20, 306, 100, 10, 120]
-        // }, {
-        //   name: '视频广告',
-        //   type: 'line',
-        //   data: [5, 20, 36, 10, 10, 20]
-        // }]
-      },
       systemLists: [],
       controllerLists: [],
       startTime: null,
       endTime: null,
       dateQuery: {
-        groupId: null,
+        deviceId: null,
         systemId: null,
         locationId: null,
         startTime: null,
@@ -331,38 +326,96 @@ export default {
     selectSystem: function () {
       this.selectProvince = null
       var self = this
+      self.changeEmpty()
       if (this.systemId !== '0') {
         axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
         .then((res) => {
           self.provinces = res.data.data.locationPack
         })
+      } else {
+        self.provinces = []
       }
     },
     province () {
+      this.changeEmpty()
       if (this.selectProvince) {
         this.citys = this.selectProvince.city
       }
       this.selectCity = null
     },
     city () {
+      this.changeEmpty()
       this.selectArea = null
       if (this.selectCity) {
         this.areas = this.selectCity.area
       }
     },
     area () {
-      console.log(this.selectArea)
+      this.changeEmpty()
       if (this.selectArea) {
         this.locations = this.selectArea.location
       }
     },
+    // 初始化函数
+    empty () {
+      this.systemId = '0'
+      this.selectLocation = '0'
+      this.selectRoom = '0'
+      this.deviceTermId = '0'
+      this.controllerInfo = '0'
+      this.locations = []
+      this.rooms = []
+      this.controllerLists = []
+      this.deviceTermLists = []
+      this.multiSelects = []
+    },
+    changeEmpty () {
+      this.selectLocation = '0'
+      this.selectRoom = '0'
+      this.deviceTermId = '0'
+      this.controllerInfo = '0'
+      this.locations = []
+      this.rooms = []
+      this.controllerLists = []
+      this.deviceTermLists = []
+    },
     // 获取房间
     location () {
       var self = this
-      axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
-      .then((res) => {
-        self.rooms = res.data.data.room
-      })
+      if (this.selectLocation !== '0') {
+        axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
+        .then((res) => {
+          self.rooms = res.data.data.room
+        })
+      } else {
+        this.changeEmpty()
+      }
+    },
+    // 泵房选择
+    room () {
+      var roomMsg = {
+        roomId: this.selectRoom,
+        token: global.getToken()
+      }
+      var self = this
+      if (this.selectRoom !== '0') {
+        axios.get(global.baseUrl + 'room/groupList?' + global.getHttpData(roomMsg))
+        .then((res) => {
+          self.controllerLists = res.data.data
+        })
+      } else {
+        this.changeEmpty()
+      }
+    },
+    // 选择控制器组
+    selectControllerId () {
+      var self = this
+      if (this.deviceTermId !== '0') {
+        axios.get(global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
+        .then((res) => {
+          self.deviceTermLists = res.data.data.devices
+        })
+      }
     },
     timeFilter (value) {
       var month = value.getMonth() + 1
@@ -393,8 +446,11 @@ export default {
       if (this.systemId !== '0') {
         this.dateQuery.systemId = this.systemId
       }
-      if (this.groupId !== '0') {
-        this.dateQuery.groupId = this.groupId
+      if (this.selectRoom !== '0') {
+        this.dateQuery.locationId = this.selectRoom
+      }
+      if (this.controllerInfo !== '0') {
+        this.dateQuery.deviceId = this.controllerInfo
       }
       if (this.startTime) {
         this.dateQuery.startTime = this.timeFilter(this.startTime)
@@ -439,6 +495,7 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
       .then((res) => {
+        self.empty()
         self.dateTables = res.data.data
         self.dateQuery.currentPage = res.data.currentPage
         self.dateQuery.totalPage = res.data.totalPage
@@ -463,16 +520,6 @@ export default {
     axios.post(global.baseUrl + 'system/list', global.postHttpDataWithToken())
     .then((res) => {
       self.systemLists = res.data.data
-    })
-    // 控制器列表
-    axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken())
-    .then((res) => {
-      self.controllerLists = res.data.data
-    })
-    // 城市列表
-    axios.post(global.baseUrl + 'area/areas')
-    .then((res) => {
-      self.provinces = res.data.data
     })
     this.getAlarmInfo(this.dateQuery)
   },
@@ -608,5 +655,8 @@ export default {
 }
 .addTags{
   clear: both;
+}
+.bgtr td{
+  font-size: 14px!important;
 }
 </style>

@@ -11,6 +11,7 @@
         </el-input>
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router>
           <el-menu-item index="/news/unconfirmed">未确认</el-menu-item>
+          <el-menu-item index="/news/myNews">我的消息</el-menu-item>
           <el-menu-item index="/news/newshistory">历史消息</el-menu-item>
           <el-submenu index="3">
              <template slot="title">{{systemName}}</template>

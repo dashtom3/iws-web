@@ -18,7 +18,7 @@
     v-for="user in rolelists" class="role" :class="{ active: divIsactive == user }">
       <el-col :span="8" style="position:absolute;"><span>{{user.name}}</span></el-col>
       <el-col :span="8" style="margin-left:33.33333%">
-        <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive(user)">{{list.systemName}}&nbsp;{{list.areaName}}
+        <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive($event, user)">{{list.systemName}}&nbsp;{{list.areaName}}
           <span v-if="0 == list.limitation"><span class="kd"></span></span>
           <span v-if="1 == list.limitation"><span class="kd"></span><span class="kx"></span></span>
           <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span><span class="fz"></span></span>
@@ -189,8 +189,14 @@ export default {
     area () {
       global.area(this.addRoleInfo)
     },
-    addactive (user) {
-      this.divIsactive = user
+    addactive (ele, user) {
+      console.log(ele.target.parentNode.parentNode.className)
+      for (let i in ele.target.parentNode.parentNode.className) {
+        if (ele.target.parentNode.parentNode.className[i] === 'active') {
+          this.divIsactive = null
+        }
+        this.divIsactive = user
+      }
     },
     // 增加标签
     addTag () {
@@ -233,6 +239,13 @@ export default {
       var self = this
       this.roleAlert = false
       var subitem = JSON.stringify(this.addRoleInfo.subitem)
+      // axios.post(global.baseUrl + 'role/add', {name: this.addRoleInfo.name, token: global.getToken(), 'subitem': subitem})
+      // .then((res) => {
+      //   console.log(res)
+      // })
+      // .catch((res) => {
+      //   console.log(res)
+      // })
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'role/add?name=' + this.addRoleInfo.name + '&token=' + global.getToken())
       xhr.setRequestHeader('Content-Type', 'application/json')

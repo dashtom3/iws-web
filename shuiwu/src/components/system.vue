@@ -168,6 +168,7 @@ p.userMsg:nth-child(2){
 }
 .report{
   float: left;
+  position: absolute;
   display: inline-block;
   width: 15px;
   height:19px;
@@ -182,7 +183,7 @@ p.userMsg:nth-child(2){
   left: 25px;
 }
 .newsTime{
-  margin: 10px 0 20px 25px;
+  margin: 10px 0 0px 25px;
 }
 .time,.newsid,.state{
   font-size: 14px;

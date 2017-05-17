@@ -1,67 +1,77 @@
 <template>
-  <div>
-    <chart :options="options"></chart>
-    <button type="button" name="button" v-on:refresh="add">dianji</button>
+  <div class="echarts">
+    <IEcharts :option="bar" class="echarts" id="main"></IEcharts>
+    <button @click="doRandom">Random</button>
+    <button @click="del">删除</button>
   </div>
 </template>
 
-<script>
-// import axios from 'axios'
-import Vue from 'vue'
-import ECharts from 'vue-echarts3'
-Vue.component('chart', ECharts)
-export default {
-  data () {
-    return {
-      options: {
+<script type="text/babel">
+  var echarts = require('echarts')
+  import IEcharts from 'vue-echarts-v3'
+  export default {
+    components: {
+      IEcharts
+    },
+    props: {
+    },
+    data: () => ({
+      bar: {
+        title: {
+          text: 'ECharts Hello World'
+        },
         tooltip: {
           trigger: 'axis'
         },
         legend: {
-          data: ['邮件营销']
+          data: []
         },
         xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+          data: ['Shirt', 'Sweater', 'Chiffon Shirt', 'Pants', 'High Heels', 'Socks']
         },
-        yAxis: {
-          type: 'value'
-        },
-        series: [{
-          name: '邮件营销',
-          type: 'line',
-          data: [50, 200, 6, 100, 100, 20]
-        }, {
-          name: '联盟广告',
-          type: 'line',
-          data: [500, 20, 306, 100, 10, 120]
-        }, {
-          name: '视频广告',
-          type: 'line',
-          data: [5, 20, 36, 10, 10, 20]
-        }]
+        yAxis: {},
+        series: []
       }
-    }
-  },
-  methods: {
-    add () {
-      console.log(123)
-      var obj = {
-        name: '不知道',
-        type: 'line',
-        data: [20, 30, 40, 50, 60, 80]
+    }),
+    methods: {
+      doRandom () {
+        var that = this
+        let data = ['你好', '再见', '远方', '诗']
+        let value = []
+        for (let i = 0, min = 5, max = 99; i < 6; i++) {
+          value.push(Math.floor(Math.random() * (max + 1 - min) + min))
+        }
+        var obj = {
+          name: data[Math.floor(Math.random() * 4)],
+          type: 'line',
+          data: value
+        }
+        // that.bar.series[0].data = data
+        that.bar.series.push(obj)
+        that.bar.legend.data.push(obj.name)
+        // console.log(that.bar.series)
+      },
+      // onReady (instance) {
+      //   console.log(instance)
+      // },
+      del () {
+        var that = this
+        var index = Math.floor(Math.random())
+        console.log(index)
+        that.bar.series.splice(index, 1)
+        that.bar.series = that.bar.series
+        that.bar.legend.data.splice(index, 1)
+        console.log(that.bar)
+        var myChart = echarts.init(document.getElementById('main'))
+        myChart.setOption(this.bar)
       }
-      this.options.series = []
-      this.options.series.push(obj)
     }
   }
-}
 </script>
 
 <style scoped>
-.echarts {
-   width: 400px;
-   height: 400px;
- }
+  .echarts {
+    width: 400px;
+    height: 400px;
+  }
 </style>

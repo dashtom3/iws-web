@@ -14,9 +14,11 @@ import index from '@/components/index'
 import detail from '@/components/configControllerDetail'
 import dataview from '@/components/dataview'
 import alarminfo from '@/components/alarminfo'
+import video from '@/components/video'
 import news from '@/components/news'
 import newshistory from '@/components/newshistory'
 import unconfirmed from '@/components/unconfirmed'
+import myNews from '@/components/myNews'
 import system from '@/components/system'
 import admin from '@/components/admin/admin'
 import adm from '@/components/admin/adm'
@@ -25,6 +27,7 @@ import adminRoles from '@/components/admin/adminRoles'
 import adminSystem from '@/components/admin/adminSystem'
 import systemDetial from '@/components/admin/systemDetial'
 import adminBase from '@/components/admin/adminBase'
+import adminVideo from '@/components/admin/adminVideo'
 import adminController from '@/components/admin/adminController'
 // import test from '@/components/test'
 import demo from '@/components/demo'
@@ -45,6 +48,11 @@ Vue.use(BaiduMap, {
 })
 Vue.filter('date', function (value) {
   return new Date(parseInt(value)).getFullYear() + '-' + (new Date(parseInt(value)).getMonth() + 1)
+})
+Vue.filter('state', function (value) {
+  if (!value) {
+    return '请选择'
+  }
 })
 Vue.filter('time', function (value) {
   var month = new Date(parseInt(value)).getMonth() + 1
@@ -108,6 +116,9 @@ export default new Router({
       name: 'alarminfo',
       component: alarminfo
     }, {
+      path: '/video',
+      component: video
+    }, {
       path: '/news',
       name: 'news',
       component: news,
@@ -117,6 +128,9 @@ export default new Router({
       }, {
         path: '/news/newshistory',
         component: newshistory
+      }, {
+        path: '/news/myNews',
+        component: myNews
       }, {
         path: '/news/system/:id',
         component: system
@@ -144,6 +158,9 @@ export default new Router({
     }, {
       path: '/admin/base',
       component: adminBase
+    }, {
+      path: '/admin/video',
+      component: adminVideo
     }, {
       path: '/admin/controller',
       component: adminController

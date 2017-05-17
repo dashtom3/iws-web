@@ -4,7 +4,7 @@
       <div class="dataviewNavbar">
         <ul class="kinds">
           <li class="active" v-on:click="table($event)">表格显示</li>
-          <!-- <li v-on:click="chart($event)">图表显示</li> -->
+          <li v-on:click="chart($event)">图表显示</li>
         </ul>
       </div>
     </div>
@@ -21,7 +21,7 @@
           </el-col>
         </el-row>
       </div>
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentProvince">
         <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
           <el-option
             :key="province"
@@ -47,7 +47,9 @@
           </el-option>
         </el-select>
       </div>
-      <div class="systemSelect">
+
+      <!-- 小区 -->
+      <div class="systemSelect" v-if="contentLocation">
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">小区：</span></el-col>
           <el-col :span="22">
@@ -59,11 +61,11 @@
           </el-col>
         </el-row>
       </div>
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentRoom">
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
-            <el-radio-group  v-model="selectRoom">
+            <el-radio-group  v-model="selectRoom" @change="room">
                <el-radio-button
                :key="room"
                v-for="(room, index) in rooms" :label="room.id">{{room.name}}</el-radio-button>
@@ -71,21 +73,39 @@
           </el-col>
         </el-row>
       </div>
-      <div class="systemSelect">
+
+      <!-- 控制器组列表 -->
+      <div class="systemSelect" v-if="contentDevice">
         <el-row :gutter="20">
-          <el-col :span="2"><span class="title">控制器：</span></el-col>
+          <el-col :span="2"><span class="title">控制器组：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="dateQuery.deviceId" @change="selectControllerId">
+            <el-radio-group v-model="deviceTermId" @change="selectControllerId">
                <el-radio-button
                :key="controllerList"
                v-for="controllerList in controllerLists"
-               :label="controllerList.id"
+               :label="controllerList.groupId"
                >{{controllerList.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
         </el-row>
       </div>
-      <div class="systemSelect">
+
+      <!-- 控制器列表 -->
+      <div class="systemSelect" v-if="contentController">
+        <el-row :gutter="20">
+          <el-col :span="2"><span class="title">控制器：</span></el-col>
+          <el-col :span="22">
+            <el-radio-group v-model="controllerInfo" @change="controllerSelect">
+               <el-radio-button
+               :key="controllerList"
+               v-for="controllerList in deviceTermLists"
+               :label="controllerList"
+               >{{controllerList.name}}</el-radio-button>
+             </el-radio-group>
+          </el-col>
+        </el-row>
+      </div>
+      <div class="systemSelect" v-if="contentTime">
         <el-date-picker
            v-model="startTime"
            type="datetime"
@@ -98,8 +118,8 @@
            placeholder="选择日期">
          </el-date-picker>
          <span> —— </span>
-         <el-button type="primary">不限</el-button>
-         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔">
+         <!-- <el-button type="primary">不限</el-button> -->
+         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔" @change="timeSelect">
              <el-option
                :key="time"
                v-for="(time, index) in times"
@@ -108,7 +128,7 @@
              </el-option>
           </el-select>
       </div>
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentMultiple">
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
@@ -118,11 +138,11 @@
           </el-col>
         </el-row>
       </div>
-      <div v-show="tableShow">
-        <div class="systemSelect" style="text-align:center;">
+      <div v-if="tableShow">
+        <div class="systemSelect" style="text-align:center;" v-if="contentMultiple">
             <el-button type="primary" @click="dateQueryClick">确定</el-button>
         </div>
-        <table cellspacing="0" cellpadding="0" class="dateTable" v-show="tableDataShow">
+        <table cellspacing="0" cellpadding="0" class="dateTable" v-if="tableDataShow">
           <tr class="bgth">
             <th>日期</th>
             <th>省市区</th>
@@ -138,7 +158,7 @@
             <td v-for="table in tables">{{dateTable.data[table.number].data}}</td>
           </tr>
         </table>
-        <div style="text-align:center;margin-top:40px;" v-show="tableDataShow">
+        <div style="text-align:center;margin-top:40px;" v-if="tableDataShow">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
           <el-button type="primary" @click="tableDatePrint">导出EXCEl表格</el-button>
         </div>
@@ -173,8 +193,8 @@
       </div>
 
       <!-- 图标添加 -->
-      <!-- <div v-show="chartShow" style="width:1280px;margin:0 auto;">
-        <div class="systemSelect">
+      <div v-if="chartShow" style="width:1280px;margin:0 auto;">
+        <div class="systemSelect" v-if="contentMultiple">
           <el-row :gutter="20">
             <el-col :span="2">&nbsp;</el-col>
             <el-col :span="22">
@@ -182,7 +202,7 @@
             </el-col>
           </el-row>
         </div>
-        <div class="systemSelect">
+        <div class="systemSelect" v-if="chartDate">
           <el-tag
             :key="tag"
             v-for="(tag, index) in tags"
@@ -192,15 +212,10 @@
           {{tag}}
           </el-tag>
           <div class="echarts">
-            <echarts
-                :title="{'text':'标题'}"
-                :options="options"
-                type="line"
-                className="echarts">
-            </echarts>
-           </div>
+            <IEcharts :option="bar" class="echarts" id="main"></IEcharts>
+          </div>
         </div>
-      </div> -->
+      </div>
 
   </div>
 </template>
@@ -208,9 +223,10 @@
 <script>
 import global from '../global/global'
 import axios from 'axios'
-// import Vue from 'vue'
-// import Echarts from 'vue-echarts3'
-// Vue.component('chart', Echarts)
+import Vue from 'vue'
+import IEcharts from 'vue-echarts-v3'
+var echarts = require('echarts')
+Vue.component('IEcharts', IEcharts)
 export default {
   data () {
     return {
@@ -219,9 +235,19 @@ export default {
       chartShow: false,
       echart: false,
       tableDataShow: false,
+      contentProvince: false,
+      contentLocation: false,
+      contentRoom: false,
+      contentDevice: false,
+      contentController: false,
+      contentTime: false,
+      contentMultiple: false,
+      chartDate: false,
       systemId: '0',
       system: '0',
       moreData: false,
+      deviceTermId: null,
+      deviceTermLists: [],
       times: [
         { date: '1秒', seconds: '1' },
         { date: '1分钟', seconds: '60' },
@@ -242,38 +268,26 @@ export default {
       multiSelects: [],
       tagShow: false,
       tags: [],
-      options: {
+      bar: {
+        title: {
+          text: '图表显示'
+        },
         tooltip: {
           trigger: 'axis'
         },
         legend: {
-          data: ['邮件营销']
+          data: []
         },
         xAxis: {
-          type: 'category',
           boundaryGap: false,
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+          data: []
         },
-        yAxis: {
-          type: 'value'
-        },
+        yAxis: {},
         series: []
-        // series: [{
-        //   name: '邮件营销',
-        //   type: 'line',
-        //   data: [50, 200, 6, 100, 100, 20]
-        // }, {
-        //   name: '联盟广告',
-        //   type: 'line',
-        //   data: [500, 20, 306, 100, 10, 120]
-        // }, {
-        //   name: '视频广告',
-        //   type: 'line',
-        //   data: [5, 20, 36, 10, 10, 20]
-        // }]
       },
       systemLists: [],
       controllerLists: [],
+      controllerInfo: null,
       startTime: null,
       endTime: null,
       dateQuery: {
@@ -300,8 +314,16 @@ export default {
     chart (obj) {
       this.tableShow = false
       this.chartShow = true
+      this.systemId = null
       document.querySelectorAll('.kinds li')[0].setAttribute('class', '')
       obj.target.setAttribute('class', 'active')
+      this.changeEmpty()
+      this.emptyFooter()
+      this.contentLocation = false
+      this.contentRoom = false
+      this.contentDevice = false
+      this.contentController = false
+      this.contentProvince = false
     },
     showActive (obj) {
       if (obj.target.className === 'active') {
@@ -311,17 +333,38 @@ export default {
       }
     },
     // 系统筛选
-    selectSystem: function () {
+    selectSystem () {
       this.selectProvince = null
       var self = this
-      axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
-      .then((res) => {
-        // console.log(res)
-        self.provinces = res.data.data.locationPack
-      })
+      if (this.systemId) {
+        axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
+        .then((res) => {
+          // console.log(res)
+          self.changeEmpty()
+          self.emptyFooter()
+          self.contentLocation = false
+          self.contentRoom = false
+          self.contentDevice = false
+          self.contentController = false
+          self.contentProvince = true
+          self.provinces = res.data.data.locationPack
+        })
+      }
+    },
+    changeEmpty () {
+      this.selectLocation = null
+      this.selectRoom = null
+      this.deviceTermId = null
+      this.controllerInfo = null
+      this.locations = []
+      this.rooms = []
+      this.controllerLists = []
+      this.deviceTermLists = []
+      this.multiSelects = []
     },
     province () {
       if (this.selectProvince) {
+        this.changeEmpty()
         this.citys = this.selectProvince.city
       }
       this.selectCity = null
@@ -329,21 +372,60 @@ export default {
     city () {
       this.selectArea = null
       if (this.selectCity) {
+        this.changeEmpty()
         this.areas = this.selectCity.area
       }
     },
     area () {
       if (this.selectArea) {
+        this.changeEmpty()
+        this.contentLocation = true
+        this.rooms = []
         this.locations = this.selectArea.location
       }
     },
     // 获取房间
     location () {
       var self = this
-      axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
-      .then((res) => {
-        self.rooms = res.data.data.room
-      })
+      this.rooms = []
+      if (this.selectLocation) {
+        axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
+        .then((res) => {
+          self.contentRoom = true
+          self.contentDevice = false
+          self.selectRoom = null
+          self.deviceTermId = null
+          self.contentController = false
+          self.emptyFooter()
+          self.rooms = res.data.data.room
+        })
+      }
+    },
+    // 泵房选择
+    room () {
+      var roomMsg = {
+        roomId: this.selectRoom,
+        token: global.getToken()
+      }
+      var self = this
+      if (this.selectRoom) {
+        axios.get(global.baseUrl + 'room/groupList?' + global.getHttpData(roomMsg))
+        .then((res) => {
+          self.contentDevice = true
+          self.deviceTermId = null
+          self.contentController = false
+          self.emptyFooter()
+          self.controllerLists = res.data.data
+        })
+      }
+    },
+    emptyFooter () {
+      this.contentTime = false
+      this.contentMultiple = false
+      this.controllerInfo = null
+      this.startTime = null
+      this.endTime = null
+      this.dateQuery.timeStep = null
     },
     timeFilter (value) {
       var month = value.getMonth() + 1
@@ -386,11 +468,18 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
       .then((res) => {
-        // console.log(res)
-        self.tableDataShow = true
-        self.dateTables = res.data.data
-        self.dateQuery.totalPage = res.data.totalPage
-        self.dateQuery.currentPage = res.data.currentPage
+        if (res.data.callStatus === 'SUCCEED') {
+          if (res.data.data.length) {
+            self.tableDataShow = true
+            self.dateTables = res.data.data
+            self.dateQuery.totalPage = res.data.totalPage
+            self.dateQuery.currentPage = res.data.currentPage
+          } else {
+            alert('改时间段没有数据,重新输入时间')
+            self.startTime = null
+            self.endTime = null
+          }
+        }
       })
     },
     // 导出excel
@@ -411,45 +500,116 @@ export default {
       // var self = this
       axios.get(global.baseUrl + 'data/outputExcel?' + global.getHttpData(this.dateQuery))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         // self.dateTables = res.data.data
       })
     },
-    // 选择控制器
+    // 选择控制器组
     selectControllerId () {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + this.dateQuery.deviceId + '&token=' + global.getToken())
-      .then((res) => {
-        self.multiSelects = res.data.data.fields
-      })
+      if (this.deviceTermId) {
+        axios.get(global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
+        .then((res) => {
+          self.contentController = true
+          self.emptyFooter()
+          self.deviceTermLists = res.data.data.devices
+        })
+      }
+    },
+    // 选择控制器
+    controllerSelect () {
+      if (this.controllerInfo) {
+        this.dateQuery.deviceId = this.controllerInfo.id
+        var self = this
+        axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + this.controllerInfo.termId + '&token=' + global.getToken())
+        .then((resource) => {
+          if (resource.data.callStatus === 'SUCCEED') {
+            self.contentTime = true
+            self.contentMultiple = false
+            self.startTime = null
+            self.endTime = null
+            self.dateQuery.timeStep = null
+            self.multiSelects = resource.data.data.fields
+          }
+        })
+      }
+    },
+    timeSelect () {
+      this.contentMultiple = true
     },
     // 增加标签
     addTags () {
-      this.tags = []
-      var lis = document.querySelectorAll('.multiSelect li.active')
-      for (var i in lis) {
-        if (lis[i].innerHTML !== undefined) {
-          this.tags.push(lis[i].innerHTML)
+      const self = this
+      self.bar.legend.data = self.tags
+      self.tables = []
+      var actives = document.querySelectorAll('.multiSelect li.active')
+      for (var n in actives) {
+        if (actives[n].innerHTML !== undefined) {
+          var tableObj = {
+            name: actives[n].innerHTML,
+            number: actives[n].getAttribute('value')
+          }
+          self.tables.push(tableObj)
         }
       }
-      // console.log(this.tags)
-      this.options.series = [
-        {
-          name: '邮件营销',
-          type: 'line',
-          data: [50, 200, 6, 100, 100, 20]
+      this.dateQuery.startTime = this.timeFilter(this.startTime)
+      this.dateQuery.endTime = this.timeFilter(this.endTime)
+      axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
+      .then((res) => {
+        if (res.data.data.length) {
+          self.chartDate = true
+          // 横坐标时间
+          if (self.bar.xAxis.data.length === 0) {
+            for (let timeIndex in res.data.data) {
+              self.bar.xAxis.data.push(self.timeFilter(new Date(res.data.data[timeIndex].time)))
+            }
+          }
+          self.empty()
+          for (let m in self.tables) {
+            var obj = {
+              name: '',
+              type: 'line',
+              data: []
+            }
+            for (let index in res.data.data) {
+              obj.name = res.data.data[0].roomName + self.tables[m].name
+              obj.data.push(res.data.data[index].data[self.tables[m].number].value)
+            }
+            self.tags.push(obj.name)
+            self.bar.series.push(obj)
+            console.log(self.bar.series)
+          }
+        } else {
+          alert('改时间段没有数据,重新输入时间')
+          self.startTime = null
+          self.endTime = null
         }
-      ]
-      console.log(this.options)
+      })
+    },
+    // 初始化函数
+    empty () {
+      this.systemId = null
+      this.selectLocation = null
+      this.selectRoom = null
+      this.deviceTermId = null
+      this.controllerInfo = null
+      this.locations = []
+      this.rooms = []
+      this.controllerLists = []
+      this.deviceTermLists = []
+      this.multiSelects = []
     },
     // 删除标签
     closeTag (index) {
       this.tags.splice(index, 1)
+      this.bar.series.splice(index, 1)
+      var myChart = echarts.init(document.getElementById('main'))
+      myChart.setOption(this.bar)
     },
     // 分页
     currentPageChange (value) {
       this.dateQuery.currentPage = value
-      this.getAlarmInfo(this.dateQuery)
+      this.dateQueryClick(this.dateQuery)
     }
   },
   created () {
@@ -458,18 +618,6 @@ export default {
     axios.post(global.baseUrl + 'system/list', global.postHttpDataWithToken())
     .then((res) => {
       self.systemLists = res.data.data
-    })
-    // 控制器列表
-    axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken())
-    .then((res) => {
-      // console.log(res)
-      self.controllerLists = res.data.data
-    })
-    // 城市列表
-    axios.post(global.baseUrl + 'area/areas')
-    .then((res) => {
-      // console.log(res)
-      self.provinces = res.data.data
     })
   },
   mounted () {
@@ -488,12 +636,17 @@ export default {
   line-height: 71px;
   border-bottom: 1px solid rgb(20,135,202);
 }
+.echarts{
+  width: 400px;
+  height: 400px;
+}
 .bgtr td:nth-child(1){
   border-left: 1px solid rgb( 220, 220, 220 );
 }
 .bgtr td{
   border-right: 1px solid rgb( 220, 220, 220 );
   border-bottom: 1px solid rgb( 220, 220, 220 );
+  font-size: 14px;
 }
 .dateTable{
   width: 100%;
@@ -595,5 +748,8 @@ export default {
 }
 .addTags{
   clear: both;
+}
+.bgtr td{
+  font-size: 14px!important;
 }
 </style>

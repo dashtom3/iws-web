@@ -91,7 +91,7 @@
         <li v-for="addressRoomList in addressRoomLists" class="addressRoomlist">
           <p class="roomTitle">{{addressRoomList.name}}</p>
           <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/detail/'+locationId" target="_blank">
-            <img :src="'http://61.190.61.78:6784/iws/api/'+configControllerList.pic" alt="">
+            <img :src="imgUrl+configControllerList.pic" alt="">
             <p>{{configControllerList.name}}</p>
           </a>
         </li>
@@ -123,9 +123,10 @@ export default {
       addressAlert: false,
       msg: 'Welcome to Your Vue.js App',
       showLeftNav: false,
-      zoom: 14,
+      zoom: 5,
       center: [121.5273285, 31.21515044],
       chengshiShow: false,
+      imgUrl: global.baseUrl,
       // 地图
       markers: [],
       markerContent: '',

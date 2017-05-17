@@ -5,6 +5,7 @@
     <el-menu-item index="/admin/system"><i class="systembg"></i><span>系统管理</span></el-menu-item>
     <el-menu-item index="/admin/controller"><i class="kzbg"></i><span>控制器管理</span></el-menu-item>
     <el-menu-item index="/admin/base"><i class="jbbg"></i><span>基本设备管理</span></el-menu-item>
+    <el-menu-item index="/admin/video"><i class="jbbg"></i><span>视频监控管理</span></el-menu-item>
     <el-menu-item index="/admActive"><i class="busbg"></i><span>GPS维修车管理</span></el-menu-item>
   </el-menu>
   </el-col>

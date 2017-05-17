@@ -15,11 +15,16 @@
   <ul class="lists">
     <li v-for="newsList in newsLists">
       <el-row>
-        <el-col :span="20"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsList.describes}}</span></p>
+        <el-col :span="24"><p class="newsquer"><span class="report"></span><span class="newsinfo">{{newsList.describes}}</span></p>
         <p class="newsTime"><span class="time">{{newsList.alarmTime | time}}</span>
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">已确认</span></p></el-col>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">已确认</span><br><br>
+          <!-- <div class="h20"></div> -->
+          <el-button type="danger" size="small">语音播报</el-button>
+          <el-button type="danger" size="small">发送短信</el-button>
+          <div class="h20"></div>
+        </p></el-col>
       </el-col>
-        <el-col :span="4">
+        <!-- <el-col :span="4">
           <div class="goPerson">
             <p class="userMsg">用户名称:<span class="name" v-on:click="showPersonalAlert(newsList.id)">{{newsList.userName}}</span></p>
             <el-dialog title="用户信息" v-model="personalAlert">
@@ -53,7 +58,7 @@
               </el-dialog>
             <p class="userMsg">{{newsList.confirmTime | time}}<span class="msgstate">已确认</span></p>
           </div>
-        </el-col>
+        </el-col> -->
       </el-row>
     </li>
   </ul>
@@ -113,7 +118,7 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        // console.log(res)
+        console.log(res)
         self.newsLists = res.data.data
         self.newsArgs.totalPage = res.data.totalPage
         self.newsArgs.numberPerPage = res.data.numberPerPage
@@ -150,6 +155,9 @@ export default {
   min-height: 95px;
   border-bottom: 1px dashed
 }
+.h20{
+  height: 10px;
+}
 .state{
   margin-left: 10px;
 }
@@ -184,10 +192,11 @@ export default {
   margin: 25px 0 10px;
 }
 .newsTime{
-  margin: 10px 0 20px 25px;
+  margin: 10px 0 0px 25px;
 }
 .report{
   float: left;
+  position: absolute;
   display: inline-block;
   width: 15px;
   height:19px;

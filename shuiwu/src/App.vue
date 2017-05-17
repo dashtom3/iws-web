@@ -36,7 +36,6 @@ ul li{
 }
 .selectController input{
   width: 100px;
-  border-color: #fff;
 }
 .selectController i{
   color: #000!important;
@@ -65,6 +64,7 @@ a:active{
   color: rgba( 0, 0, 0, 0.8 );
   margin-right: 40px;
   position: relative;
+  margin-bottom: 20px;
 }
 .systemSelect .el-tag .el-tag__close{
   position: absolute;

@@ -91,7 +91,8 @@ export default {
         endTime: null,
         currentPage: 1,
         numberPerPage: 10,
-        totalPage: -1
+        totalPage: -1,
+        userId: global.getUser().id
       }
     }
   },
@@ -119,7 +120,6 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        console.log(res)
         self.newsLists = res.data.data
         self.newsArgs.totalPage = res.data.totalPage
         self.newsArgs.numberPerPage = res.data.numberPerPage

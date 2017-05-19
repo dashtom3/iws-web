@@ -75,7 +75,7 @@
       </span>
       <span>
         <i class="controlleredit controllericon" v-on:click="editBase(baseList.id)"></i>
-        <i class="controllerdel controllericon" v-on:click="deleteBase(baseList.id)"></i>
+        <i class="controllerdel controllericon" v-on:click="deleteBaseShow(baseList.id)"></i>
       </span>
     </div>
     <!-- 分页 -->
@@ -87,6 +87,18 @@
         :page-count="baseListArgs.totalPage">
       </el-pagination>
     </div>
+
+    <!-- 确认删除 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="deleteBaseAlert"
+      size="tiny">
+      <span>确认删除该设备吗？</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteBaseAlert = false">取 消</el-button>
+        <el-button type="primary" @click="deleteBase">确 定</el-button>
+      </span>
+    </el-dialog>
 
     <!-- 修改设备 -->
     <el-dialog title="修改设备" v-model="editBaseAlert" size="tiny">
@@ -133,6 +145,10 @@ export default {
         name: null,
         token: global.getToken()
       },
+      baseMsg: {
+        groupId: null
+      },
+      deleteBaseAlert: false,
       baseListArgs: {
         currentPage: 1,
         numberPerPage: 10,
@@ -223,12 +239,17 @@ export default {
       })
     },
     // 删除设备
-    deleteBase (baseId) {
+    deleteBaseShow (baseId) {
+      this.deleteBaseAlert = true
+      this.baseMsg.groupId = baseId
+    },
+    deleteBase () {
       var self = this
-      axios.post(global.baseUrl + 'device/delete?groupId=' + baseId + '&token=' + global.getToken())
+      axios.post(global.baseUrl + 'device/delete', global.postHttpDataWithToken(this.baseMsg))
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
+          self.deleteBaseAlert = false
           global.success(self, '删除成功', '')
           self.getBaseList(self.baseListArgs)
         }

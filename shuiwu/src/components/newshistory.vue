@@ -118,7 +118,7 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         self.newsLists = res.data.data
         self.newsArgs.totalPage = res.data.totalPage
         self.newsArgs.numberPerPage = res.data.numberPerPage

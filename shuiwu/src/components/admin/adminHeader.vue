@@ -12,7 +12,7 @@
         <li class="user">
           <!-- <span>安全退出</span> -->
             <el-dropdown trigger="click">
-                <span class="el-dropdown-link" v-on:click="exit">
+                <span class="el-dropdown-link exitAdmin" v-on:click="exit">
                 安全退出
               </span>
             </el-dropdown>
@@ -42,7 +42,9 @@ export default {
 .title {
     padding: 1em .2em;
 }
-
+.exitAdmin:hover{
+  color: red;
+}
 .title span {
     font-size: 1.4em;
     margin-left: 5px;

@@ -22,8 +22,12 @@
           </el-col>
         </el-row>
       </div>
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentProvince">
         <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
+          <el-option
+            label="全部"
+            value="">
+          </el-option>
           <el-option
             :key="province"
             v-for="(province, index) in provinces"
@@ -33,6 +37,10 @@
         </el-select>
         <el-select v-model="selectCity" placeholder="请选择市" @change="city">
           <el-option
+            label="全部"
+            value="">
+          </el-option>
+          <el-option
             :key="city"
             v-for="(city, index) in citys"
             :label="city.name"
@@ -41,6 +49,10 @@
         </el-select>
         <el-select v-model="selectArea" placeholder="请选择地区" @change="area">
           <el-option
+            label="全部"
+            value="">
+          </el-option>
+          <el-option
             :key="area"
             v-for="(area, index) in areas"
             :label="area.name"
@@ -48,7 +60,7 @@
           </el-option>
         </el-select>
       </div>
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentLocation">
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">小区：</span></el-col>
           <el-col :span="22">
@@ -63,7 +75,7 @@
       </div>
 
       <!-- 所有地点 -->
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentRoom">
         <el-row :gutter="20">
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
@@ -77,7 +89,7 @@
       </div>
 
       <!-- 控制器组列表 -->
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentDevice">
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">控制器组：</span></el-col>
           <el-col :span="22">
@@ -94,11 +106,11 @@
       </div>
 
       <!-- 控制器 -->
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentController">
         <el-row :gutter="20">
           <el-col :span="2"><span class="title">控制器：</span></el-col>
           <el-col :span="22">
-            <el-radio-group v-model="controllerInfo">
+            <el-radio-group v-model="controllerInfo" @change="controllerSelect">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button
                :key="controllerList"
@@ -110,7 +122,7 @@
         </el-row>
       </div>
 
-      <div class="systemSelect">
+      <div class="systemSelect" v-if="contentTime">
         <el-date-picker
            v-model="startTime"
            type="datetime"
@@ -120,7 +132,8 @@
          <el-date-picker
            v-model="endTime"
            type="datetime"
-           placeholder="选择日期">
+           placeholder="选择日期"
+           @change="endTimeSelect">
          </el-date-picker>
          <!-- <span> —— </span>
          <el-button type="primary">不限</el-button> -->
@@ -147,7 +160,7 @@
         <div class="systemSelect" style="text-align:center;">
             <el-button type="primary" @click="dateQueryClick">确定</el-button>
         </div>
-        <table cellspacing="0" cellpadding="0" class="dateTable">
+        <table cellspacing="0" cellpadding="0" class="dateTable" v-if="dateContent">
           <tr class="bgth">
             <th>报警名称</th>
             <th>设备名称</th>
@@ -169,7 +182,7 @@
             <td>{{alarmStatus[dateTable.confirm]}}</td>
           </tr>
         </table>
-        <div style="text-align:center;margin-top:40px;">
+        <div style="text-align:center;margin-top:40px;" v-if="dateContent">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
           <!-- <el-button type="primary" @click="printExcel">导出EXCEl表格</el-button> -->
         </div>
@@ -258,6 +271,14 @@ export default {
       systemId: '0',
       groupId: '0',
       moreData: false,
+      contentProvince: false,
+      contentLocation: false,
+      contentRoom: false,
+      contentDevice: false,
+      contentController: false,
+      contentTime: false,
+      contentMultiple: false,
+      dateContent: false,
       times: [
         { date: '1秒', seconds: '1' },
         { date: '1分钟', seconds: '60' },
@@ -327,32 +348,69 @@ export default {
       this.selectProvince = null
       var self = this
       self.changeEmpty()
+      this.citys = []
+      this.areas = []
       if (this.systemId !== '0') {
         axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
         .then((res) => {
+          self.changeEmpty()
+          self.emptyFooter()
+          self.contentLocation = false
+          self.contentRoom = false
+          self.contentDevice = false
+          self.contentController = false
+          self.contentTime = false
+          self.contentProvince = true
           self.provinces = res.data.data.locationPack
         })
       } else {
         self.provinces = []
+        self.contentLocation = false
+        self.contentRoom = false
+        self.contentDevice = false
+        self.contentController = false
+        self.contentTime = false
+        self.contentProvince = false
       }
     },
     province () {
       this.changeEmpty()
       if (this.selectProvince) {
+        this.changeEmpty()
+        this.contentLocation = false
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
         this.citys = this.selectProvince.city
       }
       this.selectCity = null
     },
     city () {
-      this.changeEmpty()
       this.selectArea = null
       if (this.selectCity) {
+        this.changeEmpty()
+        this.contentLocation = false
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
         this.areas = this.selectCity.area
       }
     },
     area () {
       this.changeEmpty()
       if (this.selectArea) {
+        this.contentLocation = true
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
+        this.emptyFooter()
+        this.rooms = []
         this.locations = this.selectArea.location
       }
     },
@@ -374,7 +432,6 @@ export default {
       this.selectRoom = '0'
       this.deviceTermId = '0'
       this.controllerInfo = '0'
-      this.locations = []
       this.rooms = []
       this.controllerLists = []
       this.deviceTermLists = []
@@ -385,9 +442,18 @@ export default {
       if (this.selectLocation !== '0') {
         axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
         .then((res) => {
+          self.contentRoom = true
+          self.contentDevice = false
+          self.selectRoom = null
+          self.deviceTermId = null
+          self.contentController = false
+          self.contentDevice = false
+          self.emptyFooter()
           self.rooms = res.data.data.room
         })
       } else {
+        this.contentController = false
+        this.contentDevice = false
         this.changeEmpty()
       }
     },
@@ -401,6 +467,11 @@ export default {
       if (this.selectRoom !== '0') {
         axios.get(global.baseUrl + 'room/groupList?' + global.getHttpData(roomMsg))
         .then((res) => {
+          self.contentDevice = true
+          self.deviceTermId = null
+          self.contentController = false
+          self.contentDevice = true
+          self.emptyFooter()
           self.controllerLists = res.data.data
         })
       } else {
@@ -413,9 +484,38 @@ export default {
       if (this.deviceTermId !== '0') {
         axios.get(global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
         .then((res) => {
+          self.emptyFooter()
+          self.contentController = true
           self.deviceTermLists = res.data.data.devices
         })
+      } else {
+        this.contentController = false
       }
+    },
+    // 控制器
+    controllerSelect () {
+      if (this.controllerInfo !== '0') {
+        this.dateQuery.deviceId = this.controllerInfo.id
+        var self = this
+        self.contentTime = true
+        self.contentMultiple = false
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.timeStep = null
+      } else {
+        this.contentTime = false
+      }
+    },
+    endTimeSelect () {
+      this.contentMultiple = true
+    },
+    emptyFooter () {
+      this.contentTime = false
+      this.contentMultiple = false
+      this.controllerInfo = null
+      this.startTime = null
+      this.endTime = null
+      this.dateQuery.timeStep = null
     },
     timeFilter (value) {
       var month = value.getMonth() + 1
@@ -442,7 +542,7 @@ export default {
     },
     // 查询数据
     dateQueryClick () {
-      this.empy(this.dateQuery)
+      // this.empy(this.dateQuery)
       if (this.systemId !== '0') {
         this.dateQuery.systemId = this.systemId
       }
@@ -476,15 +576,6 @@ export default {
           this.tags.push(lis[i].innerHTML)
         }
       }
-      // console.log(this.tags)
-      this.options.series = [
-        {
-          name: '邮件营销',
-          type: 'line',
-          data: [50, 200, 6, 100, 100, 20]
-        }
-      ]
-      console.log(this.options)
     },
     // 删除标签
     closeTag (index) {
@@ -492,10 +583,11 @@ export default {
     },
     // 获取报警信息的列表
     getAlarmInfo (args) {
+      // console.log(args)
       var self = this
       axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
       .then((res) => {
-        self.empty()
+        self.dateContent = true
         self.dateTables = res.data.data
         self.dateQuery.currentPage = res.data.currentPage
         self.dateQuery.totalPage = res.data.totalPage
@@ -521,7 +613,18 @@ export default {
     .then((res) => {
       self.systemLists = res.data.data
     })
-    this.getAlarmInfo(this.dateQuery)
+    // 全部地点
+    var systemMsg = {
+      systemId: 0
+    }
+    axios.post(global.baseUrl + 'location/list', global.postHttpDataWithToken(systemMsg))
+    .then((res) => {
+      if (res.data.callStatus === 'SUCCEED') {
+        // self.provinces = res.data.
+        // console.log(res)
+      }
+    })
+    // this.getAlarmInfo(this.dateQuery)
   },
   mounted () {
     var login = this.$refs.contentHeight

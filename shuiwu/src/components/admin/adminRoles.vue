@@ -1,8 +1,8 @@
 <template>
   <div class="testUser">
     <div class="right">
-      <span class="kd"></span><span>可读</span>
-      <span class="kx"></span><span>可写</span>
+      <span class="kd"></span><span>只读</span>
+      <span class="kx"></span><span>读写</span>
       <span class="fz"></span><span>负责人</span>
     </div>
     <div class="addroleBtn">
@@ -143,8 +143,8 @@ export default {
         areas: '',
         selectArea: '',
         jurisdictions: [
-          { data: '可读', state: '0' },
-          { data: '可写', state: '1' }
+          { data: '只读', state: '1' },
+          { data: '读写', state: '2' }
         ],
         selectJurisdiction: '',
         systemId: '',
@@ -190,13 +190,14 @@ export default {
       global.area(this.addRoleInfo)
     },
     addactive (ele, user) {
-      console.log(ele.target.parentNode.parentNode.className)
-      for (let i in ele.target.parentNode.parentNode.className) {
-        if (ele.target.parentNode.parentNode.className[i] === 'active') {
+      var arr = ele.target.parentNode.parentNode.className.split(',')
+      for (let i in arr) {
+        if (arr[i].indexOf('active') === '-1') {
           this.divIsactive = null
         }
         this.divIsactive = user
       }
+      // console.log(this.divIsactive)
     },
     // 增加标签
     addTag () {
@@ -259,7 +260,6 @@ export default {
     },
     // 修改角色
     edit (id) {
-      // console.log(id)
       this.roleId = id
       this.addrolesub = false
       this.editrolesub = true
@@ -271,12 +271,12 @@ export default {
       var self = this
       axios.post(global.baseUrl + 'role/detail?roleId=' + id + '&token=' + global.getToken())
       .then((res) => {
-        // console.log(res)
         self.addRoleInfo.name = res.data.data.name
         for (let i in res.data.data.subitem) {
           self.tags.push(res.data.data.subitem[i].systemName + res.data.data.subitem[i].areaName + res.data.data.subitem[i].limitName)
           self.tagsMsg.push(res.data.data.subitem[i].systemId + res.data.data.subitem[i].areaId + res.data.data.subitem[i].limitation)
         }
+        self.addRoleInfo.subitem = res.data.data.subitem
       })
     },
     editRole () {

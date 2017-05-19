@@ -130,9 +130,21 @@
             </div>
           </el-dialog>
           <i class="controlleredit controllericon" v-on:click="editController(controller.id)"></i>
-          <i class="controllerdel controllericon" v-on:click="deleteController(controller.id)"></i>
+          <i class="controllerdel controllericon" v-on:click="deleteShow(controller.id)"></i>
         </span>
       </div>
+
+      <!-- 删除提醒 -->
+      <el-dialog
+        title="提示"
+        :visible.sync="deleteAlert"
+        size="tiny">
+        <span>确认删除？</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="deleteAlert = false">取 消</el-button>
+          <el-button type="primary" @click.native="deleteController">确 定</el-button>
+        </span>
+      </el-dialog>
 
 
       <!-- 修改控制器 -->
@@ -173,6 +185,10 @@ export default {
       addControllerAlert: false,
       viewcontroller: false,
       editControllerAlert: false,
+      deleteAlert: false,
+      deleteControllerMsg: {
+        deviceTermId: null
+      },
       addControllerDate: {
         type: null,
         name: null,
@@ -319,15 +335,17 @@ export default {
       })
     },
     // 删除控制器
-    deleteController (deviceTermId) {
+    deleteShow (deviceTermId) {
+      this.deleteControllerMsg.deviceTermId = deviceTermId
+      this.deleteAlert = true
+    },
+    deleteController () {
       var self = this
-      var controllerMsg = {
-        deviceTermId: deviceTermId
-      }
-      axios.post(global.baseUrl + 'deviceTerm/delete', global.postHttpDataWithToken(controllerMsg))
+      axios.post(global.baseUrl + 'deviceTerm/delete', global.postHttpDataWithToken(this.deleteControllerMsg))
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
+          self.deleteAlert = false
           global.success(self, '删除成功', '')
           self.getControllerLists(self.controllerArgs)
         }

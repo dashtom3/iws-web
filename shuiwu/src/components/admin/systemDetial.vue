@@ -1,8 +1,41 @@
 <template>
   <div class="systemDetial">
     <el-row :gutter="20">
-      <el-col :span="2"><span class="back" v-on:click="back">返回系统>></span></el-col>
-      <el-col :span="20">&nbsp;</el-col>
+      <el-col :span="2"><span class="back" v-on:click="back"><<返回系统</span>&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
+      <el-col :span="2">
+      <el-select v-model="search.searchProvince" placeholder="选择省份" @change="searchProvince">
+        <el-option
+        label="全部" value=""></el-option>
+        <el-option
+        :key="province"
+        v-for="province in search.searchProvinces"
+        :label="province.name" :value="province"></el-option>
+      </el-select>
+      </el-col>
+      <el-col :span="2">
+      <el-select v-model="search.searchCity" placeholder="选择市" @change="searchCity">
+        <el-option
+        label="全部" value=""></el-option>
+        <el-option
+        :key="city"
+        v-for="city in search.searchCitys"
+        :label="city.name" :value="city"></el-option>
+      </el-select>
+      </el-col>
+      <el-col :span="2">
+      <el-select v-model="search.searchArea" placeholder="选择地区">
+        <el-option
+        label="全部" value=""></el-option>
+        <el-option
+        :key="area"
+        v-for="area in search.searchAreas"
+        :label="area.name" :value="area"></el-option>
+      </el-select>
+      </el-col>
+      <el-col :span='2'>
+        <el-button type="primary" @click="searchByArea">查找</el-button>
+      </el-col>
+      <el-col :span="12" class="f18">{{systemName}}</el-col>
       <el-col :span="2"><el-button type="primary" @click="addressAlert = true">添加新地点</el-button></el-col>
     </el-row>
 
@@ -51,37 +84,6 @@
       </div>
     </el-dialog>
 
-    <!-- 根据地区筛选 -->
-    <el-row :gutter="20">
-      <el-col :span="2">
-      <el-select v-model="search.searchProvince" placeholder="选择省份" @change="searchProvince">
-        <el-option
-        :key="province"
-        v-for="province in search.searchProvinces"
-        :label="province.name" :value="province"></el-option>
-      </el-select>
-      </el-col>
-      <el-col :span="2">
-      <el-select v-model="search.searchCity" placeholder="选择市" @change="searchCity">
-        <el-option
-        :key="city"
-        v-for="city in search.searchCitys"
-        :label="city.name" :value="city"></el-option>
-      </el-select>
-      </el-col>
-      <el-col :span="2">
-      <el-select v-model="search.searchArea" placeholder="选择地区">
-        <el-option
-        :key="area"
-        v-for="area in search.searchAreas"
-        :label="area.name" :value="area"></el-option>
-      </el-select>
-      </el-col>
-      <el-col :span='2'>
-        <el-button type="primary" @click="searchByArea">查找</el-button>
-      </el-col>
-    </el-row>
-
     <!-- 地点列表 -->
     <el-row :gutter="20" class="areaList">
       <div class="arealists" v-for="(addresslist, index) in addresslists" :class="{active: addressData.isOpen == addresslist}">
@@ -123,7 +125,7 @@
                 <el-dialog title="添加房间" v-model="addRoomAlert" size="tiny">
                   <el-form>
                     <el-form-item label="房间名称">
-                      <el-input v-model="rooms.name" auto-complete="off"></el-input>
+                      <el-input v-model="roomMsg.name" auto-complete="off"></el-input>
                     </el-form-item>
                   </el-form>
                   <div slot="footer" class="dialog-footer">
@@ -159,7 +161,7 @@
                       :label="equipmentList.name" :value="equipmentList.id"></el-option>
                     </el-select>
                   </el-form-item>
-                  <div class="tableContent">
+                  <div class="tableContent" v-if="tableDate">
                     <table cellspacing="0" cellpadding="0" v-for="(equipmentController, index) in equipmentControllers">
                       <tr>
                         <th>名称</th>
@@ -173,12 +175,12 @@
                   </div>
                   <div style="height:20px;"></div>
                   <el-button type="primary" v-on:click="testDate">测试</el-button>
-                  <p v-model="testResponeMsg"></p>
+                  <p class="testResponeMsg">{{testResponeMsg}}</p>
 
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="addPackageAlert = false">取 消</el-button>
-                  <el-button type="primary" v-on:click="addControllerDevice">确 定</el-button>
+                  <el-button type="primary" v-on:click="addControllerDevice" :disabled="addControllerBtn === '0'">确 定</el-button>
                 </span>
               </el-dialog>
 
@@ -281,6 +283,7 @@ export default {
         offset: '1',
         keywords: null
       },
+      systemName: null,
       addRoomName: '',
       addRoomAlert: false,
       addressAlert: false,
@@ -298,6 +301,14 @@ export default {
         name: null
       },
       deviceMsg: {
+        roomId: null,
+        port: null,
+        name: null,
+        selectDeviceId: null,
+        terms: []
+      },
+      tableDate: null,
+      deviceMsg2: {
         roomId: null,
         port: null,
         name: null,
@@ -360,6 +371,7 @@ export default {
       editDate: null,
       editkeyword: null,
       testResponeMsg: null,
+      addControllerBtn: '0',
       editCitys: [],
       editAreas: [],
       isOpen: null,
@@ -371,17 +383,12 @@ export default {
         numberPerPage: 10,
         totalPage: -1
       },
-      events: {
-        init (obj) {
-          console.log(obj)
-        }
+      roomMsg: {
+        name: null
       }
     }
   },
   methods: {
-    onSearchResult (pois) {
-      console.log(pois)
-    },
     areaIsActive (item, id) {
       var self = this
       this.addPackage = false
@@ -396,6 +403,7 @@ export default {
     },
     selectDevice (id) {
       var self = this
+      self.tableDate = true
       if (id) {
         axios.get(global.baseUrl + 'device/groupDetail?groupId=' + id + '&token=' + global.getToken())
         .then((res) => {
@@ -413,28 +421,25 @@ export default {
     },
     // 测试配置好的数据
     testDate () {
-      // var self = this
-      console.log(this.deviceMsg.terms)
-      this.deviceMsg.terms = JSON.stringify(this.deviceMsg.terms)
+      var self = this
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'room/testDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
       xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.send(this.deviceMsg.terms)
+      xhr.send(JSON.stringify(this.deviceMsg.terms))
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log(123)
-          // console.log(JSON.parse(xhr.responseText).data)
+          self.testResponeMsg = JSON.parse(xhr.responseText).data.massage
+          self.addControllerBtn = JSON.parse(xhr.responseText).data.status
         }
       }
     },
     // 添加配置控制器
     addControllerDevice () {
       var self = this
-      this.deviceMsg.terms = JSON.stringify(this.deviceMsg.terms)
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'room/addDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
       xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.send(this.deviceMsg.terms)
+      xhr.send(JSON.stringify(this.deviceMsg.terms))
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           global.addSuccess(self, '添加成功')
@@ -445,6 +450,7 @@ export default {
           self.addPackageAlert = false
           self.equipmentControllers = []
           self.testResponeMsg = null
+          self.addControllerBtn = null
           axios.get(global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
           .then((res) => {
             // console.log(res)
@@ -455,7 +461,7 @@ export default {
       }
     },
     packageIsactive (meal) {
-      // console.log(meal)
+      localStorage.setItem('meal', JSON.stringify(meal))
       var self = this
       axios.get(global.baseUrl + 'room/groupDetail?groupId=' + meal.groupId + '&token=' + global.getToken())
       .then((res) => {
@@ -480,6 +486,10 @@ export default {
       this.addressData.citys = this.addressData.selectProvince.city
     },
     searchProvince () {
+      // console.log(this.search.searchProvince)
+      this.search.searchCity = null
+      this.search.searchArea = null
+      this.search.searchAreas = null
       this.search.searchCityId = ''
       this.search.searchAreaId = ''
       this.search.searchCitys = this.search.searchProvince.city
@@ -506,8 +516,11 @@ export default {
       }
     },
     searchCity () {
-      this.search.searchAreaId = ''
-      this.search.searchAreas = this.search.searchCity.area
+      if (this.search.searchCity) {
+        this.search.searchArea = null
+        this.search.searchAreaId = ''
+        this.search.searchAreas = this.search.searchCity.area
+      }
     },
     area () {
       this.searchMsg.keywords = this.addressData.selectProvince.name + this.addressData.selectArea.name
@@ -585,6 +598,15 @@ export default {
         }
       })
     },
+    // 全部
+    clearProvince () {
+      this.search.searchProvince = null
+      this.search.searchCity = null
+      this.search.searchArea = null
+      this.search.searchCityId = ''
+      this.search.searchAreaId = ''
+      this.getAddressLists(this.addressArgs)
+    },
     // 通过城市筛选地点
     searchByArea () {
       var searchMsg = new FormData()
@@ -601,8 +623,11 @@ export default {
       var self = this
       axios.post(global.baseUrl + 'location/query?token=' + global.getToken(), searchMsg)
       .then((res) => {
+        self.addresslists = res.data.data
         if (res.data.callStatus === 'SUCCEED') {
-          self.addresslists = res.data.data
+          if (!res.data.data.length) {
+            global.success(self, '该地区没有地点', '')
+          }
         }
       })
     },
@@ -616,7 +641,7 @@ export default {
       qingqiu.append('token', global.getToken())
       axios.post(global.baseUrl + 'location/detail', qingqiu)
       .then((res) => {
-        console.log(res.data)
+        // console.log(res.data)
         self.editDate = res.data.data
         self.$nextTick(function () {
           self.editProvince()
@@ -662,7 +687,7 @@ export default {
       var self = this
       axios.post(global.baseUrl + 'location/delete?token=' + global.getToken() + '&locationId=' + this.addressId)
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           self.delAlert = false
           global.addSuccess(self, '删除成功')
@@ -717,11 +742,21 @@ export default {
       this.addRoomAlert = !this.addRoomAlert
       axios.post(global.baseUrl + 'room/detail?token=' + global.getToken() + '&roomId=' + roomid)
       .then((res) => {
-        self.rooms = res.data.data
+        self.roomMsg = res.data.data
       })
     },
     editroom () {
-      // console.log(123)
+      this.roomMsg.location = null
+      this.roomMsg.deviceGroups = null
+      var self = this
+      axios.post(global.baseUrl + 'room/update', global.postHttpDataWithToken(this.roomMsg))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          self.addRoomAlert = false
+          self.roomMsg.name = null
+          global.success(self, '修改成功', '')
+        }
+      })
     },
     // 开启配置好的控制器
     openConfigController (groupId) {
@@ -733,6 +768,7 @@ export default {
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
+          self.packageIsactive(JSON.parse(localStorage.getItem('meal')))
         }
       })
     },
@@ -745,6 +781,7 @@ export default {
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
+          self.packageIsactive(JSON.parse(localStorage.getItem('meal')))
         }
       })
     },
@@ -778,7 +815,26 @@ export default {
     .then((res) => {
       self.equipmentLists = res.data.data
     })
+    axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.$route.params.id + '&token=' + global.getToken())
+    .then((res) => {
+      self.search.searchProvinces = res.data.data.locationPack
+    })
+    // 系统详情
+    axios.post(global.baseUrl + 'system/detailPack', global.postHttpDataWithToken(this.addressArgs))
+    .then((res) => {
+      self.systemName = res.data.data.name
+    })
     this.getAddressLists(this.addressArgs)
+  },
+  watch: {
+    addPackageAlert () {
+      this.tableDate = false
+      if (!this.addPackageAlert) {
+        this.deviceMsg = this.deviceMsg2
+        this.testResponeMsg = null
+        this.tableDate = false
+      }
+    }
   }
 }
 </script>
@@ -790,6 +846,9 @@ export default {
   width: 18px;
   height: 18px;
   margin: 0 10px;
+}
+.f18{
+  font-size: 18px;
 }
 .tableContent{
   max-height: 300px;

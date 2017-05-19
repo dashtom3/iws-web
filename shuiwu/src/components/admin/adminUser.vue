@@ -1,5 +1,16 @@
 <template>
   <div class="testUser">
+    <!-- <el-row :gutter="20" style="text-align:left;">
+      <el-select v-model="userType" placeholder="请选择" @change="changeUserType">
+        <el-option
+          v-for="item in userTypes"
+          :key="item.value"
+          :label="item.data"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      <el-input v-model="userSearch" placeholder="请输入内容" style="width:200px;"></el-input>
+    </el-row> -->
     <el-row :gutter="20" class="userTitle">
       <el-col :span="3"><span>用户名</span></el-col>
       <el-col :span="3"><span>姓名</span></el-col>
@@ -52,7 +63,14 @@ export default {
         numberPerPage: 10,
         totalPage: -1,
         token: global.getToken()
-      }
+      },
+      userType: null,
+      userSearch: null,
+      userTypes: [
+        { data: '用户名', value: 'username' },
+        { data: '姓名', value: 'name' },
+        { data: '地址', value: 'address' }
+      ]
     }
   },
   created () {
@@ -97,6 +115,10 @@ export default {
     currentPageChange (value) {
       this.userArgs.currentPageChange = value
       this.getUserList(this.userArgs)
+    },
+    changeUserType () {
+      var a = this.userType
+      console.log(a)
     }
   }
 }

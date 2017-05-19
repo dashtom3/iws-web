@@ -153,6 +153,9 @@ a:active{
 .confirm:hover{
   border: none;
 }
+.cw input,.cw i{
+  color:#fff!important;
+}
 /*.el-carousel__item:first-child{
   display: inline-block!important;
 }*/

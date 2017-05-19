@@ -310,6 +310,13 @@ export default {
       this.chartShow = false
       document.querySelectorAll('.kinds li')[1].setAttribute('class', '')
       obj.target.setAttribute('class', 'active')
+      this.changeEmpty()
+      this.emptyFooter()
+      this.contentLocation = false
+      this.contentRoom = false
+      this.contentDevice = false
+      this.contentController = false
+      this.contentProvince = false
     },
     chart (obj) {
       this.tableShow = false
@@ -342,6 +349,8 @@ export default {
           // console.log(res)
           self.changeEmpty()
           self.emptyFooter()
+          self.citys = []
+          self.areas = []
           self.contentLocation = false
           self.contentRoom = false
           self.contentDevice = false
@@ -365,21 +374,56 @@ export default {
     province () {
       if (this.selectProvince) {
         this.changeEmpty()
+        this.areas = []
+        this.contentLocation = false
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
         this.citys = this.selectProvince.city
       }
       this.selectCity = null
+      this.areas = []
+      this.contentLocation = false
+      this.contentRoom = false
+      this.contentDevice = false
+      this.contentController = false
+      this.contentTime = false
+      this.contentMultiple = false
     },
     city () {
       this.selectArea = null
       if (this.selectCity) {
         this.changeEmpty()
+        this.areas = []
+        this.contentLocation = false
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
         this.areas = this.selectCity.area
+      } else {
+        this.areas = []
+        this.contentLocation = false
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
       }
     },
     area () {
       if (this.selectArea) {
         this.changeEmpty()
         this.contentLocation = true
+        this.contentRoom = false
+        this.contentDevice = false
+        this.contentController = false
+        this.contentTime = false
+        this.contentMultiple = false
+        this.emptyFooter()
         this.rooms = []
         this.locations = this.selectArea.location
       }
@@ -475,7 +519,7 @@ export default {
             self.dateQuery.totalPage = res.data.totalPage
             self.dateQuery.currentPage = res.data.currentPage
           } else {
-            alert('改时间段没有数据,重新输入时间')
+            alert('该时间段没有数据,重新输入时间')
             self.startTime = null
             self.endTime = null
           }
@@ -557,6 +601,13 @@ export default {
       axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
       .then((res) => {
         if (res.data.data.length) {
+          self.changeEmpty()
+          self.emptyFooter()
+          self.contentLocation = false
+          self.contentRoom = false
+          self.contentDevice = false
+          self.contentController = false
+          self.contentProvince = false
           self.chartDate = true
           // 横坐标时间
           if (self.bar.xAxis.data.length === 0) {
@@ -577,10 +628,9 @@ export default {
             }
             self.tags.push(obj.name)
             self.bar.series.push(obj)
-            console.log(self.bar.series)
           }
         } else {
-          alert('改时间段没有数据,重新输入时间')
+          alert('该时间段没有数据,重新输入时间')
           self.startTime = null
           self.endTime = null
         }

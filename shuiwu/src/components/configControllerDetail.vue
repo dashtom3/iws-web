@@ -6,11 +6,11 @@
         <div class="h40"></div>
         <ul class="baseLists">
           <li v-for="(controllerDetial, index) in controllerDetials" v-on:click="selectBase(index, controllerDetial.groupId)">
-            <span class="controllerDetialbg" :class="{clickActive: isActive === index}"></span>
-            {{controllerDetial.name}}</li>
+            <span class="controllerDetialbg"></span>
+            <span :class="{clickActive: isActive === index}">{{controllerDetial.name}}</span></li>
         </ul>
         <div class="baseRight">
-          <div class="selectController">
+          <div class="selectController cw">
             <el-select placeholder="控制器" v-model="deviceMsg.deviceId" @change="selectController">
               <el-option
                 :key="controller"
@@ -25,7 +25,7 @@
               <ul>
                 <li v-for="controllerDetailInfo in controllerDetailInfos">
                   <p>{{controllerDetailInfo.name}}</p>
-                  <p>{{controllerDetailInfo.value}}</p>
+                  <p>&nbsp;{{controllerDetailInfo.data}}</p>
                 </li>
               </ul>
             </div>
@@ -108,6 +108,7 @@ export default {
         self.controllerlists = res.data.data.devices
         self.showData = false
         self.remoteDate = false
+        self.deviceMsg.deviceId = null
         self.controllerId = null
       })
     },
@@ -128,7 +129,6 @@ export default {
       .then((res) => {
         self.remoteDates = res.data.data
       })
-      console.log(1)
       // setTimeout(this.selectController, 10000000)
     },
     // 开启操作
@@ -186,6 +186,7 @@ export default {
 }
 .dataShow ul li p{
   margin-bottom: 20px;
+  font-size: 14px;
 }
 .remoteDate{
   border-radius: 4px;
@@ -292,6 +293,7 @@ export default {
 }
 .selectController{
   float: right;
+  margin-right: 10px;
 }
 .baselist ul li{
   margin: 0 40px 40px 5px;
@@ -301,16 +303,18 @@ export default {
 .controllerDetialbg{
   display: inline-block;
   position: absolute;
-  width: 78px;
+  /*width: 78px;*/
   height: 33px;
   background-color: rgb( 240, 255, 207);
   opacity: 0;
   left: -5px;
+  font-size: 16px;
 }
 .clickActive{
-  opacity: .4;
+  border-bottom: 1px solid;
+  /*opacity: .4;
   left:35px;
-  transition: left .5s;
+  transition: left .5s;*/
 }
 .baselist ul.baseLists{
   height:384px;
@@ -327,5 +331,8 @@ export default {
   margin: 0 10px;
   background: url('../images/baseBefore.png');
   vertical-align: middle;
+}
+.baselist ul.baseLists li span:last-child{
+  font-size: 16px;
 }
 </style>

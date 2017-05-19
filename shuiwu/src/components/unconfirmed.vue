@@ -54,7 +54,18 @@ export default {
   },
   methods: {
     msgConfirm (newsId, userId) {
-      console.log(newsId, userId)
+      var obj = {
+        newsId: newsId,
+        userId: userId
+      }
+      var self = this
+      axios.post(global.baseUrl + 'news/confirm', global.postHttpDataWithToken(obj))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '操作成功', '')
+          self.getNewsLists(self.newsArgs)
+        }
+      })
     },
     getNewsLists (args) {
       var self = this

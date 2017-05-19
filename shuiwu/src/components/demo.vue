@@ -1,7 +1,7 @@
 <template>
   <div class="echarts">
     <IEcharts :option="bar" class="echarts" id="main"></IEcharts>
-    <button @click="doRandom">Random</button>
+    <button @click.enter="doRandom">Random</button>
     <button @click="del">删除</button>
   </div>
 </template>

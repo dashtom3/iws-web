@@ -19,11 +19,6 @@
         <p class="newsTime"><span class="time">{{newsList.alarmTime | time}}</span>
           &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">已确认</span><br><br>
           <!-- <div class="h20"></div> -->
-          <div class="newsTime" v-if="userInfo.roleId">
-            <el-button type="danger" size="small">语音播报</el-button>
-            <el-button type="danger" size="small">发送短信</el-button>
-            <div class="h20"></div>
-            </div>
         </p></el-col>
       </el-col>
         <!-- <el-col :span="4">

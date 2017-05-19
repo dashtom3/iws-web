@@ -19,49 +19,47 @@
         <p class="newsTime"><span class="time">{{newsList.alarmTime | time}}</span>
           &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">已确认</span><br><br>
           <!-- <div class="h20"></div> -->
-          <el-button type="danger" size="small">语音播报</el-button>
-          <el-button type="danger" size="small">发送短信</el-button>
+          <span style="font-size:14px;">管理员分配给<a href="javascript:;" v-on:click="showPersonalAlert(newsList.userId)">{{newsList.userName}}</a></span>&nbsp;&nbsp;&nbsp;&nbsp;
+          <el-button type="danger" size="small" v-if="userInfo.roleId === 1 || userInfo.roleId === -1">语音播报</el-button>
+          <el-button type="danger" size="small" v-if="userInfo.roleId === 1 || userInfo.roleId === -1" v-on:click="sendMessage(newsList.id, newsList.userId)">发送短信</el-button>
           <div class="h20"></div>
         </p></el-col>
-      </el-col>
-        <!-- <el-col :span="4">
-          <div class="goPerson">
-            <p class="userMsg">用户名称:<span class="name" v-on:click="showPersonalAlert(newsList.id)">{{newsList.userName}}</span></p>
-            <el-dialog title="用户信息" v-model="personalAlert">
-              <div class="personalDiv">
-                <el-table
-                  :data="userInfo"
-                  border
-                  style="width: 100%">
-                  <el-table-column
-                    prop="name"
-                    label="姓名">
-                  </el-table-column>
-                  <el-table-column
-                    prop="address"
-                    label="地址">
-                  </el-table-column>
-                  <el-table-column
-                    prop="phone"
-                    label="电话">
-                  </el-table-column>
-                  <el-table-column
-                    prop="describes"
-                    label="描述">
-                  </el-table-column>
-                </el-table>
-                <div style="height:20px;"></div>
-                  <span slot="footer" class="dialog-footer">
-                    <el-button @click="personalAlert = false">关 闭</el-button>
-                  </span>
-                </div>
-              </el-dialog>
-            <p class="userMsg">{{newsList.confirmTime | time}}<span class="msgstate">已确认</span></p>
-          </div>
-        </el-col> -->
       </el-row>
     </li>
   </ul>
+
+  <!-- 用户详情 -->
+  <div class="goPerson">
+    <el-dialog title="用户信息" v-model="personalAlert">
+      <div class="personalDiv">
+        <el-table
+          :data="userDetail"
+          border
+          style="width: 100%">
+          <el-table-column
+            prop="name"
+            label="姓名">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="地址">
+          </el-table-column>
+          <el-table-column
+            prop="phone"
+            label="电话">
+          </el-table-column>
+          <el-table-column
+            prop="describes"
+            label="描述">
+          </el-table-column>
+        </el-table>
+        <div style="height:20px;"></div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="personalAlert = false">关 闭</el-button>
+          </span>
+        </div>
+      </el-dialog>
+  </div>
   <!-- 分页 -->
   <div class="block" v-if="newsArgs.totalPage > 1">
     <el-pagination
@@ -82,7 +80,8 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       newsLists: [],
       personalAlert: false,
-      userInfo: [],
+      userDetail: [],
+      userInfo: global.getUser(),
       newsArgs: {
         status: 1,
         token: global.getToken(),
@@ -106,11 +105,10 @@ export default {
         token: global.getToken()
       }
       var self = this
-      self.userInfo = []
+      self.userDetail = []
       axios.get(global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
       .then((res) => {
-        // console.log(res)
-        self.userInfo.push(res.data.data)
+        self.userDetail.push(res.data.data)
       })
     },
     // 新闻列表
@@ -119,9 +117,16 @@ export default {
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         // console.log(res)
-        self.newsLists = res.data.data
-        self.newsArgs.totalPage = res.data.totalPage
-        self.newsArgs.numberPerPage = res.data.numberPerPage
+        if (res.data) {
+          self.newsLists = res.data.data
+          self.newsArgs.totalPage = res.data.totalPage
+          self.newsArgs.numberPerPage = res.data.numberPerPage
+        } else {
+          global.error(self, '该时间段没有数据', '')
+          self.newsArgs.startTime = null
+          self.newsArgs.endTime = null
+          // self.getNewsLists(self.newsArgs)
+        }
       })
     },
     searchByTime () {
@@ -144,6 +149,20 @@ export default {
     currentPageChange (value) {
       this.newsArgs.currentPage = value
       this.getNewsLists(this.newsArgs)
+    },
+    // 发送短信
+    sendMessage (newsId, userId) {
+      var obj = {
+        newsId: newsId,
+        userId: userId
+      }
+      var self = this
+      axios.post(global.baseUrl + 'news/sendMassage', global.postHttpDataWithToken(obj))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          global.success(self, '发送成功', '')
+        }
+      })
     }
   }
 }

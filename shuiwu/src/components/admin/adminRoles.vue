@@ -55,7 +55,7 @@
          <el-input v-model="addRoleInfo.name" auto-complete="off" placeholder="请编辑"></el-input>
        </el-form-item>
        <el-form-item label="选择系统" :label-width="formLabelWidth">
-         <el-select v-model="addRoleInfo.selectSystem" placeholder="选择系统">
+         <el-select v-model="addRoleInfo.selectSystem" placeholder="选择系统" @change="systemSelectData">
            <el-option :key="system" v-for="system in addRoleInfo.systemlists" :label="system.name" :value="system">
            </el-option>
          </el-select>
@@ -180,14 +180,28 @@ export default {
         }
       })
     },
+    systemSelectData () {
+      this.addRoleInfo.selectProvince = ''
+      this.addRoleInfo.selectCity = ''
+      this.addRoleInfo.selectArea = ''
+      var self = this
+      axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.addRoleInfo.selectSystem.id + '&token=' + global.getToken())
+      .then((res) => {
+        self.addRoleInfo.provinces = res.data.data.locationPack
+      })
+    },
     province () {
-      global.province(this.addRoleInfo)
+      this.addRoleInfo.selectCity = ''
+      this.addRoleInfo.selectArea = ''
+      if (this.addRoleInfo.selectProvince) {
+        this.addRoleInfo.citys = this.addRoleInfo.selectProvince.city
+      }
     },
     city () {
-      global.city(this.addRoleInfo)
-    },
-    area () {
-      global.area(this.addRoleInfo)
+      this.addRoleInfo.selectArea = ''
+      if (this.addRoleInfo.selectCity) {
+        this.addRoleInfo.areas = this.addRoleInfo.selectCity.area
+      }
     },
     addactive (ele, user) {
       var arr = ele.target.parentNode.parentNode.className.split(',')
@@ -240,13 +254,6 @@ export default {
       var self = this
       this.roleAlert = false
       var subitem = JSON.stringify(this.addRoleInfo.subitem)
-      // axios.post(global.baseUrl + 'role/add', {name: this.addRoleInfo.name, token: global.getToken(), 'subitem': subitem})
-      // .then((res) => {
-      //   console.log(res)
-      // })
-      // .catch((res) => {
-      //   console.log(res)
-      // })
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'role/add?name=' + this.addRoleInfo.name + '&token=' + global.getToken())
       xhr.setRequestHeader('Content-Type', 'application/json')
@@ -313,10 +320,10 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'area/provinces?token=' + global.getToken())
-    .then((res) => {
-      self.addRoleInfo.provinces = res.data.data
-    })
+    // axios.post(global.baseUrl + 'area/provinces?token=' + global.getToken())
+    // .then((res) => {
+    //   self.addRoleInfo.provinces = res.data.data
+    // })
     // 获取系统列表
     axios.post(global.baseUrl + 'system/list?token=' + global.getToken())
     .then((res) => {

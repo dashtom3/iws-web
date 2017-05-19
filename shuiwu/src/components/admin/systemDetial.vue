@@ -808,7 +808,7 @@ export default {
     axios.post(global.baseUrl + 'area/areas')
     .then((res) => {
       self.addressData.provinces = res.data.data
-      self.search.searchProvinces = res.data.data
+      // self.search.searchProvinces = res.data.data
     })
     // 获取设备列表
     axios.get(global.baseUrl + 'device/list?token=' + global.getToken())
@@ -817,6 +817,7 @@ export default {
     })
     axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.$route.params.id + '&token=' + global.getToken())
     .then((res) => {
+      // console.log(res)
       self.search.searchProvinces = res.data.data.locationPack
     })
     // 系统详情

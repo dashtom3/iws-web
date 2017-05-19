@@ -1,6 +1,6 @@
 <template>
   <div class="testUser">
-    <!-- <el-row :gutter="20" style="text-align:left;">
+    <el-row :gutter="20" style="text-align:left;">
       <el-select v-model="userType" placeholder="请选择" @change="changeUserType">
         <el-option
           v-for="item in userTypes"
@@ -9,8 +9,11 @@
           :value="item.value">
         </el-option>
       </el-select>
-      <el-input v-model="userSearch" placeholder="请输入内容" style="width:200px;"></el-input>
-    </el-row> -->
+      <el-input v-model="userSearch" placeholder="请输入内容" style="width:200px;" v-on:blur="searchBlur"></el-input>
+      <el-button type="primary"  v-on:click="searchUser">查找</el-button>
+      <el-button type="primary"  v-on:click="searchCancel">取消</el-button>
+      <div class="h20"></div>
+    </el-row>
     <el-row :gutter="20" class="userTitle">
       <el-col :span="3"><span>用户名</span></el-col>
       <el-col :span="3"><span>姓名</span></el-col>
@@ -70,7 +73,8 @@ export default {
         { data: '用户名', value: 'username' },
         { data: '姓名', value: 'name' },
         { data: '地址', value: 'address' }
-      ]
+      ],
+      searchType: {}
     }
   },
   created () {
@@ -78,7 +82,6 @@ export default {
     var self = this
     axios.post(global.baseUrl + 'role/list?token=' + global.getToken())
     .then((res) => {
-      // console.log(res)
       self.options = res.data.data
     })
   },
@@ -117,8 +120,38 @@ export default {
       this.getUserList(this.userArgs)
     },
     changeUserType () {
-      var a = this.userType
-      console.log(a)
+      if (this.userType) {
+        this.searchType = {}
+        this.searchType[this.userType] = this.userSearch
+        this.searchType['token'] = global.getToken()
+      }
+    },
+    searchBlur () {
+      if (this.userType) {
+        this.searchType = {}
+        this.searchType[this.userType] = this.userSearch
+        this.searchType['token'] = global.getToken()
+      }
+    },
+    searchUser () {
+      var self = this
+      if (!this.userType) {
+        alert('请选择查找类型')
+      } else if (!this.userSearch) {
+        alert('请输入查找内容')
+      } else {
+        axios.get(global.baseUrl + 'userManage/query?' + global.getHttpData(this.searchType))
+        .then((res) => {
+          self.userlist = res.data.data
+          self.userArgs.currentPage = res.data.currentPage
+          self.userArgs.totalPage = res.data.totalPage
+        })
+      }
+    },
+    searchCancel () {
+      this.userType = null
+      this.userSearch = null
+      this.getUserList(this.userArgs)
     }
   }
 }
@@ -130,6 +163,9 @@ export default {
 }
 .testUser{
   text-align: center;
+}
+.h20{
+  height: 20px;
 }
 .userTitle{
   border-radius: 6px;

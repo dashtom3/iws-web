@@ -179,7 +179,7 @@
             <td>{{dateTable.startTime | time}}</td>
             <td>{{dateTable.endTime | time}}</td>
             <td>{{dateTable.describes}}</td>
-            <td>{{alarmStatus[dateTable.confirm]}}</td>
+            <td>{{alarmStatus[dateTable.confirm-1]}}</td>
           </tr>
         </table>
         <div style="text-align:center;margin-top:40px;" v-if="dateContent">
@@ -288,7 +288,7 @@ export default {
       deviceTermId: '0',
       controllerInfo: '0',
       deviceTermLists: [],
-      alarmStatus: ['未确认', '已确认'],
+      alarmStatus: ['已确认', '未确认'],
       selectProvince: null,
       provinces: [],
       citys: [],

@@ -204,12 +204,11 @@ export default {
       }
     },
     addactive (ele, user) {
-      var arr = ele.target.parentNode.parentNode.className.split(',')
-      for (let i in arr) {
-        if (arr[i].indexOf('active') === '-1') {
-          this.divIsactive = null
-        }
+      var arr = ele.target.parentNode.parentNode.className
+      if (arr.split('、')[0].indexOf('active') === -1) {
         this.divIsactive = user
+      } else {
+        this.divIsactive = null
       }
       // console.log(this.divIsactive)
     },

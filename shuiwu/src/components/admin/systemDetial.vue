@@ -390,6 +390,8 @@ export default {
   },
   methods: {
     areaIsActive (item, id) {
+      localStorage.setItem('item', JSON.stringify(item))
+      localStorage.id = id
       var self = this
       this.addPackage = false
       this.next = false
@@ -397,7 +399,6 @@ export default {
       this.rooms.locationid = id
       axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
       .then((res) => {
-        // console.log(res)
         self.rooms.roomlist = res.data.data.room
       })
     },
@@ -700,7 +701,7 @@ export default {
       var self = this
       this.addRoomAlert = !this.addRoomAlert
       var addroomMsg = new FormData()
-      addroomMsg.append('name', this.rooms.name)
+      addroomMsg.append('name', this.roomMsg.name)
       axios.post(global.baseUrl + 'room/add?locationId=' + this.rooms.locationid + '&token=' + global.getToken(), addroomMsg)
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
@@ -755,6 +756,7 @@ export default {
           self.addRoomAlert = false
           self.roomMsg.name = null
           global.success(self, '修改成功', '')
+          self.areaIsActive(JSON.parse(localStorage.getItem('item')), localStorage.id)
         }
       })
     },

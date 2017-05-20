@@ -304,6 +304,9 @@ export default {
       for (let i in this.addControllerDate) {
         this.addControllerDate[i] = null
       }
+      for (let j in this.field) {
+        this.field[j] = null
+      }
       this.addControllerDate.fields = []
     },
 

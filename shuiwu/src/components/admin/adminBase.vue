@@ -227,16 +227,20 @@ export default {
     },
     // 添加设备
     addBasePost () {
-      this.addBaseMsg.terms = [this.addBaseMsg.selectController, this.addBaseMsg.selectFlowmeter, this.addBaseMsg.selectPressure, this.addBaseMsg.selectMeter].join(',')
-      var self = this
-      axios.post(global.baseUrl + 'device/addGroup', global.postHttpData(this.addBaseMsg))
-      .then((res) => {
-        if (res.data.callStatus === 'SUCCEED') {
-          self.addBaseAlert = false
-          global.success(self, '添加成功', '')
-          self.getBaseList(self.baseListArgs)
-        }
-      })
+      if (!this.addBaseMsg.selectController && !this.addBaseMsg.selectFlowmeter && !this.addBaseMsg.selectPressure && !this.addBaseMsg.selectMeter) {
+        alert('请选择至少一种控制器')
+      } else {
+        this.addBaseMsg.terms = [this.addBaseMsg.selectController, this.addBaseMsg.selectFlowmeter, this.addBaseMsg.selectPressure, this.addBaseMsg.selectMeter].join(',')
+        var self = this
+        axios.post(global.baseUrl + 'device/addGroup', global.postHttpData(this.addBaseMsg))
+        .then((res) => {
+          if (res.data.callStatus === 'SUCCEED') {
+            self.addBaseAlert = false
+            global.success(self, '添加成功', '')
+            self.getBaseList(self.baseListArgs)
+          }
+        })
+      }
     },
     // 删除设备
     deleteBaseShow (baseId) {

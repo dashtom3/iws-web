@@ -160,11 +160,11 @@ export default {
       // user.append('describes', this.phoneMsg.describes)
       axios.post(global.baseUrl + 'user/register', user)
       .then(function (res) {
-        console.log(res)
+        // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '注册成功', '/login')
         } else if (res.data.errorCode === 'Username_Already_Exist') {
-          global.userExit(self, '/login')
+          global.error(self, '用户已经存在，请登录', '/login')
         }
       })
       // console.log(user)

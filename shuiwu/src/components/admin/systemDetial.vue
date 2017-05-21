@@ -223,6 +223,7 @@
     <div class="editAlert" v-if="editAlert">
       <div class="formMsg">
         <form class="el-form editForm">
+          <a href="javascript:;" class="redX" v-on:click="editAlert = false">X</a>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">地点名称：</label><input class="el-input__inner w800" type="text" v-model="editDate.name">
           </div>
@@ -634,7 +635,6 @@ export default {
     },
     // 编辑地点
     editIsopen (id) {
-      this.editAlert = true
       this.addressId = id
       var self = this
       var qingqiu = new FormData()
@@ -642,6 +642,7 @@ export default {
       qingqiu.append('token', global.getToken())
       axios.post(global.baseUrl + 'location/detail', qingqiu)
       .then((res) => {
+        self.editAlert = true
         // console.log(res.data)
         self.editDate = res.data.data
         self.$nextTick(function () {
@@ -900,6 +901,23 @@ export default {
   margin: 0;
   z-index: 9999;
   background-color: rgba(0, 0, 0, 0.5);
+}
+.redX{
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-size: 20px;
+  border-radius: 20px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  /*background-color: red;*/
+  color: #000;
+}
+.redX:hover{
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
 }
 .editAlert .formMsg{
   position: absolute;

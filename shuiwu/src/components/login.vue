@@ -9,7 +9,7 @@
           <span>帐号</span>
           <el-input v-model="userLoginMsg.username" placeholder="请输入账号"></el-input>
           <span>密码</span>
-          <el-input v-model="userLoginMsg.password" placeholder="请输入密码" type="password"></el-input>
+          <el-input v-model="userLoginMsg.password" placeholder="请输入密码" type="password" v-on:keyup.enter.native="login"></el-input>
           <span class="goPhone"><a  v-on:click="goPhoneLogin" href="javascript:;">忘记密码</a></span>
           <el-button type="primary" style="width:100%" v-on:click="login">登录</el-button>
           <span class="goRegister"><a href="javascript:;" v-on:click="goRegister">注册</a></span>
@@ -136,11 +136,15 @@ export default {
       } else {
         this.isDisabled = true
         this.timeUpdata()
+        var self = this
         var phone = new FormData()
         phone.append('username', this.phoneMsg.phone)
         axios.post(global.baseUrl + 'user/getVerifyCode', phone)
         .then(function (res) {
           // console.log(res)
+          if (res.data.callStatus === 'SUCCEED') {
+            global.success(self, '发送成功，请注意查收', '')
+          }
         })
       }
     },
@@ -185,6 +189,9 @@ export default {
   mounted () {
     var login = this.$refs.contentHeight
     global.setHeight(login)
+    if (global.getToken()) {
+      this.$router.push('/personal')
+    }
   },
   components: {
     'v-header': header,

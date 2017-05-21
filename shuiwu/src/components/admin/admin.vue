@@ -6,7 +6,7 @@
         <input type="text" name="" v-model="adminMsg.username" placeholder="用户名">
       </div>
       <div class="password">
-        <input type="password" name="" v-model="adminMsg.password" placeholder="密码">
+        <input type="password" name="" v-model="adminMsg.password" placeholder="密码" v-on:keyup.enter="goAdmin">
       </div>
       <div class="login">
         <a href="javascript:;" v-on:click="goAdmin">登录</a>

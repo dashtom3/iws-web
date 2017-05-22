@@ -24,6 +24,14 @@
       </el-row>
       <div class="h20"></div>
     </li>
+    <!-- 分页 -->
+    <div class="block" v-if="newsArgs.totalPage > 1">
+      <el-pagination
+        layout="prev, pager, next"
+        :page-count="newsArgs.totalPage"
+        @current-change="currentPageChange">
+      </el-pagination>
+    </div>
   </ul>
 </template>
 
@@ -72,6 +80,8 @@ export default {
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         self.newsLists = res.data.data
+        self.newsArgs.totalPage = res.data.totalPage
+        self.newsArgs.currentPage = res.data.currentPage
       })
     },
     getUserLists () {
@@ -80,6 +90,12 @@ export default {
       .then((res) => {
         self.userLists = res.data.data
       })
+    },
+    // 分页
+    currentPageChange (value) {
+      document.body.scrollTop = 0
+      this.newsArgs.currentPage = value
+      this.getNewsLists(this.newsArgs)
     }
   }
 }

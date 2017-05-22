@@ -142,9 +142,13 @@ export default {
       } else {
         axios.get(global.baseUrl + 'userManage/query?' + global.getHttpData(this.searchType))
         .then((res) => {
-          self.userlist = res.data.data
-          self.userArgs.currentPage = res.data.currentPage
-          self.userArgs.totalPage = res.data.totalPage
+          if (res.data.data.length !== 0) {
+            self.userlist = res.data.data
+            self.userArgs.currentPage = res.data.currentPage
+            self.userArgs.totalPage = res.data.totalPage
+          } else {
+            alert('用户不存在')
+          }
         })
       }
     },

@@ -89,7 +89,7 @@
       <div class="arealists" v-for="(addresslist, index) in addresslists" :class="{active: addressData.isOpen == addresslist}">
         <div class="areaListTitle">
           <el-col :span="10">
-            <div class="areaName" v-on:click="areaIsActive(addresslist, addresslist.id)">
+            <div class="areaName" v-on:click="areaIsActive($event, addresslist, addresslist.id)">
               <span>{{addresslist.name}}</span><i class="el-icon-caret-bottom"></i>
             </div>
           </el-col>
@@ -390,18 +390,26 @@ export default {
     }
   },
   methods: {
-    areaIsActive (item, id) {
-      localStorage.setItem('item', JSON.stringify(item))
-      localStorage.id = id
-      var self = this
-      this.addPackage = false
-      this.next = false
-      this.addressData.isOpen = item
-      this.rooms.locationid = id
-      axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
-      .then((res) => {
-        self.rooms.roomlist = res.data.data.room
-      })
+    areaIsActive (event, item, id) {
+      console.log(event)
+      localStorage.setItem('event', JSON.stringify(event))
+      var arr = event.target.parentNode.parentNode.parentNode.parentNode.className
+      if (arr.split('、')[0].indexOf('active') === -1) {
+        this.addressData.isOpen = item
+        localStorage.setItem('item', JSON.stringify(item))
+        localStorage.id = id
+        var self = this
+        this.addPackage = false
+        this.next = false
+        this.addressData.isOpen = item
+        this.rooms.locationid = id
+        axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
+        .then((res) => {
+          self.rooms.roomlist = res.data.data.room
+        })
+      } else {
+        this.addressData.isOpen = null
+      }
     },
     selectDevice (id) {
       var self = this

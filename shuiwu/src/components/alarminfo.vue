@@ -80,6 +80,7 @@
           <el-col :span="2">&nbsp;</el-col>
           <el-col :span="22">
             <el-radio-group  v-model="selectRoom" @change="room">
+              <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button
                :key="room"
                v-for="(room, index) in rooms" :label="room.id">{{room.name}}</el-radio-button>
@@ -91,7 +92,7 @@
       <!-- 控制器组列表 -->
       <div class="systemSelect" v-if="contentDevice">
         <el-row :gutter="20">
-          <el-col :span="2"><span class="title">控制器组：</span></el-col>
+          <el-col :span="2"><span class="title">设备：</span></el-col>
           <el-col :span="22">
             <el-radio-group v-model="deviceTermId" @change="selectControllerId">
               <el-radio-button label="0">全部</el-radio-button>
@@ -298,7 +299,7 @@ export default {
       locations: [],
       selectLocation: '0',
       rooms: [],
-      selectRoom: null,
+      selectRoom: '0',
       selectController: null,
       multiSelects: [],
       tagShow: false,
@@ -308,9 +309,14 @@ export default {
       startTime: null,
       endTime: null,
       dateQuery: {
-        deviceId: null,
         systemId: null,
+        provinceId: null,
+        cityId: null,
+        areaId: null,
         locationId: null,
+        roomId: null,
+        groupId: null,
+        deviceId: null,
         startTime: null,
         endTime: null,
         timeStep: null,
@@ -371,48 +377,111 @@ export default {
         self.contentController = false
         self.contentTime = false
         self.contentProvince = false
+        this.dateQuery.systemId = null
+        this.dateQuery.provinceId = null
+        this.dateQuery.cityId = null
+        this.dateQuery.areaId = null
+        self.dateQuery.locationId = null
+        self.dateQuery.roomId = null
+        self.dateQuery.groupId = null
+        self.dateQuery.deviceId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
       }
+      this.dateContent = false
+      this.selectProvince = null
+      this.selectCity = null
+      this.selectArea = null
     },
     province () {
       this.changeEmpty()
+      this.dateContent = false
+      var self = this
       if (this.selectProvince) {
         this.changeEmpty()
-        this.contentLocation = false
-        this.contentRoom = false
-        this.contentDevice = false
-        this.contentController = false
-        this.contentTime = false
-        this.contentMultiple = false
+        this.dateQuery.provinceId = this.selectProvince.provinceId
         this.citys = this.selectProvince.city
+      } else {
+        this.citys = []
+        this.areas = []
+        this.selectCity = null
+        this.areas = null
+        this.dateQuery.provinceId = null
+        this.dateQuery.cityId = null
+        this.dateQuery.areaId = null
+        self.dateQuery.locationId = null
+        self.dateQuery.roomId = null
+        self.dateQuery.groupId = null
+        self.dateQuery.deviceId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
       }
-      this.selectCity = null
+      this.contentLocation = false
+      this.contentRoom = false
+      this.contentDevice = false
+      this.contentController = false
+      this.contentTime = false
+      this.contentMultiple = false
     },
     city () {
+      this.dateContent = false
+      var self = this
       this.selectArea = null
       if (this.selectCity) {
         this.changeEmpty()
-        this.contentLocation = false
-        this.contentRoom = false
-        this.contentDevice = false
-        this.contentController = false
-        this.contentTime = false
-        this.contentMultiple = false
+        this.dateQuery.cityId = this.selectCity.cityId
         this.areas = this.selectCity.area
+      } else {
+        this.areas = []
+        this.dateQuery.cityId = null
+        this.dateQuery.areaId = null
+        self.dateQuery.locationId = null
+        self.dateQuery.roomId = null
+        self.dateQuery.groupId = null
+        self.dateQuery.deviceId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
       }
+      this.contentLocation = false
+      this.contentRoom = false
+      this.contentDevice = false
+      this.contentController = false
+      this.contentTime = false
+      this.contentMultiple = false
     },
     area () {
+      this.dateContent = false
+      var self = this
       this.changeEmpty()
       if (this.selectArea) {
         this.contentLocation = true
-        this.contentRoom = false
-        this.contentDevice = false
-        this.contentController = false
-        this.contentTime = false
-        this.contentMultiple = false
         this.emptyFooter()
+        this.dateQuery.areaId = this.selectArea.areaId
         this.rooms = []
         this.locations = this.selectArea.location
+      } else {
+        self.dateQuery.areaId = null
+        self.dateQuery.locationId = null
+        self.dateQuery.roomId = null
+        self.dateQuery.groupId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
+        self.dateQuery.endTime = null
+        this.contentLocation = false
       }
+      this.contentRoom = false
+      this.contentDevice = false
+      this.contentController = false
+      this.contentTime = false
+      this.contentMultiple = false
     },
     // 初始化函数
     empty () {
@@ -428,30 +497,40 @@ export default {
       this.multiSelects = []
     },
     changeEmpty () {
-      this.selectLocation = '0'
       this.selectRoom = '0'
       this.deviceTermId = '0'
       this.controllerInfo = '0'
-      this.rooms = []
       this.controllerLists = []
       this.deviceTermLists = []
     },
     // 获取房间
     location () {
+      this.dateContent = false
       var self = this
       if (this.selectLocation !== '0') {
+        self.dateQuery.locationId = self.selectLocation
         axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
         .then((res) => {
           self.contentRoom = true
           self.contentDevice = false
-          self.selectRoom = null
-          self.deviceTermId = null
+          self.selectRoom = '0'
+          self.deviceTermId = '0'
+          self.controllerInfo = '0'
           self.contentController = false
           self.contentDevice = false
           self.emptyFooter()
           self.rooms = res.data.data.room
         })
       } else {
+        self.dateQuery.locationId = null
+        self.dateQuery.roomId = null
+        self.dateQuery.groupId = null
+        self.dateQuery.deviceId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
+        this.contentRoom = false
         this.contentController = false
         this.contentDevice = false
         this.changeEmpty()
@@ -459,29 +538,42 @@ export default {
     },
     // 泵房选择
     room () {
+      this.dateContent = false
       var roomMsg = {
         roomId: this.selectRoom,
         token: global.getToken()
       }
       var self = this
       if (this.selectRoom !== '0') {
+        self.dateQuery.roomId = self.selectRoom
         axios.get(global.baseUrl + 'room/groupList?' + global.getHttpData(roomMsg))
         .then((res) => {
           self.contentDevice = true
-          self.deviceTermId = null
+          self.deviceTermId = '0'
           self.contentController = false
-          self.contentDevice = true
           self.emptyFooter()
           self.controllerLists = res.data.data
         })
       } else {
+        self.contentDevice = false
+        self.contentController = false
+        self.contentTime = false
+        self.dateQuery.roomId = null
+        self.dateQuery.deviceId = null
+        self.dateQuery.groupId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
         this.changeEmpty()
       }
     },
     // 选择控制器组
     selectControllerId () {
+      this.dateContent = false
       var self = this
       if (this.deviceTermId !== '0') {
+        self.dateQuery.groupId = self.deviceTermId
         axios.get(global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
         .then((res) => {
           self.emptyFooter()
@@ -489,20 +581,34 @@ export default {
           self.deviceTermLists = res.data.data.devices
         })
       } else {
+        this.dateQuery.groupId = null
+        this.dateQuery.deviceId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
         this.contentController = false
+        // console.log(this.dateQuery)
+        this.contentTime = false
       }
     },
     // 控制器
     controllerSelect () {
+      this.dateContent = false
+      var self = this
       if (this.controllerInfo !== '0') {
         this.dateQuery.deviceId = this.controllerInfo.id
-        var self = this
         self.contentTime = true
         self.contentMultiple = false
         self.startTime = null
         self.endTime = null
         self.dateQuery.timeStep = null
       } else {
+        self.dateQuery.deviceId = null
+        self.startTime = null
+        self.endTime = null
+        self.dateQuery.startTime = null
+        self.dateQuery.endTime = null
         this.contentTime = false
       }
     },
@@ -512,7 +618,7 @@ export default {
     emptyFooter () {
       this.contentTime = false
       this.contentMultiple = false
-      this.controllerInfo = null
+      this.controllerInfo = '0'
       this.startTime = null
       this.endTime = null
       this.dateQuery.timeStep = null
@@ -587,10 +693,16 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
       .then((res) => {
-        self.dateContent = true
-        self.dateTables = res.data.data
-        self.dateQuery.currentPage = res.data.currentPage
-        self.dateQuery.totalPage = res.data.totalPage
+        if (res.data.callStatus === 'SUCCEED') {
+          if (res.data) {
+            self.dateContent = true
+            self.dateTables = res.data.data
+            self.dateQuery.currentPage = res.data.currentPage
+            self.dateQuery.totalPage = res.data.totalPage
+          } else {
+            alert('该筛选条件没有数据')
+          }
+        }
       })
     },
     // 分页

@@ -77,7 +77,7 @@
       <!-- 控制器组列表 -->
       <div class="systemSelect" v-if="contentDevice">
         <el-row :gutter="20">
-          <el-col :span="2"><span class="title">控制器组：</span></el-col>
+          <el-col :span="2"><span class="title">设备：</span></el-col>
           <el-col :span="22">
             <el-radio-group v-model="deviceTermId" @change="selectControllerId">
                <el-radio-button
@@ -105,6 +105,17 @@
           </el-col>
         </el-row>
       </div>
+
+      <div class="systemSelect" v-if="contentMultiple">
+        <el-row :gutter="20">
+          <el-col :span="2">&nbsp;</el-col>
+          <el-col :span="22">
+            <ul class="multiSelect">
+              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect.name}}</li>
+            </ul>
+          </el-col>
+        </el-row>
+      </div>
       <div class="systemSelect" v-if="contentTime">
         <el-date-picker
            v-model="startTime"
@@ -119,7 +130,7 @@
          </el-date-picker>
          <span> —— </span>
          <!-- <el-button type="primary">不限</el-button> -->
-         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔" @change="timeSelect">
+         <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔">
              <el-option
                :key="time"
                v-for="(time, index) in times"
@@ -127,16 +138,6 @@
                :value=time.seconds>
              </el-option>
           </el-select>
-      </div>
-      <div class="systemSelect" v-if="contentMultiple">
-        <el-row :gutter="20">
-          <el-col :span="2">&nbsp;</el-col>
-          <el-col :span="22">
-            <ul class="multiSelect">
-              <li v-for="(multiSelect, index) in multiSelects" :value=index v-on:click="showActive($event)" >{{multiSelect.name}}</li>
-            </ul>
-          </el-col>
-        </el-row>
       </div>
       <div v-if="tableShow">
         <div class="systemSelect" style="text-align:center;" v-if="contentMultiple">
@@ -342,6 +343,7 @@ export default {
     // 系统筛选
     selectSystem () {
       this.selectProvince = null
+      this.tableDataShow = false
       var self = this
       if (this.systemId) {
         axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
@@ -372,6 +374,7 @@ export default {
       this.multiSelects = []
     },
     province () {
+      this.tableDataShow = false
       if (this.selectProvince) {
         this.changeEmpty()
         this.areas = []
@@ -393,6 +396,7 @@ export default {
       this.contentMultiple = false
     },
     city () {
+      this.tableDataShow = false
       this.selectArea = null
       if (this.selectCity) {
         this.changeEmpty()
@@ -415,6 +419,7 @@ export default {
       }
     },
     area () {
+      this.tableDataShow = false
       if (this.selectArea) {
         this.changeEmpty()
         this.contentLocation = true
@@ -430,6 +435,7 @@ export default {
     },
     // 获取房间
     location () {
+      this.tableDataShow = false
       var self = this
       this.rooms = []
       if (this.selectLocation) {
@@ -447,6 +453,7 @@ export default {
     },
     // 泵房选择
     room () {
+      this.tableDataShow = false
       var roomMsg = {
         roomId: this.selectRoom,
         token: global.getToken()
@@ -497,34 +504,38 @@ export default {
     // 查询数据
     dateQueryClick () {
       this.tables = []
-      var actives = document.querySelectorAll('.multiSelect li.active')
-      for (var i in actives) {
-        if (actives[i].innerHTML !== undefined) {
-          var tableObj = {
-            name: actives[i].innerHTML,
-            number: actives[i].getAttribute('value')
+      if (this.startTime && this.endTime) {
+        var actives = document.querySelectorAll('.multiSelect li.active')
+        for (var i in actives) {
+          if (actives[i].innerHTML !== undefined) {
+            var tableObj = {
+              name: actives[i].innerHTML,
+              number: actives[i].getAttribute('value')
+            }
+            this.tables.push(tableObj)
           }
-          this.tables.push(tableObj)
         }
+        this.dateQuery.startTime = this.timeFilter(this.startTime)
+        this.dateQuery.endTime = this.timeFilter(this.endTime)
+        var self = this
+        axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
+        .then((res) => {
+          if (res.data.callStatus === 'SUCCEED') {
+            if (res.data.data.length) {
+              self.tableDataShow = true
+              self.dateTables = res.data.data
+              self.dateQuery.totalPage = res.data.totalPage
+              self.dateQuery.currentPage = res.data.currentPage
+            } else {
+              alert('该时间段没有数据,重新输入时间')
+              self.startTime = null
+              self.endTime = null
+            }
+          }
+        })
+      } else {
+        alert('请选择时间')
       }
-      this.dateQuery.startTime = this.timeFilter(this.startTime)
-      this.dateQuery.endTime = this.timeFilter(this.endTime)
-      var self = this
-      axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
-      .then((res) => {
-        if (res.data.callStatus === 'SUCCEED') {
-          if (res.data.data.length) {
-            self.tableDataShow = true
-            self.dateTables = res.data.data
-            self.dateQuery.totalPage = res.data.totalPage
-            self.dateQuery.currentPage = res.data.currentPage
-          } else {
-            alert('该时间段没有数据,重新输入时间')
-            self.startTime = null
-            self.endTime = null
-          }
-        }
-      })
     },
     // 导出excel
     tableDatePrint () {
@@ -544,12 +555,12 @@ export default {
       // var self = this
       axios.get(global.baseUrl + 'data/outputExcel?' + global.getHttpData(this.dateQuery))
       .then((res) => {
-        // console.log(res)
-        // self.dateTables = res.data.data
+        window.location.href = res.config.url
       })
     },
     // 选择控制器组
     selectControllerId () {
+      this.tableDataShow = false
       var self = this
       if (this.deviceTermId) {
         axios.get(global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
@@ -562,6 +573,7 @@ export default {
     },
     // 选择控制器
     controllerSelect () {
+      this.tableDataShow = false
       if (this.controllerInfo) {
         this.dateQuery.deviceId = this.controllerInfo.id
         var self = this
@@ -569,7 +581,7 @@ export default {
         .then((resource) => {
           if (resource.data.callStatus === 'SUCCEED') {
             self.contentTime = true
-            self.contentMultiple = false
+            self.contentMultiple = true
             self.startTime = null
             self.endTime = null
             self.dateQuery.timeStep = null
@@ -577,9 +589,6 @@ export default {
           }
         })
       }
-    },
-    timeSelect () {
-      this.contentMultiple = true
     },
     // 增加标签
     addTags () {

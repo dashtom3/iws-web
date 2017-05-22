@@ -169,7 +169,7 @@ export default {
           }, {
             icon: null,
             position: [res.data.data[i].positionX, res.data.data[i].positionY],
-            content: '<div style="width:124px;height:71px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;">' + res.data.data[i].system.name + '</br>' + res.data.data[i].describes + '</div>',
+            content: '<div style="width:124px;height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:18px 0 10px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].describes + '</div>',
             events: {
               mouseover: () => {
                 self.markers[i][1].visible = true

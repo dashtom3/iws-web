@@ -236,6 +236,8 @@ export default {
         .then((res) => {
           if (res.data.callStatus === 'SUCCEED') {
             self.addBaseAlert = false
+            self.emptyFun()
+            self.addBaseMsg['token'] = global.getToken()
             global.success(self, '添加成功', '')
             self.getBaseList(self.baseListArgs)
           }
@@ -258,6 +260,12 @@ export default {
           self.getBaseList(self.baseListArgs)
         }
       })
+    },
+    // 初始化函数
+    emptyFun () {
+      for (let i in this.addBaseMsg) {
+        this.addBaseMsg[i] = null
+      }
     },
     // 分页
     currentPageChange (value) {

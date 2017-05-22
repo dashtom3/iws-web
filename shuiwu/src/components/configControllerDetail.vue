@@ -43,8 +43,8 @@
       </div>
       <div class="baseImg">
         <div class="baseImgLeft">
-          <p><a href="javascript:;" v-on:click="remoteDate = true"><img src="../images/control.png" alt=""><br>远程控制</a></p>
-          <ul class="remoteDate" v-show="remoteDate">
+          <p><a href="javascript:;" v-on:click="isOperation"><img src="../images/control.png" alt=""><br>远程控制</a></p>
+          <ul class="remoteDate" v-if="remoteDate">
             <div class="h20"></div>
             <li v-for="remoteDate in remoteDates">{{remoteDate.name}}&nbsp;&nbsp;&nbsp;<el-button type="primary" size="mini" :disabled="remoteDate.value === 1" @click="openData(remoteDate.number)">开启</el-button><el-button type="primary" size="mini":disabled="remoteDate.value === 0" @click="closeData(remoteDate.number)">关闭</el-button></li>
           </ul>
@@ -84,6 +84,12 @@ export default {
         deviceId: null,
         token: global.getToken()
       },
+      limitionMsg: {
+        systemId: null,
+        areaId: null,
+        writable: 2,
+        token: global.getToken()
+      },
       isActive: null,
       showData: false
     }
@@ -92,6 +98,8 @@ export default {
     var self = this
     axios.post(global.baseUrl + 'location/detail', global.postHttpDataWithToken(this.locationMsg))
     .then((res) => {
+      self.limitionMsg.systemId = res.data.data.systemId
+      self.limitionMsg.areaId = res.data.data.areaId
       self.controllerDetials = res.data.data.room[0].deviceGroups
     })
   },
@@ -131,16 +139,28 @@ export default {
       })
       // setTimeout(this.selectController, 10000000)
     },
+    isOperation () {
+      var self = this
+      axios.get(global.baseUrl + 'limitation/checkLimit?' + global.getHttpData(this.limitionMsg))
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          self.remoteDate = true
+        } else {
+          alert('权限不够，无法操作')
+        }
+      })
+    },
     // 开启操作
     openData (number) {
       var obj = {
         number: number,
         pumpStatus: 1,
-        deviceId: this.controllerId
+        deviceId: this.deviceMsg.deviceId
       }
       var self = this
       axios.post(global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
       .then((res) => {
+        console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
           self.selectController()
@@ -151,11 +171,12 @@ export default {
       var obj = {
         number: number,
         pumpStatus: 0,
-        deviceId: this.controllerId
+        deviceId: this.deviceMsg.deviceId
       }
       var self = this
       axios.post(global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
       .then((res) => {
+        console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
           self.selectController()

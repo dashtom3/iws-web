@@ -138,6 +138,7 @@ export default {
     },
     // 分页
     currentPageChange (value) {
+      document.body.scrollTop = 0
       this.newsArgs.currentPage = value
       this.getNewsLists(this.newsArgs)
     }

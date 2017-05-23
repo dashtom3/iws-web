@@ -5,11 +5,14 @@
       <div class="baselist">
         <div class="h40"></div>
         <ul class="baseLists">
-          <li v-for="(controllerDetial, index) in controllerDetials" v-on:click="selectBase(index, controllerDetial.groupId)">
-            <span class="controllerDetialbg"></span>
-            <span :class="{clickActive: isActive === index}">{{controllerDetial.name}}</span></li>
+          <div class="">
+            <li v-for="(controllerDetial, index) in controllerDetials" v-on:click="selectBase(index, controllerDetial.groupId)" class="leftH5">
+              <span class="controllerDetialbg"></span>
+              <span :class="{clickActive: isActive === index}">{{controllerDetial.name}}</span></li>
+          </div>
         </ul>
         <div class="baseRight">
+          <img src="../images/dataSee.png" alt="">
           <div class="selectController cw">
             <el-select placeholder="控制器" v-model="deviceMsg.deviceId" @change="selectController">
               <el-option
@@ -24,8 +27,8 @@
             <div class="dataShow">
               <ul>
                 <li v-for="controllerDetailInfo in controllerDetailInfos">
-                  <p>{{controllerDetailInfo.name}}</p>
-                  <p>&nbsp;{{controllerDetailInfo.data}}</p>
+                  <p class="h25">{{controllerDetailInfo.name}}</p>
+                  <p class="cH">&nbsp;{{controllerDetailInfo.data}}</p>
                 </li>
               </ul>
             </div>
@@ -50,10 +53,13 @@
           </ul>
         </div>
         <div class="baseImgRight">
+          <img src="../images/picSee.png" alt="">
           <ul>
-            <li><span></span><img src="../images/control.png" alt=""></li>
-            <li><span></span><img src="../images/control.png" alt=""></li>
-            <li><span></span><img src="../images/control.png" alt=""></li>
+            <li><span></span><img src="../images/example.png" alt=""><p class="t20">箱式叠压</p></li>
+            <li><span></span><img src="../images/example.png" alt=""><p class="t20">箱式叠压</p></li>
+            <li><span></span><img src="../images/example.png" alt=""><p class="t20">箱式叠压</p></li>
+            <li><span></span><img src="../images/example.png" alt=""><p class="t20">箱式叠压</p></li>
+            <li><span></span><img src="../images/example.png" alt=""><p class="t20">箱式叠压</p></li>
           </ul>
         </div>
       </div>
@@ -196,6 +202,27 @@ export default {
 .h40{
   height: 40px;
 }
+.h25{
+  margin-top: 25px;
+}
+.cH{
+  font-size: 16px;
+  font-family: "Microsoft YaHei";
+  color: rgb( 17, 113, 170 );
+}
+.dataShow{
+  border-width: 1px;
+  border-color: rgb( 238, 238, 238 );
+  border-style: solid;
+  border-radius: 4px;
+  background-color: rgb( 255, 255, 255 );
+  box-shadow: 2.5px 4.33px 5px 0px rgb( 182, 182, 182 );
+  width: 970px;
+  height: 327px;
+  margin: 10px auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
 .dataShow ul{
   width: 980px!important;
 }
@@ -203,15 +230,21 @@ export default {
   display: inline-block;
   text-align: center;
   width: 12%;
-  margin: 0 20px 20px 0!important;
+  border-bottom: 1px solid #e1e1e1;
+  padding: 0 20px 20px 0!important;
+  position: relative;
+  left: -8px;
+}
+.dataShow ul li p.h25{
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 .dataShow ul li p{
-  margin-bottom: 20px;
   font-size: 14px;
 }
 .remoteDate{
   border-radius: 4px;
-  background-color: rgba( 255, 255, 255, .1 );
+  border: 1px solid #276b94;
   width: 231px;
   height: 399px;
   margin: 10px auto;
@@ -229,13 +262,23 @@ export default {
   width: 1280px;
   min-height: 800px;
   margin: 20px auto;
-  color: #fff;
-  background-image: url('../images/background.png');
-  background-size: cover;
+  background-color: #fff;
+  /*background-image: url('../images/background.png');*/
+  /*background-size: cover;*/
 }
 .controlllerDeailBlock{
   clear: both;
-  height: 230px;
+  height: 363px;
+  text-align: left;
+}
+.baseRight img,.baseRight .cw{
+  margin-bottom: 15px;
+  margin-top: 25px;
+}
+.baseRight .cw{
+  position: absolute;
+  right: 70px;
+  top: 0;
 }
 .baselist ul{
   width: 250px;
@@ -256,16 +299,16 @@ export default {
   cursor: pointer;
 }
 .baseRight{
-  width:1000px;
+  width:1005px;
   display: inline-block;
   overflow-y: auto;
-  border-width: 1px;
-  border-color: rgb( 255, 255, 255 );
-  border-style: solid;
+  border: 1px solid #cccccc;
   border-radius: 4px;
   vertical-align: top;
-  height: 384px;
-  margin-left: 15px;
+  margin-left: 10px;
+  text-align: center;
+  position: relative;
+  height: 447px;
 }
 .baseImg{
   margin-top: 30px;
@@ -279,24 +322,41 @@ export default {
 .baseImgRight,.baseImgLeft{
   display: inline-block;
   vertical-align: top;
+  padding-top: 80px;
+  position: relative;
+  left: 5px;
+  top: -96px;
+  height: 636px;
+  background-color: #0e5a88;
+}
+.t20{
+  font-size: 14px;
+  position: relative;
+  top: -23px;
 }
 .baseImgRight{
-  width: 1000px;
+  width: 1005px;
   min-height: 658px;
   border-radius: 5px;
-  background-color: rgba( 240, 255, 207, .2 );
+  background-color: #fff;
+  margin-top: 80px;
+  margin-left: 10px;
+  padding: 0;
+  text-align: center;
 }
 .baseImgRight ul li{
   float: left;
-  width: 290px;
-  height: 290px;
+  /*width: 215px;*/
+  display: inline-block;
+  width: 22.5%;
+  height: 235px;
   text-align: center;
   background-color: #fff;
-  margin-right: 33px;
-  margin-top: 20px;
-}
-.baseImgRight ul li:nth-child(1){
-  margin-left: 30px;
+  margin: 20px 10px 0 10px;
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+  /*margin-right: 33px;
+  margin-top: 20px;*/
 }
 .baseImgRight ul li span{
   display: inline-block;
@@ -306,8 +366,8 @@ export default {
 .baseImgRight ul li img{
   display: inline-block;
   vertical-align: middle;
-  max-width: 290px;
-  max-height: 290px;
+  max-width: 215px;
+  max-height: 185px;
 }
 .baseImgLeft a{
   color: #fff;
@@ -316,10 +376,11 @@ export default {
   float: right;
   margin-right: 10px;
 }
-.baselist ul li{
-  margin: 0 40px 40px 5px;
+.baselist ul.baseLists li{
+  margin: 40px 40px 40px 5px;
   font-size: 18px;
   position: relative;
+  /*text-align: center;*/
 }
 .controllerDetialbg{
   display: inline-block;
@@ -339,12 +400,19 @@ export default {
 }
 .baselist ul.baseLists{
   height:384px;
-  border: 1px solid #fff;
-  width: 228px;
+  width: 250px;
   overflow-y: auto;
   margin-left: 5px;
+  background-color: #0e5a88;
+  color: #fff;
 }
-.baselist ul.baseLists li::before{
+.baselist ul.baseLists div{
+  width: 230px;
+  margin: 10px auto;
+  border: 1px solid #276b94;
+  max-height: 380px;
+}
+.baselist ul.baseLists li.leftH5::before{
   content: '';
   display: inline-block;
   width: 15px;
@@ -353,7 +421,7 @@ export default {
   background: url('../images/baseBefore.png');
   vertical-align: middle;
 }
-.baselist ul.baseLists li span:last-child{
+.baselist ul.baseLists li.leftH5 span:last-child{
   font-size: 16px;
 }
 </style>

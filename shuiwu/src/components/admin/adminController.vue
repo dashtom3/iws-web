@@ -256,20 +256,24 @@ export default {
       this.emapyMsg()
     },
     addControllerPost () {
-      for (let i in this.addControllerDate.fields) {
-        this.addControllerDate.fields[i].number = parseInt(i) + 1
-      }
-      var self = this
-      self.addControllerAlert = false
-      this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
-      var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
-      xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.send(this.addControllerDate.fields)
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          global.success(self, '添加成功', '')
-          self.getControllerLists(self.controllerArgs)
+      if (this.addControllerDate.fields.length !== parseInt(this.addControllerDate.count)) {
+        alert('字段数和参数长度不一致')
+      } else {
+        for (let i in this.addControllerDate.fields) {
+          this.addControllerDate.fields[i].number = parseInt(i) + 1
+        }
+        var self = this
+        self.addControllerAlert = false
+        this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
+        var xhr = new XMLHttpRequest()
+        xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        xhr.send(this.addControllerDate.fields)
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            global.success(self, '添加成功', '')
+            self.getControllerLists(self.controllerArgs)
+          }
         }
       }
     },

@@ -19,9 +19,9 @@
       <el-col :span="8" style="position:absolute;"><span>{{user.name}}</span></el-col>
       <el-col :span="8" style="margin-left:33.33333%">
         <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive($event, user)">{{list.systemName}}&nbsp;{{list.areaName}}
-          <span v-if="0 == list.limitation"><span class="kd"></span></span>
-          <span v-if="1 == list.limitation"><span class="kd"></span><span class="kx"></span></span>
-          <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span><span class="fz"></span></span>
+          <span v-if="1 == list.limitation"><span class="kd"></span></span>
+          <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span></span>
+          <!-- <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span><span class="fz"></span></span> -->
         </p>
       </el-col>
       <el-col :span="8" style="position:absolute;right:0">
@@ -309,6 +309,7 @@ export default {
         self.rolelistArgs.currentPage = res.data.currentPage
         self.rolelistArgs.totalPage = res.data.totalPage
         self.rolelists = res.data.data
+        self.rolelists.splice(1, 1)
       })
     },
     // 分页

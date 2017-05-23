@@ -10,12 +10,12 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="4"><span class="addrIcon"></span></el-col>
-          <el-col :span="20"><el-input v-model=userMsg.address placeholder="请输入内容"></el-input>
+          <el-col :span="20"><el-input v-model=userMsg.address placeholder="请输入内容" class="cw whiteCo"></el-input>
 </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="4"><span class="infoIcon"></span></el-col>
-          <el-col :span="20"><el-input v-model=userMsg.describes placeholder="请输入内容"></el-input>
+          <el-col :span="20"><el-input v-model=userMsg.describes placeholder="请输入内容" class="cw whiteCo"></el-input>
 </el-col>
         </el-row>
         <div style="text-align:center">
@@ -82,6 +82,9 @@ export default {
   height: 71px;
   line-height: 71px;
   margin: 0 auto 10px;
+}
+.cw{
+  color: #fff;
 }
 .indexLog{
   float: left;

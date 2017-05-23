@@ -318,6 +318,8 @@ export default {
       this.contentDevice = false
       this.contentController = false
       this.contentProvince = false
+      this.startTime = null
+      this.endTime = null
     },
     chart (obj) {
       this.tableShow = false
@@ -332,6 +334,8 @@ export default {
       this.contentDevice = false
       this.contentController = false
       this.contentProvince = false
+      this.startTime = null
+      this.endTime = null
     },
     showActive (obj) {
       if (obj.target.className === 'active') {
@@ -474,9 +478,6 @@ export default {
       this.contentTime = false
       this.contentMultiple = false
       this.controllerInfo = null
-      this.startTime = null
-      this.endTime = null
-      this.dateQuery.timeStep = null
     },
     timeFilter (value) {
       var month = value.getMonth() + 1
@@ -582,9 +583,6 @@ export default {
           if (resource.data.callStatus === 'SUCCEED') {
             self.contentTime = true
             self.contentMultiple = true
-            self.startTime = null
-            self.endTime = null
-            self.dateQuery.timeStep = null
             self.multiSelects = resource.data.data.fields
           }
         })
@@ -637,7 +635,10 @@ export default {
             }
             self.tags.push(obj.name)
             self.bar.series.push(obj)
+            // console.log(self.bar.series)
           }
+          var myChart = echarts.init(document.getElementById('main'))
+          myChart.setOption(self.bar)
         } else {
           alert('该时间段没有数据,重新输入时间')
           self.startTime = null

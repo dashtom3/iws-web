@@ -74,6 +74,7 @@
 import axios from 'axios'
 import global from '../global/global'
 export default {
+  props: ['args'],
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
@@ -87,8 +88,19 @@ export default {
         currentPage: 1,
         numberPerPage: 10,
         totalPage: -1,
-        userId: global.getUser().id
+        userId: global.getUser().id,
+        describes: null
       }
+    }
+  },
+  watch: {
+    args (value) {
+      if (value) {
+        this.newsArgs.describes = value
+      } else {
+        this.newsArgs.describes = null
+      }
+      this.getNewsLists(this.newsArgs)
     }
   },
   created () {
@@ -115,9 +127,19 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        self.newsLists = res.data.data
-        self.newsArgs.totalPage = res.data.totalPage
-        self.newsArgs.numberPerPage = res.data.numberPerPage
+        if (res.data.totalNumber) {
+          self.newsLists = res.data.data
+          self.newsArgs.totalPage = res.data.totalPage
+          self.newsArgs.numberPerPage = res.data.numberPerPage
+        } else {
+          global.error(self, '该时间段没有数据', '')
+        }
+        if (self.newsArgs.startTime) {
+          self.newsArgs.startTime = new Date(self.newsArgs.startTime)
+        }
+        if (self.newsArgs.endTime) {
+          self.newsArgs.endTime = new Date(self.newsArgs.endTime)
+        }
       })
     },
     searchByTime () {

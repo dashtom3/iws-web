@@ -39,6 +39,7 @@
 import axios from 'axios'
 import global from '../global/global'
 export default {
+  props: ['args'],
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
@@ -50,10 +51,21 @@ export default {
         numberPerPage: 10,
         currentPage: 1,
         totalPage: -1,
-        status: 2
+        status: 2,
+        describes: null
       },
       userInfo: global.getUser(),
       status: ['已确认', '未确认']
+    }
+  },
+  watch: {
+    args (value) {
+      if (value) {
+        this.newsArgs.describes = value
+      } else {
+        this.newsArgs.describes = null
+      }
+      this.getNewsLists(this.newsArgs)
     }
   },
   created () {
@@ -79,9 +91,13 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        self.newsLists = res.data.data
-        self.newsArgs.totalPage = res.data.totalPage
-        self.newsArgs.currentPage = res.data.currentPage
+        if (res.data) {
+          self.newsLists = res.data.data
+          self.newsArgs.totalPage = res.data.totalPage
+          self.newsArgs.currentPage = res.data.currentPage
+        } else {
+          global.error(self, '该消息不存在', '')
+        }
       })
     },
     getUserLists () {

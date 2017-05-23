@@ -80,6 +80,7 @@
 import axios from 'axios'
 import global from '../global/global'
 export default {
+  props: ['args'],
   data () {
     return {
       newsLists: [],
@@ -89,7 +90,8 @@ export default {
         token: global.getToken(),
         numberPerPage: 10,
         currentPage: 1,
-        totalPage: -1
+        totalPage: -1,
+        describes: null
       },
       status: ['已确认', '未确认'],
       personalAlert: false,
@@ -97,7 +99,20 @@ export default {
       userDetail: []
     }
   },
+  watch: {
+    args (value) {
+      if (value) {
+        this.newsArgs.describes = value
+      } else {
+        this.newsArgs.describes = null
+      }
+      this.getNewsLists(this.newsArgs)
+    }
+  },
   created () {
+    if (this.newsArgs.systemId === '0') {
+      this.newsArgs.systemId = null
+    }
     this.getNewsLists(this.newsArgs)
     this.getUserLists()
   },

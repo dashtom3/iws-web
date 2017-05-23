@@ -7,6 +7,7 @@
           placeholder="请输入搜索内容"
           icon="search"
           v-model="searchVal"
+          v-on:keyup.enter.native="searchNews"
           class="searchVal">
         </el-input>
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router>
@@ -16,15 +17,17 @@
           <el-submenu index="3">
              <template slot="title">{{systemName}}</template>
              <el-menu-item
+             index="/news/system/0" v-on:click="goSelect">全部系统</el-menu-item>
+             <el-menu-item
              :key="system"
              v-for="(system, index) in systems"
-             v-on:click="goSelect(system)"
+             v-on:click="goSelect"
              :index="'/news/system/'+system.id">{{system.name}}</el-menu-item>
            </el-submenu>
         </el-menu>
       </div>
       <div class="newsNavCon">
-        <router-view></router-view>
+        <router-view v-bind:args="searchKeyword"></router-view>
       </div>
     </div>
   </div>
@@ -41,6 +44,7 @@ export default {
       activeIndex: this.$route.path,
       systemName: '系统',
       searchVal: '',
+      searchKeyword: null,
       selectSystem: ''
     }
   },
@@ -52,9 +56,11 @@ export default {
     })
   },
   methods: {
-    goSelect (obj) {
-      this.systemName = obj.name
+    goSelect () {
       location.reload()
+    },
+    searchNews () {
+      this.searchKeyword = this.searchVal
     }
   }
 }

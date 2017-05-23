@@ -1,7 +1,7 @@
 <template>
   <div class="systemDetial">
     <el-row :gutter="20">
-      <el-col :span="2"><span class="back" v-on:click="back"><<返回系统</span>&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
+      <el-col :span="2"><span class="back p5" v-on:click="back"><<返回系统</span>&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
       <el-col :span="2">
       <el-select v-model="search.searchProvince" placeholder="选择省份" @change="searchProvince">
         <el-option
@@ -35,7 +35,7 @@
       <el-col :span='2'>
         <el-button type="primary" @click="searchByArea">查找</el-button>
       </el-col>
-      <el-col :span="12" class="f18">{{systemName}}</el-col>
+      <el-col :span="12" class="f18 p5">当前系统：{{systemName}}</el-col>
       <el-col :span="2"><el-button type="primary" @click="addressAlert = true">添加新地点</el-button></el-col>
     </el-row>
 
@@ -89,7 +89,7 @@
       <div class="arealists" v-for="(addresslist, index) in addresslists" :class="{active: addressData.isOpen == addresslist}">
         <div class="areaListTitle">
           <el-col :span="10">
-            <div class="areaName" v-on:click="areaIsActive($event, addresslist, addresslist.id)">
+            <div class="areaName" v-on:click="areaIsActive($event.target.parentNode.parentNode.parentNode.parentNode.className, addresslist, addresslist.id)">
               <span>{{addresslist.name}}</span><i class="el-icon-caret-bottom"></i>
             </div>
           </el-col>
@@ -169,7 +169,7 @@
                       </tr>
                       <tr>
                         <td>{{equipmentController.name}}</td>
-                        <td><input type="text" placeholder="请编辑" v-on:blur="configController(equipmentController.id, index, $event.target.value)"></td>
+                        <td><input type="text" placeholder="请编辑" v-on:blur="configController(equipmentController.name, equipmentController.id, index, $event.target.value)"></td>
                       </tr>
                     </table>
                   </div>
@@ -309,13 +309,6 @@ export default {
         terms: []
       },
       tableDate: null,
-      deviceMsg2: {
-        roomId: null,
-        port: null,
-        name: null,
-        selectDeviceId: null,
-        terms: []
-      },
       select: '310000',
       addPackage: false,
       equipmentLists: [], // 设备列表
@@ -391,10 +384,8 @@ export default {
   },
   methods: {
     areaIsActive (event, item, id) {
-      console.log(event)
       localStorage.setItem('event', JSON.stringify(event))
-      var arr = event.target.parentNode.parentNode.parentNode.parentNode.className
-      if (arr.split('、')[0].indexOf('active') === -1) {
+      if (event.split('、')[0].indexOf('active') === -1) {
         this.addressData.isOpen = item
         localStorage.setItem('item', JSON.stringify(item))
         localStorage.id = id
@@ -422,8 +413,9 @@ export default {
       }
       return false
     },
-    configController (controllerId, index, value) {
+    configController (name, controllerId, index, value) {
       var controllerObj = {
+        name: name,
         termId: controllerId,
         number: value
       }
@@ -730,7 +722,7 @@ export default {
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
-          self.areaIsActive(item, id)
+          self.areaIsActive(JSON.parse(localStorage.getItem('event')), item, id)
         }
       })
     },
@@ -765,7 +757,7 @@ export default {
           self.addRoomAlert = false
           self.roomMsg.name = null
           global.success(self, '修改成功', '')
-          self.areaIsActive(JSON.parse(localStorage.getItem('item')), localStorage.id)
+          self.areaIsActive(JSON.parse(localStorage.getItem('event')), JSON.parse(localStorage.getItem('item')), localStorage.id)
         }
       })
     },
@@ -842,9 +834,17 @@ export default {
     addPackageAlert () {
       this.tableDate = false
       if (!this.addPackageAlert) {
-        this.deviceMsg = this.deviceMsg2
+        this.deviceMsg.port = null
+        this.deviceMsg.name = null
+        this.deviceMsg.selectDeviceId = null
+        this.deviceMsg.terms = []
         this.testResponeMsg = null
         this.tableDate = false
+      }
+    },
+    addRoomAlert () {
+      if (!this.addRoomAlert) {
+        this.roomMsg.name = null
       }
     }
   }
@@ -1017,6 +1017,10 @@ export default {
   line-height: 60px;
   /*border: 1px solid;
   border-bottom: none;*/
+}
+.p5{
+  position: relative;
+  top: 5px;
 }
 .arealists{
   height: 60px;

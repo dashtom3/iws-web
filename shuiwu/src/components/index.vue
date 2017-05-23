@@ -28,14 +28,17 @@
            <div class="leftNavCon">
              <el-input
               placeholder="请输入搜索内容"
-              icon="search">
+              v-model="filterAddress"
+              icon="search" v-on:keyup.enter.native="filterAdd">
             </el-input>
             <el-tree :data="treeData"
               node-key="id"
               ref="tree"
               accordion
               highlight-current
+              :default-expanded-keys="[1]"
               :props="defaultProps"
+              :filter-node-method="filterNode"
               @current-change="clicktree"></el-tree>
            </div>
          </div>
@@ -121,6 +124,7 @@ export default {
       posters: [],
       items: [],
       addressAlert: false,
+      filterAddress: null,
       msg: 'Welcome to Your Vue.js App',
       showLeftNav: false,
       zoom: 5,
@@ -148,57 +152,75 @@ export default {
       var mydata = res.data.data
       this.tree(mydata)
     })
-    // 请求所有地点
-    axios.post(global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
-    .then((res) => {
-      for (let i in res.data.data) {
-        var arr = [
-          {
-            icon: res.data.data[i].system.pic,
-            position: [res.data.data[i].positionX, res.data.data[i].positionY],
-            events: {
-              mouseover: () => {
-                self.markers[i][1].visible = true
-              },
-              mouseout: () => {
-                self.markers[i][1].visible = true
-              }
-            },
-            visible: true,
-            draggable: false
-          }, {
-            icon: null,
-            position: [res.data.data[i].positionX, res.data.data[i].positionY],
-            content: '<div style="width:124px;height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:18px 0 10px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].describes + '</div>',
-            events: {
-              mouseover: () => {
-                self.markers[i][1].visible = true
-              },
-              mouseout: () => {
-                self.markers[i][1].visible = false
-              },
-              click: () => {
-                // console.log(123)
-                axios.post(global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
-                .then((res) => {
-                  self.addressAlert = true
-                  self.addressRoomLists = res.data.data.room
-                  self.locationId = res.data.data.id
-                })
-              }
-            },
-            visible: false,
-            draggable: false
-          }
-        ]
-        self.markers.push(arr)
-      }
-      // console.log(self.markers)
-    })
+    this.getAllAddress()
   },
   methods: {
+    filterAdd () {
+      if (this.filterAddress) {
+        this.$refs.tree.filter(this.filterAddress)
+      } else {
+        this.$refs.tree.filter()
+        // this.getAllAddress()
+      }
+    },
     goDataview () {
       this.$router.push('/dataview')
+    },
+    getAllAddress () {
+      // 请求所有地点
+      axios.post(global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
+      .then((res) => {
+        var self = this
+        for (let i in res.data.data) {
+          var arr = [
+            {
+              icon: res.data.data[i].system.pic,
+              position: [res.data.data[i].positionX, res.data.data[i].positionY],
+              events: {
+                mouseover: () => {
+                  self.markers[i][1].visible = true
+                },
+                mouseout: () => {
+                  self.markers[i][1].visible = true
+                }
+              },
+              visible: true,
+              draggable: false
+            }, {
+              icon: null,
+              position: [res.data.data[i].positionX, res.data.data[i].positionY],
+              content: '<div style="width:124px;height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:18px 0 10px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].describes + '</div>',
+              events: {
+                mouseover: () => {
+                  self.markers[i][1].visible = true
+                },
+                mouseout: () => {
+                  self.markers[i][1].visible = false
+                },
+                click: () => {
+                  // console.log(123)
+                  axios.post(global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
+                  .then((res) => {
+                    self.addressAlert = true
+                    self.addressRoomLists = res.data.data.room
+                    self.locationId = res.data.data.id
+                  })
+                }
+              },
+              visible: false,
+              draggable: false
+            }
+          ]
+          self.markers.push(arr)
+        }
+        // console.log(self.markers)
+      })
+    },
+    filterNode (value, data, node) {
+      if (!value) {
+        return true
+      }
+      return data.label.indexOf(value) !== -1
     },
     LeftNav () {
       this.showLeftNav = !this.showLeftNav

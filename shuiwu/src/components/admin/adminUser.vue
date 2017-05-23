@@ -147,7 +147,8 @@ export default {
             self.userArgs.currentPage = res.data.currentPage
             self.userArgs.totalPage = res.data.totalPage
           } else {
-            alert('用户不存在')
+            self.userlist = res.data.data
+            global.error(self, '用户不存在', '')
           }
         })
       }

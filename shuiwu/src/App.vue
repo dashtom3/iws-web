@@ -22,6 +22,9 @@ export default {
 ul li{
   list-style: none;
 }
+.whiteCo input{
+  color: #fff!important;
+}
 .remoteDate button.el-button--primary{
   color: #fff;
   background-color: rgba( 240, 255, 207, .4);
@@ -152,9 +155,6 @@ a:active{
 }
 .confirm:hover{
   border: none;
-}
-.cw input,.cw i{
-  color:#fff!important;
 }
 /*.el-carousel__item:first-child{
   display: inline-block!important;

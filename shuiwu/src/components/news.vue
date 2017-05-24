@@ -5,11 +5,10 @@
       <div class="newsConNav">
         <el-input
           placeholder="请输入搜索内容"
-          icon="search"
           v-model="searchVal"
-          v-on:keyup.enter.native="searchNews"
           class="searchVal">
         </el-input>
+        <i class="el-icon-search newsEnterClick" v-on:click="searchNews"></i>
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router>
           <el-menu-item index="/news/unconfirmed">未确认</el-menu-item>
           <el-menu-item index="/news/myNews">我的消息</el-menu-item>
@@ -72,6 +71,18 @@ export default {
   height: 250px;
   background: url('../images/newsbg_02.png') no-repeat top center;
 }
+.newsEnterClick{
+  position: absolute;
+  width: 35px;
+  height: 100%;
+  right: 15px;
+  top: 10px;
+  cursor: pointer;
+  text-align: center;
+  color: #bfcbd9;
+  font-size: 20px;
+  transition: all .3s;
+}
 .newsCon{
   width: 1280px;
   margin: 20px auto;
@@ -84,6 +95,7 @@ export default {
   float: left;
   margin-right: 40px;
   text-align: center;
+  position: relative;
 }
 .searchVal{
   width: 150px;

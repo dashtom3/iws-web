@@ -77,7 +77,7 @@
       <!-- 所有地点 -->
       <div class="systemSelect" v-if="contentRoom">
         <el-row :gutter="20">
-          <el-col :span="2">&nbsp;</el-col>
+          <el-col :span="2"><span class="title">泵房：</span></el-col>
           <el-col :span="22">
             <el-radio-group  v-model="selectRoom" @change="room">
               <el-radio-button label="0">全部</el-radio-button>

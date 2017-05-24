@@ -2,8 +2,8 @@
   <div class="testUser">
     <div class="right">
       <span class="kd"></span><span>只读</span>
-      <span class="kx"></span><span>读写</span>
-      <span class="fz"></span><span>负责人</span>
+      <span class="kx"></span><span>只写</span>
+      <!-- <span class="fz"></span><span>负责人</span> -->
     </div>
     <div class="addroleBtn">
       <el-button type="primary" @click="addroleAlert">添加角色</el-button>
@@ -17,8 +17,8 @@
     :key="user"
     v-for="user in rolelists" class="role" :class="{ active: divIsactive == user }">
       <el-col :span="8" style="position:absolute;"><span>{{user.name}}</span></el-col>
-      <el-col :span="8" style="margin-left:33.33333%">
-        <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive($event, user)">{{list.systemName}}&nbsp;{{list.areaName}}
+      <el-col :span="8" style="margin-left:33.33333%;position:relative;">
+        <p v-for="list in user.subitem" class="rolelist" v-on:click="addactive($event, user)"><span><span class="sjf" v-if="user.subitem.length !== 1"></span>{{list.systemName}}&nbsp;{{list.areaName}}</span>
           <span v-if="1 == list.limitation"><span class="kd"></span></span>
           <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span></span>
           <!-- <span v-if="2 == list.limitation"><span class="kd"></span><span class="kx"></span><span class="fz"></span></span> -->
@@ -204,7 +204,9 @@ export default {
       }
     },
     addactive (ele, user) {
-      var arr = ele.target.parentNode.parentNode.className
+      // console.log(ele.target.parentNode.parentNode)
+      var arr = ele.target.parentNode.parentNode.parentNode.className
+      // console.log(ele.target.parentNode.parentNode.parentNode)
       if (arr.split('、')[0].indexOf('active') === -1) {
         this.divIsactive = user
       } else {
@@ -309,7 +311,7 @@ export default {
         self.rolelistArgs.currentPage = res.data.currentPage
         self.rolelistArgs.totalPage = res.data.totalPage
         self.rolelists = res.data.data
-        self.rolelists.splice(1, 1)
+        self.rolelists.splice(0, 1)
       })
     },
     // 分页
@@ -385,7 +387,21 @@ export default {
 .rolelist{
   position: relative;
 }
-.rolelist:first-child:before{
+/*.sjx{
+  content: '\e604';
+  display: inline-block;
+  font-family: element-icons!important;
+  speak: none;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: baseline;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+}*/
+.rolelist:first-child .sjf:before{
   content: '\e604';
   display: inline-block;
   font-family: element-icons!important;

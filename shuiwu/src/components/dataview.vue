@@ -63,7 +63,7 @@
       </div>
       <div class="systemSelect" v-if="contentRoom">
         <el-row :gutter="20">
-          <el-col :span="2">&nbsp;</el-col>
+          <el-col :span="2"><span class="title">泵房：</span></el-col>
           <el-col :span="22">
             <el-radio-group  v-model="selectRoom" @change="room">
                <el-radio-button
@@ -320,6 +320,7 @@ export default {
       this.contentProvince = false
       this.startTime = null
       this.endTime = null
+      this.systemId = null
     },
     chart (obj) {
       this.tableShow = false
@@ -590,61 +591,65 @@ export default {
     },
     // 增加标签
     addTags () {
-      const self = this
-      self.bar.legend.data = self.tags
-      self.tables = []
-      var actives = document.querySelectorAll('.multiSelect li.active')
-      for (var n in actives) {
-        if (actives[n].innerHTML !== undefined) {
-          var tableObj = {
-            name: actives[n].innerHTML,
-            number: actives[n].getAttribute('value')
+      if (this.startTime && this.endTime) {
+        const self = this
+        self.bar.legend.data = self.tags
+        self.tables = []
+        var actives = document.querySelectorAll('.multiSelect li.active')
+        for (var n in actives) {
+          if (actives[n].innerHTML !== undefined) {
+            var tableObj = {
+              name: actives[n].innerHTML,
+              number: actives[n].getAttribute('value')
+            }
+            self.tables.push(tableObj)
           }
-          self.tables.push(tableObj)
         }
+        this.dateQuery.startTime = this.timeFilter(this.startTime)
+        this.dateQuery.endTime = this.timeFilter(this.endTime)
+        axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
+        .then((res) => {
+          if (res.data.data.length) {
+            self.changeEmpty()
+            self.emptyFooter()
+            self.contentLocation = false
+            self.contentRoom = false
+            self.contentDevice = false
+            self.contentController = false
+            self.contentProvince = false
+            self.chartDate = true
+            // 横坐标时间
+            if (self.bar.xAxis.data.length === 0) {
+              for (let timeIndex in res.data.data) {
+                self.bar.xAxis.data.push(self.timeFilter(new Date(res.data.data[timeIndex].time)))
+              }
+            }
+            self.empty()
+            for (let m in self.tables) {
+              var obj = {
+                name: '',
+                type: 'line',
+                data: []
+              }
+              for (let index in res.data.data) {
+                obj.name = res.data.data[0].roomName + self.tables[m].name
+                obj.data.push(res.data.data[index].data[self.tables[m].number].value)
+              }
+              self.tags.push(obj.name)
+              self.bar.series.push(obj)
+              // console.log(self.bar.series)
+            }
+            var myChart = echarts.init(document.getElementById('main'))
+            myChart.setOption(self.bar)
+          } else {
+            alert('该时间段没有数据,重新输入时间')
+            self.startTime = null
+            self.endTime = null
+          }
+        })
+      } else {
+        alert('请选择时间')
       }
-      this.dateQuery.startTime = this.timeFilter(this.startTime)
-      this.dateQuery.endTime = this.timeFilter(this.endTime)
-      axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
-      .then((res) => {
-        if (res.data.data.length) {
-          self.changeEmpty()
-          self.emptyFooter()
-          self.contentLocation = false
-          self.contentRoom = false
-          self.contentDevice = false
-          self.contentController = false
-          self.contentProvince = false
-          self.chartDate = true
-          // 横坐标时间
-          if (self.bar.xAxis.data.length === 0) {
-            for (let timeIndex in res.data.data) {
-              self.bar.xAxis.data.push(self.timeFilter(new Date(res.data.data[timeIndex].time)))
-            }
-          }
-          self.empty()
-          for (let m in self.tables) {
-            var obj = {
-              name: '',
-              type: 'line',
-              data: []
-            }
-            for (let index in res.data.data) {
-              obj.name = res.data.data[0].roomName + self.tables[m].name
-              obj.data.push(res.data.data[index].data[self.tables[m].number].value)
-            }
-            self.tags.push(obj.name)
-            self.bar.series.push(obj)
-            // console.log(self.bar.series)
-          }
-          var myChart = echarts.init(document.getElementById('main'))
-          myChart.setOption(self.bar)
-        } else {
-          alert('该时间段没有数据,重新输入时间')
-          self.startTime = null
-          self.endTime = null
-        }
-      })
     },
     // 初始化函数
     empty () {

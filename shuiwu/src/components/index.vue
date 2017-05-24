@@ -28,9 +28,9 @@
            <div class="leftNavCon">
              <el-input
               placeholder="请输入搜索内容"
-              v-model="filterAddress"
-              icon="search" v-on:keyup.enter.native="filterAdd">
+              v-model="filterAddress">
             </el-input>
+            <i class="el-icon-search enterClick" v-on:click="filterAdd"></i>
             <el-tree :data="treeData"
               node-key="id"
               ref="tree"
@@ -92,7 +92,7 @@
       v-model="addressAlert">
       <ul class="maxHeight">
         <li v-for="addressRoomList in addressRoomLists" class="addressRoomlist">
-          <p class="roomTitle">{{addressRoomList.name}}</p>
+          <p class="roomTitle" style="line-height:40px;">{{addressRoomList.name}}</p>
           <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/detail/'+locationId" target="_blank">
             <img :src="imgUrl+configControllerList.pic" alt="">
             <p>{{configControllerList.name}}</p>
@@ -356,6 +356,18 @@ export default {
   top: 45px;
   text-align: left;
 }
+.enterClick{
+  position: absolute;
+  width: 35px;
+  height: 100%;
+  right: 0;
+  top: 5px;
+  cursor: pointer;
+  text-align: center;
+  color: #bfcbd9;
+  font-size: 23px;
+  transition: all .3s;
+}
 .index1{
   /*float: left;*/
   display: inline-block;
@@ -450,6 +462,7 @@ export default {
 .leftNavCon{
   width: 200px;
   margin: 0 auto;
+  position: relative;
 }
 
 .block{

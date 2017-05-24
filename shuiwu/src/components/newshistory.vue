@@ -20,7 +20,7 @@
           &nbsp;&nbsp;&nbsp;&nbsp;<span class="newsid">编号:</span><span>{{newsList.id}}</span><span class="state">已确认</span><br><br>
           <!-- <div class="h20"></div> -->
           <span style="font-size:14px;">管理员分配给<a href="javascript:;" v-on:click="showPersonalAlert(newsList.userId)">{{newsList.userName}}</a></span>&nbsp;&nbsp;&nbsp;&nbsp;
-          <el-button type="danger" size="small" v-if="userInfo.roleId === 1 || userInfo.roleId === -1">语音播报</el-button>
+          <!-- <el-button type="danger" size="small" v-if="userInfo.roleId === 1 || userInfo.roleId === -1">语音播报</el-button> -->
           <el-button type="danger" size="small" v-if="userInfo.roleId === 1 || userInfo.roleId === -1" v-on:click="sendMessage(newsList.id, newsList.userId)">发送短信</el-button>
           <div class="h20"></div>
         </p></el-col>
@@ -138,14 +138,21 @@ export default {
           self.newsLists = res.data.data
           self.newsArgs.totalPage = res.data.totalPage
           self.newsArgs.numberPerPage = res.data.numberPerPage
+        } else {
+          // self.newsLists = res.data.data
+          global.error(self, '该时间段没有数据', '')
         }
       })
     },
     searchByTime () {
       // console.log(this.newsArgs.startTime)
-      this.newsArgs.startTime = this.timeFilter(this.newsArgs.startTime)
-      this.newsArgs.endTime = this.timeFilter(this.newsArgs.endTime)
-      this.getNewsLists(this.newsArgs)
+      if (!this.newsArgs.startTime || !this.newsArgs.endTime) {
+        alert('请选择时间')
+      } else {
+        this.newsArgs.startTime = this.timeFilter(this.newsArgs.startTime)
+        this.newsArgs.endTime = this.timeFilter(this.newsArgs.endTime)
+        this.getNewsLists(this.newsArgs)
+      }
     },
     timeFilter (value) {
       // console.log(Date.parse(value))

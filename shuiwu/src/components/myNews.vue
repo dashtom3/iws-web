@@ -143,9 +143,13 @@ export default {
       })
     },
     searchByTime () {
-      this.newsArgs.startTime = this.timeFilter(this.newsArgs.startTime)
-      this.newsArgs.endTime = this.timeFilter(this.newsArgs.endTime)
-      this.getNewsLists(this.newsArgs)
+      if (!this.newsArgs.startTime || !this.newsArgs.endTime) {
+        alert('请选择时间')
+      } else {
+        this.newsArgs.startTime = this.timeFilter(this.newsArgs.startTime)
+        this.newsArgs.endTime = this.timeFilter(this.newsArgs.endTime)
+        this.getNewsLists(this.newsArgs)
+      }
     },
     timeFilter (value) {
       var month = value.getMonth() + 1

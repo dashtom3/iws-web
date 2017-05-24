@@ -16,16 +16,16 @@
           </el-select>
         </el-form-item>
         <el-form-item label="名称" :label-width="width">
-          <el-input v-model="addControllerDate.name" auto-complete="off" class="w800" placeholder="请编辑"></el-input>
+          <el-input v-model="addControllerDate.name" auto-complete="off" class="w800 btc" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="描述" :label-width="width">
           <el-input v-model="addControllerDate.describes" auto-complete="off" class="w800" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="通讯协议">
-          <el-input v-model="addControllerDate.protocol" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
+          <el-input v-model="addControllerDate.protocol" auto-complete="off" class="w200 btc" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="字段数">
-          <el-input v-model="addControllerDate.count" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
+          <el-input v-model="addControllerDate.count" auto-complete="off" class="w200 btc" placeholder="请编辑"></el-input>
         </el-form-item>
         <!-- 控制器参数 -->
         <el-form-item label="参数" :label-width="width" style="border-bottom:1px solid #eeeeee">
@@ -104,7 +104,7 @@
         <span class="controllernumber">{{controller.count}}</span>
         <span class="controllerOs">
           <i class="eye controllericon" v-on:click="seeController(controller)"></i>
-          <el-dialog v-model="viewcontroller">
+          <el-dialog v-model="viewcontroller" class="lh">
             <div class="viewcontrollertitle">
               <span class="w138">名称</span>
               <span class="w138">描述</span>
@@ -125,8 +125,8 @@
               </table>
             </span>
             </div>
-            <div slot="footer" class="dialog-footer">
-              <el-button @click="viewcontroller = !viewcontroller">取 消</el-button>
+            <div slot="footer" class="dialog-footer pt">
+              <el-button @click="viewcontroller = !viewcontroller">关 闭</el-button>
             </div>
           </el-dialog>
           <i class="controlleredit controllericon" v-on:click="editController(controller.id)"></i>
@@ -257,7 +257,7 @@ export default {
     },
     addControllerPost () {
       if (this.addControllerDate.fields.length !== parseInt(this.addControllerDate.count)) {
-        alert('字段数和参数长度不一致')
+        alert('当前参数的总个数不等于字段数!')
       } else {
         for (let i in this.addControllerDate.fields) {
           this.addControllerDate.fields[i].number = parseInt(i) + 1
@@ -372,6 +372,18 @@ export default {
 .addController{
   text-align: right;
 }
+.pt{
+  position: relative;
+  top: -20px;
+}
+.btc::after{
+  content: '*(必填)';
+  color: red;
+  position: absolute;
+  right: -65px;
+  top: 0;
+  font-size: 15px;
+}
 .addController button{
   border-radius: 3px;
   background-color: rgb( 20, 135, 202 );
@@ -472,7 +484,7 @@ export default {
   background: url('../../images/see.png');
 }
 .w800{
-  width: 800px!important;
+  width: 300px!important;
 }
 .controlleredit{
   width: 22px;

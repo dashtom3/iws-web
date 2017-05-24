@@ -43,7 +43,7 @@
     <el-dialog title="添加新地点" v-model="addressAlert">
       <el-form :model="addressData">
         <el-form-item label="地点名称">
-          &nbsp;&nbsp; <el-input v-model="addressData.name" auto-complete="off" class="w800"></el-input>
+          &nbsp;&nbsp; <el-input v-model="addressData.name" auto-complete="off" class="w800 w400"></el-input>
         </el-form-item>
         <el-form-item label="省/市/地区">
           <el-select v-model="addressData.selectProvince" placeholder="选择省份" @change="province">
@@ -66,7 +66,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="具体地址">
-          <input v-model="addressData.address" placeholder="请输入详细地址" auto-complete="off" class="w800 setaddress" v-on:blur="addressDetail()">
+          <input v-model="addressData.address" placeholder="请输入详细地址" auto-complete="off" class="w800 setaddress w400" v-on:blur="addressDetail()">
         </el-form-item>
         <el-form-item label="经纬度">
           &nbsp;&nbsp; &nbsp;&nbsp; <span>X: </span><el-input v-model="addressData.x" auto-complete="off" class="w800 w50"></el-input>
@@ -119,12 +119,12 @@
         <transition name="slide-fade">
         <div class="areaListDetial">
           <el-col :span="3" class="bor1">
-                <a href="javascript:;" class="addRoom" v-on:click="addRoomAlert = !addRoomAlert">添加</a><br>
+                <a href="javascript:;" class="addRoom" v-on:click="addRoomAlert = !addRoomAlert">添加泵房</a><br>
 
                 <!-- 添加泵房 -->
-                <el-dialog title="添加房间" v-model="addRoomAlert" size="tiny">
+                <el-dialog title="添加泵房" v-model="addRoomAlert" size="tiny">
                   <el-form>
-                    <el-form-item label="房间名称">
+                    <el-form-item label="泵房名称">
                       <el-input v-model="roomMsg.name" auto-complete="off"></el-input>
                     </el-form-item>
                   </el-form>
@@ -142,7 +142,7 @@
                 </p>
           </el-col>
           <el-col :span="3" class="bor1" v-show="addPackage">
-              <a href="javascript:;" class="addRoom" v-on:click="addPackageAlert = true">添加</a><br>
+              <a href="javascript:;" class="addRoom" v-on:click="addPackageAlert = true">添加设备</a><br>
 
               <!-- 配置控制器 -->
               <el-dialog title="提示" v-model="addPackageAlert" size="tiny" style="text-align:left;">
@@ -190,7 +190,7 @@
               </p>
           </el-col>
           <el-col :span="18" class="bor1" v-if="next" style="position:relative">
-              <a href="javascript:;" class="addRoom">&nbsp;</a>
+              <a href="javascript:;" class="addRoom">控制器列表</a>
               <span style="float:right;position:absolute;top:25px;right:25px;">
                 <el-button type="primary" size="small" :disabled="configControllerDetialInfos.status === 1" v-on:click="openConfigController(configControllerDetialInfos.groupId)">开启</el-button>
                 <el-button type="danger" size="small" :disabled="configControllerDetialInfos.status === 0"
@@ -716,14 +716,23 @@ export default {
     },
     // 删除泵房
     roomDelete (item, id, roomId) {
-      // console.log(roomId)
-      var self = this
-      axios.post(global.baseUrl + 'room/delete?roomId=' + roomId + '&token=' + global.getToken())
-      .then((res) => {
-        // console.log(res)
-        if (res.data.callStatus === 'SUCCEED') {
-          self.areaIsActive(JSON.parse(localStorage.getItem('event')), item, id)
-        }
+      this.$confirm('确定删除该泵房?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var self = this
+        axios.post(global.baseUrl + 'room/delete?roomId=' + roomId + '&token=' + global.getToken())
+        .then((res) => {
+            // console.log(res)
+          if (res.data.callStatus === 'SUCCEED') {
+            self.$message({
+              type: 'success',
+              message: '删除成功!',
+              onClose: self.areaIsActive(JSON.parse(localStorage.getItem('event')), item, id)
+            })
+          }
+        })
       })
     },
     roomIsactive (room) {
@@ -1011,6 +1020,9 @@ export default {
 }
 .w800{
   width: 800px;
+}
+.w400{
+  width: 400px!important;
 }
 .areaListTitle{
   height: 60px;

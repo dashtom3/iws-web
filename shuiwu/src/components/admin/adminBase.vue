@@ -10,44 +10,48 @@
         <el-form-item label="名称">
           <el-input v-model="addBaseMsg.name" placeholder="请编辑"></el-input>
         </el-form-item>
-        <el-form-item label="设备类型" style="text-align:left">
-          <el-select v-model="addBaseMsg.type" placeholder="请选择设备类型">
-            <el-option
-            :key="baseType"
-            v-for="baseType in baseTypes"
-            :label="baseType.name" :value="baseType.id"></el-option>
-          </el-select><br>
-          <div style="height:20px;"></div>
-          <label for="" class="left15">压力表</label>
-          <el-select v-model="addBaseMsg.selectPressure" placeholder="请选择压力表" style="width:160px;">
-            <el-option
-            :key="pressureList"
-            v-for="pressureList in pressureLists"
-            :label="pressureList.name" :value="pressureList.id"></el-option>
-          </el-select>
-          <label for="" class="left15">电表</label>
-          <el-select v-model="addBaseMsg.selectMeter" placeholder="请选择电表"style="width:160px;">
-            <el-option
-            :key="meter"
-            v-for="meter in meters"
-            :label="meter.name" :value="meter.id"></el-option>
-          </el-select><br>
-          <div style="height:20px;"></div>
-          <label for="" class="left15">流量计</label>
-          <el-select v-model="addBaseMsg.selectFlowmeter" placeholder="请选择流量计"style="width:160px;">
-            <el-option
-            :key="flowmeter"
-            v-for="flowmeter in flowmeters"
-            :label="flowmeter.name" :value="flowmeter.id"
-            ></el-option>
-          </el-select>
-          <label for="" class="left15">PLC控制器</label>
-          <el-select v-model="addBaseMsg.selectController" placeholder="请选择PLC控制器"style="width:160px;">
-            <el-option
-            :key="controllerList"
-            v-for="controllerList in controllerLists"
-            :label="controllerList.name" :value="controllerList.id"></el-option>
-          </el-select>
+        <el-form-item label="设备类型" style="text-align:left" class="pt20">
+          <div class="bgCf">
+            <div class="h20"></div>
+            <el-select v-model="addBaseMsg.type" placeholder="请选择设备类型" class="pwtc">
+              <el-option
+              :key="baseType"
+              v-for="baseType in baseTypes"
+              :label="baseType.name" :value="baseType.id"></el-option>
+            </el-select><br>
+            <div style="height:20px;"></div>
+            <label for="" class="left15">压力表</label>
+            <el-select v-model="addBaseMsg.selectPressure" placeholder="请选择压力表" style="width:160px;margin-right:15px;">
+              <el-option
+              :key="pressureList"
+              v-for="pressureList in pressureLists"
+              :label="pressureList.name" :value="pressureList.id"></el-option>
+            </el-select>
+            <label for="" class="left15">电表</label>
+            <el-select v-model="addBaseMsg.selectMeter" placeholder="请选择电表"style="width:160px;">
+              <el-option
+              :key="meter"
+              v-for="meter in meters"
+              :label="meter.name" :value="meter.id"></el-option>
+            </el-select><br>
+            <div style="height:20px;"></div>
+            <label for="" class="left15">流量计</label>
+            <el-select v-model="addBaseMsg.selectFlowmeter" placeholder="请选择流量计"style="width:160px;margin-right:15px;">
+              <el-option
+              :key="flowmeter"
+              v-for="flowmeter in flowmeters"
+              :label="flowmeter.name" :value="flowmeter.id"
+              ></el-option>
+            </el-select>
+            <label for="" class="left15">PLC控制器</label>
+            <el-select v-model="addBaseMsg.selectController" placeholder="请选择PLC控制器"style="width:160px;">
+              <el-option
+              :key="controllerList"
+              v-for="controllerList in controllerLists"
+              :label="controllerList.name" :value="controllerList.id"></el-option>
+            </el-select>
+          </div>
+
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -281,6 +285,21 @@ export default {
 .base{
   text-align: center;
 }
+.bgCf{
+  background-color: #eeeeee;
+  padding: 30px;
+  position: relative;
+  top: -30px;
+}
+.pwtc{
+  position: relative;
+  top: -20px;
+}
+.pt20{
+  position: relative;
+  /*top: 15px;*/
+  padding: 30px 0;
+}
 .addController{
   text-align: right;
   margin-bottom: 20px;
@@ -295,7 +314,7 @@ export default {
   height: 41px;
 }
 .left15{
-  margin:0 15px;
+  margin:0 15px 0 0;
 }
 .baseTitle{
   border-radius: 6px;

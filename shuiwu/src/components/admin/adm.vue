@@ -46,6 +46,9 @@ export default {
     display: flex;
     flex-flow: column;
   }
+  .lh .el-dialog__headerbtn{
+    line-height: 0!important;
+  }
   .app_header{
     position: relative;
     flex: 0 0 auto;

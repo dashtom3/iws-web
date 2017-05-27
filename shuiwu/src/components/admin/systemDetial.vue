@@ -180,7 +180,7 @@
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                   <el-button @click="addPackageAlert = false">取 消</el-button>
-                  <el-button type="primary" v-on:click="addControllerDevice" :disabled="addControllerBtn === '0'">确 定</el-button>
+                  <el-button type="primary" v-on:click.prevent="addControllerDevice" :disabled="addControllerBtn === '0'">确 定</el-button>
                 </span>
               </el-dialog>
 
@@ -429,21 +429,25 @@ export default {
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(JSON.stringify(this.deviceMsg.terms))
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
+        // console.log(xhr.responseText)
+        // console.log(JSON.parse(xhr.responseText))
+        if (JSON.parse(xhr.responseText).callStatus === 'SUCCEED') {
           self.testResponeMsg = JSON.parse(xhr.responseText).data.massage
           self.addControllerBtn = JSON.parse(xhr.responseText).data.status
+        } else {
+          return false
         }
       }
     },
     // 添加配置控制器
     addControllerDevice () {
-      var self = this
+      // var self = this
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'room/addDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(JSON.stringify(this.deviceMsg.terms))
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
+        if (JSON.parse(xhr.responseText).callStatus === 'SUCCEED') {
           global.addSuccess(self, '添加成功')
           self.deviceMsg.name = null
           self.deviceMsg.port = null
@@ -455,11 +459,15 @@ export default {
           self.addControllerBtn = null
           axios.get(global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
           .then((res) => {
-            // console.log(res)
+              // console.log(res)
             self.packages = res.data.data
             self.next = false
           })
+        } else {
+          alert('端口号已存在')
+          return false
         }
+        return false
       }
     },
     packageIsactive (meal) {

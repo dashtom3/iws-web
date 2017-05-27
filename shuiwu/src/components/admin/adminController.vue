@@ -6,7 +6,7 @@
 
     <!-- 添加控制器 -->
     <el-dialog v-model="addControllerAlert" class="addcontro">
-      <el-form :model="addControllerDate">
+      <el-form :model="addControllerDate" label-position="left">
         <el-form-item label="类型" :label-width="width">
           <el-select v-model="addControllerDate.type" placeholder="请选择类型" >
             <el-option
@@ -21,38 +21,41 @@
         <el-form-item label="描述" :label-width="width">
           <el-input v-model="addControllerDate.describes" auto-complete="off" class="w800" placeholder="请编辑"></el-input>
         </el-form-item>
-        <el-form-item label="通讯协议">
-          <el-input v-model="addControllerDate.protocol" auto-complete="off" class="w200 btc" placeholder="请编辑"></el-input>
+        <el-form-item label="通讯协议" :label-width="width">
+          <el-input v-model="addControllerDate.protocol" auto-complete="off" class="w800 btc wj800" placeholder="请编辑"></el-input>
         </el-form-item>
-        <el-form-item label="字段数">
-          <el-input v-model="addControllerDate.count" auto-complete="off" class="w200 btc" placeholder="请编辑"></el-input>
+        <el-form-item label="字段数" :label-width="width">
+          <el-input v-model="addControllerDate.count" auto-complete="off" class="w800 btc" placeholder="请编辑"></el-input>
         </el-form-item>
         <!-- 控制器参数 -->
-        <el-form-item label="参数" :label-width="width" style="border-bottom:1px solid #eeeeee">
-        </el-form-item>
-        <el-form-item label="名称" :label-width="width">
-          <el-input v-model="field.name" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
-          <label class="m20">单位</label>
-          <el-input v-model="field.unit" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
-          <label class="m20">值意义</label>
-          <el-input v-model="field.describes" auto-complete="off" class="w200" placeholder="请编辑"></el-input><br><br>
-          <label class="m20">参数类型</label>
-          <el-select v-model="field.roleId" placeholder="请选择类型">
-            <el-option
-            :key="parameter"
-            v-for="parameter in ParameterType"
-            :label="parameter.describes" :value="parameter.id"></el-option>
-          </el-select>
-          <span v-show="field.roleId === 1">
-            <label class="m20">倍率</label>
-            <el-input v-model="field.multiple" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
-            <label class="m20">上限</label>
-            <el-input v-model="field.max" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
-            <label class="m20">下限</label>
-            <el-input v-model="field.min" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
-          </span>
-          <el-button type="button" icon="plus" class="add" v-on:click="addControllerType"></el-button>
-        </el-form-item>
+        <div class="" style="position:relative;top:-10px;">
+          <el-form-item label="参数" :label-width="width" style="border-bottom:1px solid #eeeeee">
+          </el-form-item>
+          <el-form-item label="名称" :label-width="width">
+            <el-input v-model="field.name" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
+            <label class="m20">单位</label>
+            <el-input v-model="field.unit" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
+            <label class="m20">值意义</label>
+            <el-input v-model="field.describes" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
+            <label class="m20">参数类型</label>
+            <el-select v-model="field.roleId" placeholder="请选择类型">
+              <el-option
+              :key="parameter"
+              v-for="parameter in ParameterType"
+              :label="parameter.describes" :value="parameter.id"></el-option>
+            </el-select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span v-show="field.roleId === 1">
+              <div class="h20"></div>
+              <label class="" style="margin-right:20px">倍率</label>
+              <el-input v-model="field.multiple" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
+              <label class="m20">上限</label>
+              <el-input v-model="field.max" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
+              <label class="m20">下限</label>
+              <el-input v-model="field.min" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
+            </span>
+            <el-button type="button" icon="plus" class="add" v-on:click="addControllerType"></el-button>
+          </el-form-item>
+        </div>
         <div class="parameter">
           <div class="parametertitle">
             <span class="parametername w80">编号</span>
@@ -213,7 +216,7 @@ export default {
       controllerTypes: null,
       ParameterType: null,
       controllerlists: [],
-      width: '50px',
+      width: '70px',
       editControllerDate: {},
       controllerArgs: {
         currentPage: 1,
@@ -414,6 +417,10 @@ export default {
 }
 .w900{
   width: 500px;
+}
+.pl26{
+  position: relative;
+  left: -16px;
 }
 .controllertitle span,.controllerContent span,.parametertitle span{
   margin-right: -3px;

@@ -128,18 +128,13 @@ export default {
       var self = this
       axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
-        if (self.newsArgs.startTime) {
-          self.newsArgs.startTime = new Date(self.newsArgs.startTime)
-        }
-        if (self.newsArgs.endTime) {
-          self.newsArgs.endTime = new Date(self.newsArgs.endTime)
-        }
         if (res.data.totalNumber) {
           self.newsLists = res.data.data
           self.newsArgs.totalPage = res.data.totalPage
           self.newsArgs.numberPerPage = res.data.numberPerPage
-        } else {
-          // self.newsLists = res.data.data
+        } else if (self.newsArgs.startTime && self.newsArgs.endTime) {
+          self.newsArgs.startTime = new Date(self.newsArgs.startTime)
+          self.newsArgs.endTime = new Date(self.newsArgs.endTime)
           global.error(self, '该时间段没有数据', '')
         }
       })

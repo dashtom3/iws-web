@@ -131,14 +131,10 @@ export default {
           self.newsLists = res.data.data
           self.newsArgs.totalPage = res.data.totalPage
           self.newsArgs.numberPerPage = res.data.numberPerPage
-        } else {
-          global.error(self, '该时间段没有数据', '')
-        }
-        if (self.newsArgs.startTime) {
+        } else if (self.newsArgs.startTime && self.newsArgs.endTime) {
           self.newsArgs.startTime = new Date(self.newsArgs.startTime)
-        }
-        if (self.newsArgs.endTime) {
           self.newsArgs.endTime = new Date(self.newsArgs.endTime)
+          global.error(self, '该时间段没有数据', '')
         }
       })
     },

@@ -8,13 +8,30 @@
     <el-dialog :title="addBaseAlertTitle" v-model="addBaseAlert">
       <el-form ref="addVideoMsg" :model="addVideoMsg" label-width="100px">
         <el-form-item label="名称">
-          <el-input v-model="addVideoMsg.videoName" placeholder="请编辑"></el-input>
+          <el-input v-model="addVideoMsg.name" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="地点">
-          <el-input v-model="addVideoMsg.videoAddress" placeholder="请编辑"></el-input>
+          <el-select v-model="addVideoMsg.provinceId" placeholder="选择省份">
+            <el-option
+            :key="province"
+            v-for="province in provinces"
+            :label="province.name" :value="province"></el-option>
+          </el-select>
+          <el-select v-model="addVideoMsg.cityId" placeholder="选择市">
+            <el-option
+            :key="city"
+            v-for="city in citys"
+            :label="city.name" :value="city"></el-option>
+          </el-select>
+          <el-select v-model="addVideoMsg.areaId" placeholder="选择区域">
+            <el-option
+            :key="area"
+            v-for="area in areas"
+            :label="area.name" :value="area"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="监控IP地址">
-          <el-input v-model="addVideoMsg.videoIp" placeholder="请编辑"></el-input>
+          <el-input v-model="addVideoMsg.ip" placeholder="请编辑"></el-input>
         </el-form-item>
 
       </el-form>
@@ -32,9 +49,9 @@
       <span>操作</span>
     </div>
     <div class="baseList baseWidth" v-for="videoList in videoLists">
-      <span>{{videoList.videoName}}</span>
+      <span>{{videoList.name}}</span>
       <span>{{videoList.videoAddress}}</span>
-      <span>{{videoList.videoIp}}</span>
+      <span>{{videoList.ip}}</span>
       <span>
         <i class="controlleredit controllericon" v-on:click="editVideo(videoList.id)"></i>
         <i class="controllerdel controllericon" v-on:click="deleteVideoPost(videoList.id)"></i>
@@ -62,10 +79,26 @@ export default {
       addBaseAlert: false,
       addBaseAlertTitle: '添加',
       addVideoMsg: {
-        videoName: null,
+        name: null,
         videoAddress: null,
-        videoIp: null
+        provinceId: null,
+        cityId: null,
+        areaId: null,
+        ip: null,
+        port: null,
+        username: null,
+        password: null,
+        protocol: null,
+        streamType: null,
+        channelID: null,
+        zeroChannel: null,
+        positionX: null,
+        positionY: null,
+        describes: null
       },
+      provinces: null,
+      citys: null,
+      areas: null,
       videoLists: [],
       videoInfo: {
         videoId: null
@@ -79,18 +112,27 @@ export default {
     }
   },
   created () {
-    this.getVideoList(this.videoListArgs)
+    // this.getVideoList(this.videoListArgs)
+    this.getProvinces()
   },
   methods: {
     // 获取视频列表
     getVideoList (args) {
       var self = this
-      axios.get(global.baseUrl + 'device/list?' + global.getHttpData(args))
+      axios.get(global.baseUrl + 'hikvision/list?' + global.getHttpData(args))
+      .then((res) => {
+        console.log(res)
+        // self.videoLists = res.data.data
+        // self.videoListArgs.currentPage = res.data.currentPage
+        // self.videoListArgs.totalPage = res.data.totalPage
+      })
+    },
+    getProvinces () {
+      var self = this
+      axios.post(global.baseUrl + 'area/areas')
       .then((res) => {
         // console.log(res)
-        self.videoLists = res.data.data
-        self.videoListArgs.currentPage = res.data.currentPage
-        self.videoListArgs.totalPage = res.data.totalPage
+        self.provinces = res.data.data
       })
     },
     // 修改设备

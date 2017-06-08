@@ -143,7 +143,7 @@ export default {
       .then((res) => {
         self.remoteDates = res.data.data
       })
-      // setTimeout(this.selectController, 10000000)
+      setTimeout(this.selectController, 10000)
     },
     isOperation () {
       var self = this

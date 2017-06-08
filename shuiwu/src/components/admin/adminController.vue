@@ -52,6 +52,8 @@
               <el-input v-model="field.max" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
               <label class="m20">下限</label>
               <el-input v-model="field.min" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
+              <label class="m20" v-if="addControllerDate.type === 2">地址</label>
+              <el-input v-model="field.address" auto-complete="off" class="w200 w100" placeholder="请编辑" v-if="addControllerDate.type === 2"></el-input>
             </span>
             <el-button type="button" icon="plus" class="add" v-on:click="addControllerType"></el-button>
           </el-form-item>
@@ -66,6 +68,7 @@
             <span class="parameterrate w80">倍率</span>
             <span class="parametertop w80">上限</span>
             <span class="parameterbottom w80">下限</span>
+            <span class="parameterbottom w80">地址</span>
             <span class="parameteros w80">操作</span>
           </div>
           <div class="parameterlist" v-for="(fieldMsg, index) in addControllerDate.fields">
@@ -210,7 +213,8 @@ export default {
         unit: null,
         min: null,
         max: null,
-        multiple: null
+        multiple: null,
+        address: null
       },
       controllerId: null,
       controllerTypes: null,
@@ -296,7 +300,8 @@ export default {
         max: this.field.max,
         number: this.field.number,
         roleId: this.field.roleId,
-        multiple: this.field.multiple
+        multiple: this.field.multiple,
+        address: this.field.address
       }
       for (let i in this.field) {
         this.field[i] = null

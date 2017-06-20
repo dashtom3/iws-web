@@ -53,6 +53,7 @@ export default {
     position: relative;
     flex: 0 0 auto;
     z-index: 2;
+    min-width: 1280px;
   }
   .app_header .title{
     margin-left: 16px;
@@ -72,6 +73,7 @@ export default {
     flex: 1;
     overflow: auto;
     padding: 20px;
+    min-width: 1000px;
   }
   .breadcrumb{
     padding-bottom: 20px;

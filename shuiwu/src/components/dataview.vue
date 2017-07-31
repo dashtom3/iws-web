@@ -1,5 +1,5 @@
 <template>
-  <div class="dataviews" ref="contentHeight">
+  <div class="dataviews" ref="contentHeight" v-loading="loading" element-loading-text="拼命加载中">
     <div class="dataviewsHeader">
       <div class="dataviewNavbar">
         <ul class="kinds">
@@ -236,6 +236,7 @@ export default {
       chartShow: false,
       echart: false,
       tableDataShow: false,
+      loading:false,
       contentProvince: false,
       contentLocation: false,
       contentRoom: false,
@@ -506,6 +507,7 @@ export default {
     // 查询数据
     dateQueryClick () {
       this.tables = []
+      this.loading = true
       if (this.startTime && this.endTime) {
         var actives = document.querySelectorAll('.multiSelect li.active')
         for (var i in actives) {
@@ -523,6 +525,7 @@ export default {
         axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
         .then((res) => {
           if (res.data.callStatus === 'SUCCEED') {
+            this.loading = fasle
             if (res.data.data.length) {
               self.tableDataShow = true
               self.dateTables = res.data.data

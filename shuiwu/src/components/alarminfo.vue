@@ -1,5 +1,5 @@
 <template>
-  <div class="dataviews" ref="contentHeight">
+  <div class="dataviews" ref="contentHeight" v-loading="loading" element-loading-text="拼命加载中">
     <div class="dataviewsHeader">
       <div class="dataviewNavbar">
         <ul class="kinds">
@@ -188,7 +188,7 @@
           <!-- <el-button type="primary" @click="printExcel">导出EXCEl表格</el-button> -->
         </div>
       </div>
-      <el-dialog title="更多数据" v-model="moreData">
+      <el-dialog title="更多数据" v-model="moreData" size="large">
         <table cellspacing="0" cellpadding="0" class="dateTable">
           <tr class="bgth">
             <th>报警名称</th>
@@ -271,6 +271,7 @@ export default {
       echart: false,
       systemId: '0',
       groupId: '0',
+      loading: false,
       moreData: false,
       contentProvince: false,
       contentLocation: false,
@@ -691,9 +692,11 @@ export default {
     getAlarmInfo (args) {
       // console.log(args)
       var self = this
+      this.loading = true
       axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
+          this.loading = false
           if (res.data) {
             self.dateContent = true
             self.dateTables = res.data.data

@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+	<meta http-equiv="Expires" content="0" />
+	<script>
+		document.write("<link type='text/css' href='../demo.css?version=" + new Date().getTime() + "' rel='stylesheet' />");
+	</script>
+	<style media="screen">
+		body{
+			padding: 0;
+			position: relative;
+		}
+		.ceshi{
+position: absolute;color: red;
+		}
+	</style>
+</head>
+<body>
+<div class="left">
+	<!-- <div class="ceshi">
+		1234134
+	</div> -->
+	<div id="divPlugin" class="plugin">
+
+	</div>
+	 <fieldset class="login" style="display:none">
+		<legend>登录</legend>
+		<table cellpadding="0" cellspacing="3" border="0">
+			<tr>
+				<td class="tt">IP地址</td>
+				<td><input id="loginip" type="text" class="txt"  /></td>
+				<td class="tt">端口号</td>
+				<td><input id="port" type="text" class="txt" /></td>
+			</tr>
+			<tr>
+				<td class="tt">用户名</td>
+				<td><input id="username" type="text" class="txt"  /></td>
+				<td class="tt">密码</td>
+				<td><input id="password" type="password" class="txt"  /></td>
+			</tr>
+		</table>
+	</fieldset>
+</div>
+</body>
+<script src="../jquery-1.7.1.min.js"></script>
+<script src="../codebase/webVideoCtrl.js"></script>
+<script src="demo.js"></script>
+<script type="text/javascript">
+	var nowUrl = $("iframe").context.URL;
+	var params = nowUrl.split("?")[1].split("&&");
+	var paramsObj = {};
+	for(var i = 0;i < params.length;i++){
+		var val = params[i].split("=")[1];
+		if(i==0){
+			$("#loginip").val(val);
+		}else if(i==1){
+			$("#port").val(val);
+		}else if(i==2){
+			$("#username").val(val);
+		}else if(i==3){
+			$("#password").val(val);
+		}
+	}
+	setTimeout(function(){
+		console.log("开始执行clickLogin")
+		clickLogin();
+	},2000)
+</script>
+</html>

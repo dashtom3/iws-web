@@ -1,153 +1,272 @@
 <template>
-  <div class="videoMsg" ref="contentHeight" id="divPlugin">
-    <ul>
-      <li v-for="videoList in videoLists"><video :src="videoList.src" autoplay poster="" controls></video></li>
-      <li class="addVideo"><i class="el-icon-plus" v-on:click="videoListAlert = true" style="color:#aaaaaa;"></i></li>
-    </ul>
-    <el-dialog title="视频列表" v-model="videoListAlert">
-      <!-- <el-table :data="videoTableData">
-        <el-table-column property="date" label="名称" width="150"></el-table-column>
-        <el-table-column property="name" label="地址" width="200"></el-table-column>
-        <el-table-column property="address" label="监控地址"></el-table-column>
-        <el-table-column
-          label="操作"
-          width="100">
-          <template scope="scope">
-            <el-button type="text" size="small">添加</el-button>
-          </template>
-      </el-table> -->
+  <div class="videoWrap">
+    <div class="addMyVideoBtn">
+      <el-button @click="addMyVideoCont()" type="text">添加视频监控</el-button>
+      <el-button @click="deleteMyVideoCont()" type="text">删除视频监控</el-button>
+    </div>
+    <el-dialog title="添加视频监控" :visible.sync="dialogTableVisible" size="large">
+      <div class="selectOne">
+        <!-- 系统 -->
+        <p class="selectTitle">请选择系统</p>
+        <el-select placeholder="请选择" v-model="system" @change="systemChange">
+          <el-option  v-for="(system,index) in systems"  :key="system.name"  :label="system.name"  :value="system"></el-option>
+        </el-select>
+      </div>
+      <div class="selectOne">
+        <!-- 省区 -->
+        <p class="selectTitle">请选择省区</p>
+        <el-select placeholder="请选择" v-model="province" @change="provinceChange" :disabled="provinces.length==0">
+          <el-option  v-for="(province,index) in provinces"  :key="province.name"  :label="province.name"  :value="province"></el-option>
+        </el-select>
+      </div>
+      <div class="selectOne">
+        <!-- 市 -->
+        <p class="selectTitle">请选择市区</p>
+        <el-select placeholder="请选择" v-model="city" @change="cityChange" :disabled="citys.length==0">
+          <el-option  v-for="(city,index) in citys"  :key="city.name"  :label="city.name"  :value="city"></el-option>
+        </el-select>
+      </div>
+      <div class="selectOne">
+        <!-- 区 -->
+        <p class="selectTitle">请选择区域</p>
+        <el-select placeholder="请选择" v-model="area" @change="ariaChange" :disabled="arias.length==0">
+          <el-option  v-for="(aria,index) in arias"  :key="aria.name"  :label="aria.name"  :value="aria"></el-option>
+        </el-select>
+      </div>
+      <div class="selectOne">
+        <!-- last -->
+        <p class="selectTitle">请选择地点</p>
+        <el-select placeholder="请选择" v-model="last" @change="lastChange" :disabled="lasts.length==0">
+          <el-option  v-for="(last,index) in lasts"  :key="last.name"  :label="last.name"  :value="last"></el-option>
+        </el-select>
+      </div>
+      <div  v-if="tableData.length!=0">
+        <el-table  :data="tableData"  style="width: 100%">
+          <el-table-column  label="位置"    width="180">
+            <template scope="scope">
+              {{scope.row.provinceName+scope.row.cityName+scope.row.areaName}}
+            </template>
+          </el-table-column>
+          <el-table-column  prop="name"   label="名字"    >  </el-table-column>
+          <el-table-column  prop="ip"   label="ip地址"    >  </el-table-column>
+          <el-table-column  prop="port"   label="端口"    >  </el-table-column>
+          <el-table-column  label="操作"    >
+            <template scope="scope">
+              <el-button @click="addThisVideoToSelf(scope.$index, scope.row)">添加</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-dialog>
+    <el-dialog title="删除视频监控" :visible.sync="deleMyVideoListWrap" size="large">
+        <el-table  :data="videoList"  style="width: 100%">
+          <el-table-column  label="位置"    width="180">
+            <template scope="scope">
+              {{scope.row.provinceName+scope.row.cityName+scope.row.areaName}}
+              <div>{{scope.row.locationName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column  prop="name"   label="名字"    >  </el-table-column>
+          <el-table-column  prop="ip"   label="ip地址"    >  </el-table-column>
+          <el-table-column  prop="port"   label="端口"    >  </el-table-column>
+          <el-table-column  label="操作"    >
+            <template scope="scope">
+              <el-button type="danger" @click="deleThisVideoToSelf(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+    </el-dialog>
+    <div class=""  v-if="showAllVideo">
+      <div class="oneIframe" v-for="(video,index) in videoList" :key="video">
+        <div class="positionInfo">
+          <span>{{video.provinceName}}&nbsp;</span><span>{{video.cityName}}&nbsp;</span><span>{{video.areaName}}&nbsp;</span><span>{{video.locationName}}&nbsp;</span>
+        </div>
+        <iframe  :src="'static/demo/cn/demo.html?ip='+video.ip+'&&port='+video.port+'&&user='+video.username+'&&pwd='+video.password" style="width:100%;height:100%;border:none" name="myIfram"  scrolling="yes"></iframe>
+      </div>
+      <div style="clear:both"></div>
+    </div>
   </div>
 </template>
-<!-- <script src="./static/jquery.js"></script> -->
-<!-- <script src="./static/demo-easy.js"></script> -->
 
 <script type="text/javascript">
-import $ from 'jquery'
-// import axios from 'axios'
 import global from '../global/global'
-// $(function () {
-//
-// })
+import axios from 'axios'
 export default {
   data () {
     return {
-      videoListAlert: false,
-      videoLists: [
-        // { src: 'https://misc.rrcimg.com/pc/two_anniversary.mp4' },
-        // { src: 'https://misc.rrcimg.com/pc/two_anniversary.mp4' },
-        // { src: 'https://misc.rrcimg.com/pc/two_anniversary.mp4' }
-      ],
-      videoTableData: null
+      deleMyVideoListWrap:false,
+      showAllVideo:true,
+      system:"",
+      systemIndex:null,
+      province:"",
+      provinceIndex:null,
+      city:"",
+      cityIndex:null,
+      area:"",
+      areaIndex:null,
+      last:"",
+      lastIndex:null,
+      dialogTableVisible:false,
+      videoList:[],
+      systems:[],
+      provinces:[],
+      citys:[],
+      arias:[],
+      lasts:[],
+      tableData:[],
     }
   },
   created () {
-    setTimeout(this.test, 200)
-    // this.test()
-    // console.log(this.$route)
-    // console.log($)
-    // axios.get(global.baseUrl + '')
+    this.getVideoLists()
+    this.getSelfVideoList()
+  },
+  watch:{
+    dialogTableVisible:function(){
+      this.showAllVideo = !this.dialogTableVisible;
+    },
   },
   methods: {
-    test () {
-      // 检查插件是否已经安装过
-        var iRet = WebVideoCtrl.I_CheckPluginInstall();
-    	if (-2 == iRet) {
-    		alert("您的Chrome浏览器版本过高，不支持NPAPI插件！");
-    		return;
-    	} else if (-1 == iRet) {
-            alert("您还未安装过插件，双击开发包目录里的WebComponentsKit.exe安装！");
-    		return;
+    getSelfVideoList:function(){
+      var that = this;
+      axios.get(global.baseUrl + 'hikvision/list?token=' + global.getToken())
+      .then((res) => {
+        console.log(res,"getSelfVideoList")
+        that.videoList = res.data.data;
+      })
+    },
+    deleThisVideoToSelf:function(index,row){
+       var that = this;
+      var obj = {
+        hikId:row.id
+      };
+      axios.post(global.baseUrl + 'hikvision/deleteHikFromUser',global.postHttpDataWithToken(obj))
+      .then((res) => {
+        console.log(res,"deleThisVideoToSelf232222222222")
+        if (res.data.callStatus === 'SUCCEED') {
+          this.$alert('添加成功',  {confirmButtonText: '确定',});
+          this.dialogTableVisible = false;
+          this.getSelfVideoList();
+        }else{
+          this.$alert('失败',  {confirmButtonText: '确定',});
         }
+      })
+    },
+    addThisVideoToSelf:function(index,row){
+      console.log(".......................")
+      var that = this;
+      var obj = {
+        hikId:row.id
+      };
+      axios.post(global.baseUrl + 'hikvision/addHikToUser',global.postHttpDataWithToken(obj))
+      .then((res) => {
+        console.log(res,"addThisVideoToSelf1111111111111111111")
+        if (res.data.callStatus === 'SUCCEED') {
+          this.$alert('添加成功',  {confirmButtonText: '确定',});
+          this.dialogTableVisible = false;
+          this.getSelfVideoList();
+        }else{
+          this.$alert('添加失败',  {confirmButtonText: '确定',});
+        }
+      })
+    },
+    systemChange:function(system){
+      this.provinces = system.locationPack;
+    },
+    provinceChange:function (province) {
+      this.citys = province.city;
+    },
+    cityChange:function(city){
+      this.arias = city.area;
+    },
+    ariaChange:function(aria){
+      this.lasts = aria.location;
+    },
+    lastChange:function(last){
+      axios.get(global.baseUrl + 'hikvision/query?locationId='+last.id+'&token=' + global.getToken())
+      .then((res) => {
+        console.log(res)
+        this.tableData = res.data.data
+      })
+    },
+    deleteMyVideoCont:function(){
+      this.deleMyVideoListWrap = true;
+    },
+    addMyVideoCont:function(){
+      var that = this;
+      that.dialogTableVisible = true;
+    },
+    getVideoLists () {
+      var self = this;
+      var obj = {};
+      var token = global.getToken()
+      console.log(token)
+      axios.post(global.baseUrl + 'system/listPack',global.postHttpDataWithToken(obj))
+      .then((res) => {
+        console.log(res,"getVideoLists")
+        if (res.data.callStatus === 'SUCCEED') {
+          self.systems = res.data.data;
 
-    	var oPlugin = {
-    		iWidth: 600,			// plugin width
-    		iHeight: 400			// plugin height
-    	};
-
-    	// 初始化插件参数及插入插件
-    	WebVideoCtrl.I_InitPlugin(oPlugin.iWidth, oPlugin.iHeight, {
-            bWndFull: true,//是否支持单窗口双击全屏，默认支持 true:支持 false:不支持
-            iWndowType: 1,
-    		cbSelWnd: function (xmlDoc) {
-
-    		}
-    	});
-    	WebVideoCtrl.I_InsertOBJECTPlugin("divPlugin");
-
-    	// 检查插件是否最新
-    	if (-1 == WebVideoCtrl.I_CheckPluginVersion()) {
-    		alert("检测到新的插件版本，双击开发包目录里的WebComponentsKit.exe升级！");
-    		return;
-    	}
-
-    	var oLiveView = {
-    		iProtocol: 1,			// protocol 1：http, 2:https
-    		szIP: "192.168.2.4",	// protocol ip
-    		szPort: "80",			// protocol port
-    		szUsername: "admin",	// device username
-    		szPassword: "xj12345678",	// device password
-    		iStreamType: 1,			// stream 1：main stream  2：sub-stream  3：third stream  4：transcode stream
-    		iChannelID: 1,			// channel no
-    		bZeroChannel: false		// zero channel
-    	};
-
-    	// 登录设备
-    	WebVideoCtrl.I_Login(oLiveView.szIP, oLiveView.iProtocol, oLiveView.szPort, oLiveView.szUsername, oLiveView.szPassword, {
-    		success: function (xmlDoc) {
-    			// 开始预览
-    			WebVideoCtrl.I_StartRealPlay(oLiveView.szIP, {
-    				iStreamType: oLiveView.iStreamType,
-    				iChannelID: oLiveView.iChannelID,
-    				bZeroChannel: oLiveView.bZeroChannel
-    			});
-    		}
-    	});
-
-    	// 关闭浏览器
-    	$(window).unload(function () {
-    		WebVideoCtrl.I_Stop();
-    	});
-    }
+        }else{
+          // self.$alert("网络出错")
+        }
+      })
+    },
+    addOneVideoToMy:function(){
+      var that = this;
+    },
+    delOneVideoFromMy:function(){
+      var that = this;
+    },
   },
   mounted () {
-    var login = this.$refs.contentHeight
-    global.setNavHeight(login)
-    if (!global.getToken()) {
-      this.$router.push('/login')
-    }
-    // if (this.$route.path == '/video') {
-    // }
+
   }
 }
 </script>
 <style media="screen">
-.videoMsg{
-  width: 1280px;
-  margin: 0 auto;
-}
-.videoMsg ul{
-  overflow: hidden;
-  width: 100%;
-}
-.videoMsg ul li{
-  width: 640px;
-  height: 400px;
-  float: left;
-  text-align: center;
-  border-width: 3px;
-  border-color: rgb( 15, 21, 11 );
-  border-style: solid;
-  box-sizing: border-box;
-}
-.videoMsg ul li video{
-  max-width: 100%;
-  height: 100%;
-}
-.addVideo i{
-  font-size: 80px;
-  line-height: 400px;
-  text-align: center;
+li{
+  line-height: 40px;
   cursor: pointer;
+}
+.addMyVideoBtn{
+  text-align: right;
+  padding-right: 20px;
+}
+.videoWrap{
+  border: 1px solid #0f150b;
+  border-bottom: none;
+  width: 1200px;
+  margin: auto;
+}
+.selectOne{
+  margin:  20px;
+  /*margin-bottom: 0;*/
+  width: 210px;
+  float: left;
+}
+.selectOne .selectTitle{
+  line-height: 30px;
+}
+.oneIframe{
+  width: 399px;
+  height: 300px;
+  float: left;
+  margin-bottom: 1px;
+  overflow: hidden;
+  position: relative;
+}
+.oneIframe .positionInfo{
+  position: absolute;
+  right: 10px;
+  border-bottom: 10px;
+  z-index: 1000;
+}
+.oneIframe .left .plugin{
+  margin-left: 20px;
+}
+.oneIframe:nth-child(2n+1){
+}
+.oneIframe:nth-child(1){
+  /*margin-left: -18px;*/
 }
 </style>

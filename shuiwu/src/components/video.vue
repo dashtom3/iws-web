@@ -211,12 +211,7 @@ export default {
         }
       })
     },
-    addOneVideoToMy:function(){
-      var that = this;
-    },
-    delOneVideoFromMy:function(){
-      var that = this;
-    },
+    
   },
   mounted () {
 

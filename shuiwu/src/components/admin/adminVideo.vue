@@ -431,14 +431,32 @@ export default {
     // 删除视频
     deleteVideoPost (baseId,index) {
       var self = this
-      axios.post(global.baseUrl + 'device/delete?hikvisionId=' + baseId + '&token=' + global.getToken())
-      .then((res) => {
-        // console.log(res)
-        if (res.data.callStatus === 'SUCCEED') {
-          global.success(self, '删除成功', '')
-          self.getAllVideoListData.splice(index,1);
-        }
-      })
+      this.$confirm('此操作将删除该摄像头, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          var obj = {
+            id:baseId
+          };
+          axios.post(global.baseUrl + 'hikvision/delete',global.postHttpDataWithToken(obj))
+          .then((res) => {
+            console.log(res)
+            if (res.data.callStatus === 'SUCCEED') {
+              global.success(self, '删除成功', '')
+                  self.getAllVideoListData.splice(index,1);
+            }else{
+              this.$alert('错误',  {confirmButtonText: '确定',});
+            }
+          })
+          
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
     },
     // 分页
     currentPageChange (value) {

@@ -5,15 +5,30 @@ var g_iWndIndex = 0; //可以不用设置这个变量，有窗口参数的接口
 $(function () {
 	// 检查插件是否已经安装过
     var iRet = WebVideoCtrl.I_CheckPluginInstall();
-	if (-2 == iRet) {
-		// alert("您的Chrome浏览器版本过高，不支持NPAPI插件！");
-		return;
-	} else if (-1 == iRet) {
-		// var str = "请使用以下版本浏览器或者检查插件WebComponentsKit.exe是否安装\nIE6~IE11、Chrome31~Chrome44、Firefox30~Firefox51、Safari5.0.2+";
-        // alert("您还未安装过插件，双击开发包目录里的WebComponentsKit.exe安装！");
-				alert(str);
-		return;
-    }
+		var str = "请使用以下版本浏览器或者检查插件WebComponentsKit.exe是否安装\nIE6~IE11、Chrome31~Chrome44、Firefox30~Firefox51、Safari5.0.2+";
+		var flag = true;
+		var isAlertOnce = sessionStorage.getItem("alertOnec");
+		if(isAlertOnce){
+
+		}else{
+			if (-2 == iRet) {
+				alert(str)
+				sessionStorage.setItem("alertOnec",true)
+				// alert("您的Chrome浏览器版本过高，不支持NPAPI插件！");
+				return;
+			} else if (-1 == iRet) {
+				sessionStorage.setItem("alertOnec",true)
+				// var str = "请使用以下版本浏览器或者检查插件WebComponentsKit.exe是否安装\nIE6~IE11、Chrome31~Chrome44、Firefox30~Firefox51、Safari5.0.2+";
+		        // alert("您还未安装过插件，双击开发包目录里的WebComponentsKit.exe安装！");
+						// alert(str);
+						var userClickOk = confirm("您还未安装过插件，点击确定下载安装！");
+						if(userClickOk){
+							window.open("http://61.190.61.78:6784/iws/api/hikvision/downloadComponent");
+						}
+				return;
+		    }
+		}
+
 
 	// 初始化插件参数及插入插件
 	WebVideoCtrl.I_InitPlugin(500, 300, {

@@ -94,6 +94,7 @@ import axios from 'axios'
 export default {
   data () {
     return {
+      plugInde:false,
       deleMyVideoListWrap:false,
       showAllVideo:true,
       system:"",
@@ -119,6 +120,11 @@ export default {
   created () {
     this.getVideoLists()
     this.getSelfVideoList()
+    // if(sessionStorage.getItem("alertOnec")){
+    //   this.plugInde = false;
+    // }else{
+    //   this.plugInde = true;
+    // }
   },
   watch:{
     dialogTableVisible:function(){
@@ -152,7 +158,6 @@ export default {
       })
     },
     addThisVideoToSelf:function(index,row){
-      console.log(".......................")
       var that = this;
       var obj = {
         hikId:row.id
@@ -205,13 +210,12 @@ export default {
         console.log(res,"getVideoLists")
         if (res.data.callStatus === 'SUCCEED') {
           self.systems = res.data.data;
-
         }else{
           // self.$alert("网络出错")
         }
       })
     },
-    
+
   },
   mounted () {
 

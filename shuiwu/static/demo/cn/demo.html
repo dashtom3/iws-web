@@ -65,9 +65,12 @@ position: absolute;color: red;
 			$("#password").val(val);
 		}
 	}
-	setTimeout(function(){
-		console.log("开始执行clickLogin")
-		clickLogin();
-	},2000)
+	if(!sessionStorage.getItem("alertOnec")){
+		setTimeout(function(){
+			console.log("开始执行clickLogin")
+			clickLogin();
+		},2000)
+	}
+
 </script>
 </html>

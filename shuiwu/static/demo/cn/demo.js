@@ -18,9 +18,7 @@ $(function () {
 				return;
 			} else if (-1 == iRet) {
 				sessionStorage.setItem("alertOnec",true)
-				// var str = "请使用以下版本浏览器或者检查插件WebComponentsKit.exe是否安装\nIE6~IE11、Chrome31~Chrome44、Firefox30~Firefox51、Safari5.0.2+";
 		        // alert("您还未安装过插件，双击开发包目录里的WebComponentsKit.exe安装！");
-						// alert(str);
 						var userClickOk = confirm("您还未安装过插件，点击确定下载安装！");
 						if(userClickOk){
 							window.open("http://61.190.61.78:6784/iws/api/hikvision/downloadComponent");

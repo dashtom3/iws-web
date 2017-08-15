@@ -1,6 +1,5 @@
 <template>
   <div class="dataviews">
-
     <div class="dataviewsHeader">
       <div class="dataviewNavbar">
         <ul class="kinds">

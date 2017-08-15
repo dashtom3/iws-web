@@ -214,10 +214,7 @@ export default {
           // self.$alert("网络出错")
         }
       })
-    },
-
-  },
-  mounted () {
+    }
 
   }
 }

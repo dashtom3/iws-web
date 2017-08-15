@@ -52,6 +52,7 @@ export default {
   background-color: rgb( 0, 0, 0 );
   height: 40px;
   line-height: 40px;
+  width: 100%;
 }
 .headCon{
   width: 1280px;
@@ -65,6 +66,7 @@ export default {
 }
 .headRight{
   float: right;
+  margin-right: 20px;
 }
 .about{
   margin-left: 50px;

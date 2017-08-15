@@ -12,6 +12,7 @@ import aboutUs from '@/components/aboutUs'
 import personal from '@/components/personal'
 import index from '@/components/index'
 import detail from '@/components/configControllerDetail'
+import device from '@/components/device'
 import dataview from '@/components/dataview'
 import alarminfo from '@/components/alarminfo'
 import video from '@/components/video'
@@ -95,6 +96,9 @@ export default new Router({
   }, {
     path: '/detail/:id',
     component: detail
+  },{
+    path: '/device/:id',
+    component: device
   }, {
     path: '/register',
     name: 'register',

@@ -311,14 +311,14 @@ export default {
   display: inline-block;
   color: #000;
   text-align: center;
-  width: 25%;
+  width: 20%;
+  margin-left: 10px;
 }
 .configControllerlist p{
   font-size: 14px;
-  font-family: "Microsoft YaHei";
-  color: rgba( 0, 0, 0, 0.8 );
+  color: #696969;
   position: relative;
-  top: -40px;
+  top: -60px;
 }
 .roomTitle{
   text-align: center;

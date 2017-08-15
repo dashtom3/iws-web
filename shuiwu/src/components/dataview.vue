@@ -687,10 +687,6 @@ export default {
     .then((res) => {
       self.systemLists = res.data.data
     })
-  },
-  mounted () {
-    var login = this.$refs.contentHeight
-    global.setNavHeight(login)
   }
 }
 </script>

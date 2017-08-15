@@ -1,6 +1,7 @@
 <template>
   <div class="hello">
     <v-header></v-header>
+    <div class="main">
     <div class="indexHeader">
       <div class="indexLog">
         <a href="/index"><img src="../../images/login_03.png" alt=""></a>
@@ -17,6 +18,7 @@
       </div>
     </div>
     <router-view></router-view>
+    </div>
     <v-footer></v-footer>
   </div>
 </template>
@@ -47,6 +49,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.hello {
+  width: 100%;
+  min-width: 1280px;
+
+}
 .indexHeader{
   width: 1280px;
   height: 71px;
@@ -60,6 +67,9 @@ export default {
   width: 320px;
   margin-right: 10px;
   float: left;
+}
+.main {
+  min-height: 100vh;
 }
 .navbar{
   background-color: #fff!important;

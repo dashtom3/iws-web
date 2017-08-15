@@ -740,10 +740,6 @@ export default {
       }
     })
     // this.getAlarmInfo(this.dateQuery)
-  },
-  mounted () {
-    var login = this.$refs.contentHeight
-    global.setNavHeight(login)
   }
 }
 </script>

@@ -187,8 +187,6 @@ export default {
     }
   },
   mounted () {
-    var login = this.$refs.contentHeight
-    global.setHeight(login)
     if (global.getToken()) {
       this.$router.push('/personal')
     }

@@ -540,6 +540,7 @@ export default {
         })
       } else {
         alert('请选择时间')
+        this.loading = false
       }
     },
     // 导出excel

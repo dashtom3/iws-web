@@ -4,7 +4,6 @@
       <div class="block">
         <el-carousel trigger="click" height="170px">
           <el-carousel-item
-          :key="item"
           v-for="item in Math.ceil(items.length/3)">
             <div class="index1" v-for="it in 3" v-if="items[(item-1)*3+it-1] != null">
               <div class="systemImg">
@@ -50,7 +49,6 @@
           <el-amap vid="amap" :zoom="zoom" :center="center">
             <div v-for="marker in markers">
             <el-amap-marker
-            :key="markerInfo"
             v-for="markerInfo in marker" :position="markerInfo.position" :events="markerInfo.events" :visible="markerInfo.visible"
             :icon="markerInfo.icon" :content="markerInfo.content" :draggable="markerInfo.draggable"></el-amap-marker>
             </div>
@@ -175,6 +173,7 @@ export default {
                   .then((res) => {
                     self.addressAlert = true
                     self.addressRoomLists = res.data.data.room
+                    console.log(self.addressRoomLists)
                     self.locationId = res.data.data.id
                   })
                 }
@@ -283,8 +282,11 @@ export default {
   display: inline-block;
   color: #000;
   text-align: center;
-  width: 20%;
-  margin-left: 10px;
+  width: 22%;
+  margin: 5px;
+}
+.configControllerlist img {
+  width: 100%;
 }
 .configControllerlist p{
   font-size: 14px;

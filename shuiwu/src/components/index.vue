@@ -45,34 +45,6 @@
       </transition>
       <div class="map">
         <a href="javascript:;" class="icon" v-on:click="LeftNav"></a>
-        <!-- <baidu-map class="map" :center="{lng: 121.470672, lat: 31.312029}" :zoom="15">
-           <div
-           :key="mar"
-           v-for="(mar, index) in items" class="addressMarker">
-             <div class="" :key="lo"
-             v-for="lo in mar.location">
-             <bm-marker
-             :mouseover="alertMsg"
-             :position="{lng: lo.positionX, lat: lo.positionY}"
-             :icon="{url: mar.pic, size: {width: 50, height: 50}}"
-              >
-            </bm-marker>
-            <bm-info-window :position="{lng: lo.positionX, lat: lo.positionY}"  :show="true" :title="lo.describes" :closeOnClick="false" :width="10">
-            </bm-info-window>
-             </div>
-           </div>
-         </baidu-map> -->
-        <!-- <div id="demoComponent" class="demo-component">
-          <el-amap vid="amap" :zoom="zoom" :center="center">
-            <div v-for="marker in markers">
-            <el-amap-marker
-            :key="markerInfo"
-            v-for="markerInfo in marker" :position="markerInfo.position" :events="markerInfo.events" :visible="markerInfo.visible"
-            :icon="markerInfo.icon" :content="markerInfo.content" :draggable="markerInfo.draggable"></el-amap-marker>
-            </div>
-          </el-amap>
-        </div> -->
-
         <!-- 高德地图 -->
         <div id="demoComponent" class="demo-component indexMap">
           <el-amap vid="amap" :zoom="zoom" :center="center">
@@ -93,7 +65,7 @@
       <ul class="maxHeight">
         <li v-for="addressRoomList in addressRoomLists" class="addressRoomlist">
           <p class="roomTitle" style="line-height:40px;">{{addressRoomList.name}}</p>
-          <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/detail/'+locationId" target="_blank">
+          <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/device/' + configControllerList.groupId" target="_blank">
             <img :src="imgUrl+configControllerList.pic" alt="">
             <p>{{configControllerList.name}}</p>
           </a>

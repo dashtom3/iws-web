@@ -1,6 +1,42 @@
 <template>
   <div class="controllerdetail">
     <v-header></v-header>
+    <!-- <div class="content">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span style="line-height: 36px;"></span>
+          <el-button type="primary">数据查看</el-button>
+        </div>
+        <div v-for="item in groupData.devices" v-if="groupData != null">
+          {{item.name}}
+        </div>
+      </el-card>
+    </div> -->
+    <div class="slidebar">
+    <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
+      <el-radio-button :label="false">展开</el-radio-button>
+      <el-radio-button :label="true">收起</el-radio-button>
+    </el-radio-group> -->
+    <el-menu default-active="1-4-1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
+      <el-submenu index="1">
+        <template slot="title">
+          <i class="el-icon-search"></i>
+          <span slot="title">数据查看</span>
+        </template>
+        <el-menu-item-group>
+          <el-menu-item index="1-1">选项1</el-menu-item>
+          <el-menu-item index="1-2">选项2</el-menu-item>
+        </el-menu-item-group>
+      </el-submenu>
+      <el-menu-item index="2">
+        <i class="el-icon-edit"></i>
+        <span slot="title">设备控制</span>
+      </el-menu-item>
+    </el-menu>
+    </div>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+    </div>
 
     <v-footer></v-footer>
   </div>
@@ -14,38 +50,46 @@ import global from '../global/global'
 export default {
   data () {
     return {
-      controllerDetials: [],
-      controllerlists: [],
-      controllerId: null,
-      remoteDates: [],
-      remoteDate: false,
-      controllerDetailInfos: null,
-      locationMsg: {
-        locationId: this.$route.params.id
+
+      groupMsg: {
+        groupId: this.$route.params.id
       },
-      deviceMsg: {
-        deviceId: null,
-        token: global.getToken()
-      },
+      groupData: null,
+      isCollapse: true,
       limitionMsg: {
         systemId: null,
         areaId: null,
         writable: 2,
         token: global.getToken()
-      },
-      isActive: null,
-      showData: false
+      }
     }
   },
+  mounted() {
+    init();
+    animate();
+  },
   created () {
-    // var self = this
-    // axios.post(global.baseUrl + 'location/detail', global.postHttpDataWithToken(this.locationMsg))
-    // .then((res) => {
-    //   console.log(res.data.data)
-    // })
+    var self = this
+    axios.get(global.baseUrl + 'room/groupDetail?'+global.getHttpDataWithToken(this.groupMsg))
+    .then((res) => {
+      console.log(res.data.data)
+      self.groupData = res.data.data
+      res.data.data.devices.forEach(function(item,index){
+        axios.get(global.baseUrl + 'data/presentData?'+global.getHttpDataWithToken({deviceId:item.id}))
+        .then((res) => {
+          console.log(res.data.data)
+          item.data = res.data.data;
+        })
+      })
+    })
   },
   methods: {
-
+    handleOpen(key, keyPath) {
+       console.log(key, keyPath);
+     },
+     handleClose(key, keyPath) {
+       console.log(key, keyPath);
+     }
   },
   components: {
     'v-header': header,
@@ -60,10 +104,9 @@ function $(id){return document.getElementById(id);}
     var cameraControls;
 
     var clock = new THREE.Clock();
-
     var transparentMat = new THREE.MeshPhongMaterial({color: 0xcccccc, transparent:true, opacity:0.7});
 
-    var resourceFolder = "resource/";
+    var resourceFolder = "/static/3d/resource/";
     var modelExtension = ".obj";
     var materialExtension = ".mtl";
     var arrowObj;
@@ -88,8 +131,8 @@ function $(id){return document.getElementById(id);}
     var isShowPressure = false;
     //=======================
 
-    init();
-    animate();
+    // init();
+    // animate();
 
     /**
      * 获取某个object的center
@@ -585,5 +628,16 @@ function $(id){return document.getElementById(id);}
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+ #container {
+   height: 100vh;
+   width: 100%;
+   /*display: inline-block;*/
+ }
+ .slidebar {
+   width: 150px;
+   position: absolute;
+ }
+ .content {
+   width: 200px;
+ }
 </style>

@@ -3,15 +3,7 @@
     <router-view></router-view>
   </div>
 </template>
-<script src="/static/3d/js/three.min.js"></script>
-<script src="/static/3d/js/tween.min.js"></script>
 
-<script src="/static/3d/js/loaders/DDSLoader.js"></script>
-<script src="/static/3d/js/loaders/MTLLoader.js"></script>
-<script src="/static/3d/js/loaders/OBJLoader.js"></script>
-<script src="/static/3d/js/OrbitControls.js"></script>
-<script src="/static/webVideoCtrl.js"></script>
-<script src="/static/3d/js/Detector.js"></script>
 <script>
 export default {
   name: 'app'

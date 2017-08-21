@@ -98,6 +98,16 @@ export default{
     }
     return temp
   },
+  getHttpDataWithToken: function (data) {
+    var temp = ''
+    for (var i in data) {
+      if (data[i] != null && data[i] !== 'null') {
+        temp = temp + '&' + i + '=' + data[i]
+      }
+    }
+    temp = temp + '&token=' + this.getToken();
+    return temp
+  },
   postHttpDataWithToken: function (data) {
     var temp = new FormData()
     for (var i in data) {

@@ -525,7 +525,7 @@ export default {
         axios.get(global.baseUrl + 'data/query?' + global.getHttpData(this.dateQuery))
         .then((res) => {
           if (res.data.callStatus === 'SUCCEED') {
-            this.loading = fasle
+            this.loading = false
             if (res.data.data.length) {
               self.tableDataShow = true
               self.dateTables = res.data.data

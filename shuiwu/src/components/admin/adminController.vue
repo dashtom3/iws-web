@@ -231,12 +231,12 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'deviceTerm/typeList', global.postHttpDataWithToken())
+    global.apiPost(this,global.baseUrl + 'deviceTerm/typeList', global.postHttpDataWithToken())
     .then((res) => {
       // console.log(res)
       self.controllerTypes = res.data.data
     })
-    axios.post(global.baseUrl + 'deviceTerm/pointRole', global.postHttpDataWithToken())
+    global.apiPost(this,global.baseUrl + 'deviceTerm/pointRole', global.postHttpDataWithToken())
     .then((res) => {
       // console.log(res)
       self.ParameterType = res.data.data
@@ -247,7 +247,7 @@ export default {
     // 获取控制器列表
     getControllerLists (args) {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken(args))
+      global.apiPost(this,global.baseUrl + 'deviceTerm/list', global.postHttpDataWithToken(args))
       .then((res) => {
         // console.log(res)
         self.controllerlists = res.data.data
@@ -327,7 +327,7 @@ export default {
       this.editControllerAlert = true
       this.controllerId = controllerId
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/detail?deviceTermId=' + controllerId + '&token=' + global.getToken()).then((res) => {
+      global.apiPost(this,global.baseUrl + 'deviceTerm/detail?deviceTermId=' + controllerId + '&token=' + global.getToken()).then((res) => {
         // console.log(res)
         self.editControllerDate = res.data.data
       })
@@ -340,7 +340,7 @@ export default {
         token: global.getToken()
       }
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/update', global.postHttpData(obj))
+      global.apiPost(this,global.baseUrl + 'deviceTerm/update', global.postHttpData(obj))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.editControllerAlert = false
@@ -356,7 +356,7 @@ export default {
     },
     deleteController () {
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/delete', global.postHttpDataWithToken(this.deleteControllerMsg))
+      global.apiPost(this,global.baseUrl + 'deviceTerm/delete', global.postHttpDataWithToken(this.deleteControllerMsg))
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {

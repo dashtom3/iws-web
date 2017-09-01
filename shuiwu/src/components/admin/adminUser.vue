@@ -4,7 +4,6 @@
       <el-select v-model="userType" placeholder="请选择" @change="changeUserType">
         <el-option
           v-for="item in userTypes"
-          :key="item.value"
           :label="item.data"
           :value="item.value">
         </el-option>
@@ -23,7 +22,6 @@
       <el-col :span="5"><span>选择角色</span></el-col>
     </el-row>
     <el-row :gutter="20"
-    :key="user"
     v-for="(user, index) in userlist" class="userlist">
       <el-col :span="3"><span>{{user.username}}&nbsp;</span></el-col>
       <el-col :span="3"><span>{{user.name}}&nbsp;</span></el-col>
@@ -33,7 +31,6 @@
       <el-col :span="5">
         <el-select v-model="user.roleId" placeholder="请选择" @change="setrole(user.id, user.roleId)">
           <el-option
-            :key="item"
             v-for="item in options"
             :label="item.name"
             :value="item.id">
@@ -80,7 +77,7 @@ export default {
   created () {
     this.getUserList(this.userArgs)
     var self = this
-    axios.post(global.baseUrl + 'role/list?token=' + global.getToken())
+    global.apiPost(this,global.baseUrl + 'role/list?token=' + global.getToken())
     .then((res) => {
       self.options = res.data.data
     })
@@ -93,7 +90,7 @@ export default {
         token: global.getToken()
       }
       var self = this
-      axios.get(global.baseUrl + 'userManage/role?' + global.getHttpData(roleMsg))
+      global.apiGet(this,global.baseUrl + 'userManage/role?' + global.getHttpData(roleMsg))
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
@@ -112,7 +109,7 @@ export default {
     },
     getUserList (args) {
       var self = this
-      axios.get(global.baseUrl + 'userManage/list?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'userManage/list?' + global.getHttpData(args))
       .then((res) => {
         for (let i in res.data.data) {
           res.data.data[i].roleId = parseInt(res.data.data[i].roleId)
@@ -144,11 +141,11 @@ export default {
     searchUser () {
       var self = this
       if (!this.userType) {
-        alert('请选择查找类型')
+        global.error(this,'请选择查找类型','')
       } else if (!this.userSearch) {
-        alert('请输入查找内容')
+        global.error(this,'请选择查找内容','')
       } else {
-        axios.get(global.baseUrl + 'userManage/query?' + global.getHttpData(this.searchType))
+        global.apiGet(this,global.baseUrl + 'userManage/query?' + global.getHttpData(this.searchType))
         .then((res) => {
           if (res.data.data.length !== 0) {
             self.userlist = res.data.data
@@ -156,7 +153,6 @@ export default {
             self.userArgs.totalPage = res.data.totalPage
           } else {
             self.userlist = res.data.data
-            global.error(self, '用户不存在', '')
           }
         })
       }

@@ -14,7 +14,7 @@
       <el-col :span="8"><span>操作</span></el-col>
     </el-row>
     <el-row :gutter="20"
-    :key="user"
+    :key="user.id"
     v-for="user in rolelists" class="role" :class="{ active: divIsactive == user }">
       <el-col :span="8" style="position:absolute;"><span>{{user.name}}</span></el-col>
       <el-col :span="8" style="margin-left:33.33333%;position:relative;">
@@ -56,38 +56,38 @@
        </el-form-item>
        <el-form-item label="选择系统" :label-width="formLabelWidth">
          <el-select v-model="addRoleInfo.selectSystem" placeholder="选择系统" @change="systemSelectData">
-           <el-option :key="system" v-for="system in addRoleInfo.systemlists" :label="system.name" :value="system">
+           <el-option  v-for="system,index in addRoleInfo.systemlists" :label="system.name" :value="index">
            </el-option>
          </el-select>
        </el-form-item>
        <el-form-item label="省/市/区" :label-width="formLabelWidth">
          <el-select v-model="addRoleInfo.selectProvince" placeholder="选择省份" @change="province">
            <el-option
-           :key="province"
+           :key="province.id"
            v-for="province in addRoleInfo.provinces"
            :label="province.name"
            :value="province"></el-option>
          </el-select>
          <el-select v-model="addRoleInfo.selectCity" placeholder="选择市" @change="city">
            <el-option
-           :key="city"
+           :key="city.id"
            v-for="city in addRoleInfo.citys"
            :label="city.name"
            :value="city"></el-option>
          </el-select>
          <el-select v-model="addRoleInfo.selectArea" placeholder="选择地区">
            <el-option
-           :key="area"
+           :key="area.id"
            v-for="area in addRoleInfo.areas"
            :label="area.name"
            :value="area"></el-option>
          </el-select>
          <el-select v-model="addRoleInfo.selectJurisdiction" placeholder="设置权限">
            <el-option
-           :key="jurisdiction"
-           v-for="jurisdiction in addRoleInfo.jurisdictions"
+           :key="jurisdiction.state"
+           v-for="jurisdiction,index in addRoleInfo.jurisdictions"
            :label="jurisdiction.data"
-           :value="jurisdiction"
+           :value="index"
            ></el-option>
          </el-select>
          <!-- <el-button type="button" icon="el-icon-plus">123</el-button> -->
@@ -171,7 +171,7 @@ export default {
     },
     delRole () {
       var self = this
-      axios.post(global.baseUrl + 'role/delete?roleId=' + this.roleId + '&token=' + global.getToken())
+      global.apiPost(this,global.baseUrl + 'role/delete?roleId=' + this.roleId + '&token=' + global.getToken())
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.isDel = false
@@ -181,11 +181,12 @@ export default {
       })
     },
     systemSelectData () {
+      console.log(this.addRoleInfo.selectSystem)
       this.addRoleInfo.selectProvince = ''
       this.addRoleInfo.selectCity = ''
       this.addRoleInfo.selectArea = ''
       var self = this
-      axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.addRoleInfo.selectSystem.id + '&token=' + global.getToken())
+      global.apiPost(this,global.baseUrl + 'system/detailPack?systemId=' + this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].id + '&token=' + global.getToken())
       .then((res) => {
         self.addRoleInfo.provinces = res.data.data.locationPack
       })
@@ -216,7 +217,7 @@ export default {
     },
     // 增加标签
     addTag () {
-      this.tags.push(this.addRoleInfo.selectSystem.name + ' ' + this.addRoleInfo.selectProvince.name + this.addRoleInfo.selectCity.name + this.addRoleInfo.selectArea.name + this.addRoleInfo.selectJurisdiction.data)
+      this.tags.push(this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].name + ' ' + this.addRoleInfo.selectProvince.name + this.addRoleInfo.selectCity.name + this.addRoleInfo.selectArea.name + this.addRoleInfo.jurisdictions[this.addRoleInfo.selectJurisdiction].data)
       if (this.addRoleInfo.selectArea === '') {
         if (this.addRoleInfo.selectCity === '') {
           this.addRoleInfo.areaId = this.addRoleInfo.selectProvince.provinceId
@@ -227,9 +228,9 @@ export default {
         this.addRoleInfo.areaId = this.addRoleInfo.selectArea.areaId
       }
       var msg = {
-        systemId: this.addRoleInfo.selectSystem.id,
+        systemId: this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].id,
         areaId: this.addRoleInfo.areaId,
-        limitation: this.addRoleInfo.selectJurisdiction.state
+        limitation: this.addRoleInfo.jurisdictions[this.addRoleInfo.selectJurisdiction].state
       }
       this.addRoleInfo.subitem.push(msg)
     },
@@ -277,7 +278,7 @@ export default {
       this.addRoleInfo.selectJurisdiction = null
       this.tags = []
       var self = this
-      axios.post(global.baseUrl + 'role/detail?roleId=' + id + '&token=' + global.getToken())
+      global.apiPost(this,global.baseUrl + 'role/detail?roleId=' + id + '&token=' + global.getToken())
       .then((res) => {
         self.addRoleInfo.name = res.data.data.name
         for (let i in res.data.data.subitem) {
@@ -305,7 +306,7 @@ export default {
     // 获取角色列表
     getRoleLists (args) {
       var self = this
-      axios.post(global.baseUrl + 'role/list', global.postHttpDataWithToken(args))
+      global.apiPost(this,global.baseUrl + 'role/list', global.postHttpDataWithToken(args))
       .then((res) => {
         // console.log(res)
         self.rolelistArgs.currentPage = res.data.currentPage
@@ -327,7 +328,7 @@ export default {
     //   self.addRoleInfo.provinces = res.data.data
     // })
     // 获取系统列表
-    axios.post(global.baseUrl + 'system/list?token=' + global.getToken())
+    global.apiPost(this,global.baseUrl + 'system/list?token=' + global.getToken())
     .then((res) => {
       self.addRoleInfo.systemlists = res.data.data
     })

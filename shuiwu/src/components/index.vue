@@ -115,9 +115,9 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'system/listPack?token=' + global.getToken())
+    global.apiPost(this,global.baseUrl + 'system/listPack?token=' + global.getToken())
     .then((res) => {
-      // console.log(res)
+      console.log(res)
       self.items = res.data.data
       var mydata = res.data.data
       this.tree(mydata)
@@ -137,8 +137,9 @@ export default {
       this.$router.push('/dataview')
     },
     getAllAddress () {
+      var self = this
       // 请求所有地点
-      axios.post(global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
+      global.apiPost(this,global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
       .then((res) => {
         var self = this
         for (let i in res.data.data) {
@@ -169,7 +170,7 @@ export default {
                 },
                 click: () => {
                   // console.log(123)
-                  axios.post(global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
+                  global.apiPost(self,global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
                   .then((res) => {
                     self.addressAlert = true
                     self.addressRoomLists = res.data.data.room
@@ -317,18 +318,17 @@ export default {
   color: rgba( 0, 0, 0, 0.8 );
   text-align: left;
 }
-.systemImg{
+/*.systemImg{
   position: relative;
-}
-.systemImg img{
-  /*line-height: 80px;*/
+}*/
+/*.systemImg img{
   vertical-align: middle;
-}
+}*/
 .systemTime{
-  position: absolute;
-  left: 150px;
-  top: 45px;
+  /*position: absolute;*/
+
   text-align: left;
+  display: inline-block;
 }
 .enterClick{
   position: absolute;
@@ -391,16 +391,22 @@ export default {
   top: 10px;
 }
 .imgCon{
-  position: relative;
-  left: 40px;
+  /*position: relative;*/
+  /*left: 40px;
   top: 35px;
   width: 80px;
   height: 80px;
-  border-radius: 40px;
+
   background-color: #fff;
   text-align: center;
-  vertical-align: middle;
-  line-height: 80px;
+
+  line-height: 80px;*/
+  width: 80px;
+  height: 80px;
+  margin-top: 40px;
+  background-color: #fff;
+  border-radius: 40px;
+  display: inline-block;
 }
 /*.ws{
   background: url('../')

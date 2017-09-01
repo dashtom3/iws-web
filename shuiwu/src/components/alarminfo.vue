@@ -16,7 +16,7 @@
             <el-radio-group v-model="systemId" @change="selectSystem">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button :label="systemList.id"
-               :key="systemList"
+               :key="systemList.id"
                v-for="(systemList, index) in systemLists">{{systemList.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
@@ -29,7 +29,7 @@
             value="">
           </el-option>
           <el-option
-            :key="province"
+            :key="province.id"
             v-for="(province, index) in provinces"
             :label="province.name"
             :value="province">
@@ -41,7 +41,7 @@
             value="">
           </el-option>
           <el-option
-            :key="city"
+            :key="city.id"
             v-for="(city, index) in citys"
             :label="city.name"
             :value="city">
@@ -53,7 +53,7 @@
             value="">
           </el-option>
           <el-option
-            :key="area"
+            :key="area.id"
             v-for="(area, index) in areas"
             :label="area.name"
             :value="area">
@@ -67,7 +67,7 @@
             <el-radio-group v-model="selectLocation" @change="location">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button :label="location.id"
-               :key="location"
+               :key="location.id"
                v-for="(location, index) in locations">{{location.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
@@ -82,7 +82,7 @@
             <el-radio-group  v-model="selectRoom" @change="room">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button
-               :key="room"
+               :key="room.id"
                v-for="(room, index) in rooms" :label="room.id">{{room.name}}</el-radio-button>
              </el-radio-group>
           </el-col>
@@ -97,7 +97,7 @@
             <el-radio-group v-model="deviceTermId" @change="selectControllerId">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button
-               :key="controllerList"
+               :key="controllerList.id"
                v-for="controllerList in controllerLists"
                :label="controllerList.groupId"
                >{{controllerList.name}}</el-radio-button>
@@ -114,7 +114,7 @@
             <el-radio-group v-model="controllerInfo" @change="controllerSelect">
               <el-radio-button label="0">全部</el-radio-button>
                <el-radio-button
-               :key="controllerList"
+               :key="controllerList.id"
                v-for="controllerList in deviceTermLists"
                :label="controllerList.id"
                >{{controllerList.name}}</el-radio-button>
@@ -124,6 +124,12 @@
       </div>
 
       <div class="systemSelect" v-if="contentTime">
+        <el-row :gutter="20">
+        <el-col :span="2"><span class="title">时间：</span></el-col>
+        <el-col :span="2">
+          <el-button type="primary" @click="timeAll">不限</el-button>
+        </el-col>
+        <el-col :span="20">
         <el-date-picker
            v-model="startTime"
            type="datetime"
@@ -136,6 +142,9 @@
            placeholder="选择日期"
            @change="endTimeSelect">
          </el-date-picker>
+
+       </el-col>
+        </el-row>
          <!-- <span> —— </span>
          <el-button type="primary">不限</el-button> -->
          <!-- <el-select v-model="dateQuery.timeStep" placeholder="请选择时间间隔">
@@ -183,12 +192,16 @@
             <td>{{alarmStatus[dateTable.confirm-1]}}</td>
           </tr>
         </table>
-        <div style="text-align:center;margin-top:40px;" v-if="dateContent">
+        <div style="text-align:center;margin-top:40px;" v-if="dateTables.length > 0">
           <el-button type="primary" @click="moreData = true">查看更多数据</el-button>
           <!-- <el-button type="primary" @click="printExcel">导出EXCEl表格</el-button> -->
         </div>
+        <div style="text-align:center;margin-top:40px;" v-if="dateTables.length == 0 && dateContent == true">
+          <el-button type="primary">暂无数据</el-button>
+          <!-- <el-button type="primary" @click="printExcel">导出EXCEl表格</el-button> -->
+        </div>
       </div>
-      <el-dialog title="更多数据" v-model="moreData" size="large">
+      <el-dialog title="更多数据" v-model="moreData" size="large" class="MoreData">
         <table cellspacing="0" cellpadding="0" class="dateTable">
           <tr class="bgth">
             <th>报警名称</th>
@@ -223,36 +236,6 @@
       </el-dialog>
       </div>
 
-      <!-- 图标添加 -->
-      <!-- <div v-show="chartShow" style="width:1280px;margin:0 auto;">
-        <div class="systemSelect">
-          <el-row :gutter="20">
-            <el-col :span="2">&nbsp;</el-col>
-            <el-col :span="22">
-              <el-button type="primary" class="addTags" v-on:click="addTags">添加</el-button>
-            </el-col>
-          </el-row>
-        </div>
-        <div class="systemSelect">
-          <el-tag
-            :key="tag"
-            v-for="(tag, index) in tags"
-            :closable="true"
-            @close="closeTag(index)"
-          >
-          {{tag}}
-          </el-tag>
-          <div class="echarts">
-            <echarts
-                :title="{'text':'标题'}"
-                :options="options"
-                type="line"
-                className="echarts">
-            </echarts>
-           </div>
-        </div>
-      </div> -->
-
   </div>
 </template>
 
@@ -278,7 +261,7 @@ export default {
       contentRoom: false,
       contentDevice: false,
       contentController: false,
-      contentTime: false,
+      contentTime: true,
       contentMultiple: false,
       dateContent: false,
       times: [
@@ -331,6 +314,12 @@ export default {
     }
   },
   methods: {
+    timeAll() {
+      this.startTime = null;
+      this.endTime = null;
+      this.dateQuery.startTime = null;
+      this.dateQuery.endTime = null;
+    },
     table (obj) {
       this.tableShow = true
       this.chartShow = false
@@ -358,7 +347,7 @@ export default {
       this.citys = []
       this.areas = []
       if (this.systemId !== '0') {
-        axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
+        global.apiPost(this,global.baseUrl + 'system/detailPack?systemId=' + this.systemId + '&token=' + global.getToken())
         .then((res) => {
           self.changeEmpty()
           self.emptyFooter()
@@ -366,7 +355,7 @@ export default {
           self.contentRoom = false
           self.contentDevice = false
           self.contentController = false
-          self.contentTime = false
+          self.contentTime = true
           self.contentProvince = true
           self.provinces = res.data.data.locationPack
         })
@@ -376,7 +365,7 @@ export default {
         self.contentRoom = false
         self.contentDevice = false
         self.contentController = false
-        self.contentTime = false
+        self.contentTime = true
         self.contentProvince = false
         this.dateQuery.systemId = null
         this.dateQuery.provinceId = null
@@ -386,10 +375,6 @@ export default {
         self.dateQuery.roomId = null
         self.dateQuery.groupId = null
         self.dateQuery.deviceId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
       }
       this.dateContent = false
       this.selectProvince = null
@@ -416,16 +401,12 @@ export default {
         self.dateQuery.roomId = null
         self.dateQuery.groupId = null
         self.dateQuery.deviceId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
       }
       this.contentLocation = false
       this.contentRoom = false
       this.contentDevice = false
       this.contentController = false
-      this.contentTime = false
+      this.contentTime = true
       this.contentMultiple = false
     },
     city () {
@@ -444,16 +425,12 @@ export default {
         self.dateQuery.roomId = null
         self.dateQuery.groupId = null
         self.dateQuery.deviceId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
       }
       this.contentLocation = false
       this.contentRoom = false
       this.contentDevice = false
       this.contentController = false
-      this.contentTime = false
+      this.contentTime = true
       this.contentMultiple = false
     },
     area () {
@@ -471,17 +448,12 @@ export default {
         self.dateQuery.locationId = null
         self.dateQuery.roomId = null
         self.dateQuery.groupId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
-        self.dateQuery.endTime = null
         this.contentLocation = false
       }
       this.contentRoom = false
       this.contentDevice = false
       this.contentController = false
-      this.contentTime = false
+      this.contentTime = true
       this.contentMultiple = false
     },
     // 初始化函数
@@ -510,7 +482,7 @@ export default {
       var self = this
       if (this.selectLocation !== '0') {
         self.dateQuery.locationId = self.selectLocation
-        axios.post(global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
+        global.apiPost(this,global.baseUrl + 'location/detail?locationId=' + this.selectLocation + '&token=' + global.getToken())
         .then((res) => {
           self.contentRoom = true
           self.contentDevice = false
@@ -527,10 +499,6 @@ export default {
         self.dateQuery.roomId = null
         self.dateQuery.groupId = null
         self.dateQuery.deviceId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
         this.contentRoom = false
         this.contentController = false
         this.contentDevice = false
@@ -547,7 +515,7 @@ export default {
       var self = this
       if (this.selectRoom !== '0') {
         self.dateQuery.roomId = self.selectRoom
-        axios.get(global.baseUrl + 'room/groupList?' + global.getHttpData(roomMsg))
+        global.apiGet(this,global.baseUrl + 'room/groupList?' + global.getHttpData(roomMsg))
         .then((res) => {
           self.contentDevice = true
           self.deviceTermId = '0'
@@ -558,14 +526,10 @@ export default {
       } else {
         self.contentDevice = false
         self.contentController = false
-        self.contentTime = false
+        self.contentTime = true
         self.dateQuery.roomId = null
         self.dateQuery.deviceId = null
         self.dateQuery.groupId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
         this.changeEmpty()
       }
     },
@@ -575,7 +539,7 @@ export default {
       var self = this
       if (this.deviceTermId !== '0') {
         self.dateQuery.groupId = self.deviceTermId
-        axios.get(global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
+        global.apiGet(this,global.baseUrl + 'room/groupDetail?groupId=' + this.deviceTermId + '&token=' + global.getToken())
         .then((res) => {
           self.emptyFooter()
           self.contentController = true
@@ -584,13 +548,9 @@ export default {
       } else {
         this.dateQuery.groupId = null
         this.dateQuery.deviceId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
         this.contentController = false
         // console.log(this.dateQuery)
-        this.contentTime = false
+        this.contentTime = true
       }
     },
     // 控制器
@@ -601,27 +561,19 @@ export default {
         this.dateQuery.deviceId = this.controllerInfo.id
         self.contentTime = true
         self.contentMultiple = false
-        self.startTime = null
-        self.endTime = null
         self.dateQuery.timeStep = null
       } else {
         self.dateQuery.deviceId = null
-        self.startTime = null
-        self.endTime = null
-        self.dateQuery.startTime = null
-        self.dateQuery.endTime = null
-        this.contentTime = false
+        this.contentTime = true
       }
     },
     endTimeSelect () {
       this.contentMultiple = true
     },
     emptyFooter () {
-      this.contentTime = false
+      this.contentTime = true
       this.contentMultiple = false
       this.controllerInfo = '0'
-      this.startTime = null
-      this.endTime = null
       this.dateQuery.timeStep = null
     },
     timeFilter (value) {
@@ -665,6 +617,7 @@ export default {
       if (this.endTime) {
         this.dateQuery.endTime = this.timeFilter(this.endTime)
       }
+      this.dateQuery.currentPage = '1'
       this.getAlarmInfo(this.dateQuery)
     },
     empy (value) {
@@ -693,7 +646,7 @@ export default {
       // console.log(args)
       var self = this
       this.loading = true
-      axios.get(global.baseUrl + 'alarm/list?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'alarm/list?' + global.getHttpData(args))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           this.loading = false
@@ -715,7 +668,7 @@ export default {
     }
     // 导出excel
     // printExcel () {
-    //   axios.get(global.baseUrl + 'data/outputExcel?' + global.getHttpData(this.dateQuery))
+    //   global.apiGet(this,global.baseUrl + 'data/outputExcel?' + global.getHttpData(this.dateQuery))
     //   .then((res) => {
     //     console.log(res)
     //   })
@@ -724,7 +677,7 @@ export default {
   created () {
     var self = this
     // 系统列表
-    axios.post(global.baseUrl + 'system/list', global.postHttpDataWithToken())
+    global.apiPost(this,global.baseUrl + 'system/list', global.postHttpDataWithToken())
     .then((res) => {
       self.systemLists = res.data.data
     })
@@ -732,7 +685,7 @@ export default {
     var systemMsg = {
       systemId: 0
     }
-    axios.post(global.baseUrl + 'location/list', global.postHttpDataWithToken(systemMsg))
+    global.apiPost(this,global.baseUrl + 'location/list', global.postHttpDataWithToken(systemMsg))
     .then((res) => {
       if (res.data.callStatus === 'SUCCEED') {
         // self.provinces = res.data.

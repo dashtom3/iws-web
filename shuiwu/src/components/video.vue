@@ -134,7 +134,7 @@ export default {
   methods: {
     getSelfVideoList:function(){
       var that = this;
-      axios.get(global.baseUrl + 'hikvision/list?token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'hikvision/list?token=' + global.getToken())
       .then((res) => {
         console.log(res,"getSelfVideoList")
         that.videoList = res.data.data;
@@ -145,7 +145,7 @@ export default {
       var obj = {
         hikId:row.id
       };
-      axios.post(global.baseUrl + 'hikvision/deleteHikFromUser',global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'hikvision/deleteHikFromUser',global.postHttpDataWithToken(obj))
       .then((res) => {
         console.log(res,"deleThisVideoToSelf232222222222")
         if (res.data.callStatus === 'SUCCEED') {
@@ -162,7 +162,7 @@ export default {
       var obj = {
         hikId:row.id
       };
-      axios.post(global.baseUrl + 'hikvision/addHikToUser',global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'hikvision/addHikToUser',global.postHttpDataWithToken(obj))
       .then((res) => {
         console.log(res,"addThisVideoToSelf1111111111111111111")
         if (res.data.callStatus === 'SUCCEED') {
@@ -187,7 +187,7 @@ export default {
       this.lasts = aria.location;
     },
     lastChange:function(last){
-      axios.get(global.baseUrl + 'hikvision/query?locationId='+last.id+'&token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'hikvision/query?locationId='+last.id+'&token=' + global.getToken())
       .then((res) => {
         console.log(res)
         this.tableData = res.data.data
@@ -205,7 +205,7 @@ export default {
       var obj = {};
       var token = global.getToken()
       console.log(token)
-      axios.post(global.baseUrl + 'system/listPack',global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'system/listPack',global.postHttpDataWithToken(obj))
       .then((res) => {
         console.log(res,"getVideoLists")
         if (res.data.callStatus === 'SUCCEED') {

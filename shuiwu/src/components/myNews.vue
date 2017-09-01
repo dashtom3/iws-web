@@ -116,7 +116,7 @@ export default {
       }
       var self = this
       self.userInfo = []
-      axios.get(global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
+      global.apiGet(this,global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
       .then((res) => {
         // console.log(res)
         self.userInfo.push(res.data.data)
@@ -125,7 +125,7 @@ export default {
     // 新闻列表
     getNewsLists (args) {
       var self = this
-      axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         if (res.data.totalNumber) {
           self.newsLists = res.data.data

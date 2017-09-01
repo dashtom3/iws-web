@@ -139,7 +139,7 @@ export default {
         var self = this
         var phone = new FormData()
         phone.append('username', this.phoneMsg.phone)
-        axios.post(global.baseUrl + 'user/getVerifyCode', phone)
+        global.apiPost(this,global.baseUrl + 'user/getVerifyCode', phone)
         .then(function (res) {
           // console.log(res)
           if (res.data.callStatus === 'SUCCEED') {
@@ -152,7 +152,7 @@ export default {
     login () {
       var self = this
       // console.log(msg)
-      axios.post(global.baseUrl + 'user/login', global.postHttpData(this.userLoginMsg))
+      global.apiPost(this,global.baseUrl + 'user/login', global.postHttpData(this.userLoginMsg))
       .then(function (res) {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '登录成功', '/index')
@@ -161,6 +161,8 @@ export default {
         } else {
           global.error(self, '账号或密码错误', '/register')
         }
+      }).catch(err=>{
+        global.error(self, err, '')
       })
     },
     // 忘记密码
@@ -173,7 +175,7 @@ export default {
           forgetPwdMsg.append('code', this.phoneMsg.code)
           forgetPwdMsg.append('password', this.phoneMsg.password)
           // console.log(forgetPwdMsg)
-          axios.post(global.baseUrl + 'user/forgetPwd', forgetPwdMsg)
+          global.apiPost(this,global.baseUrl + 'user/forgetPwd', forgetPwdMsg)
           .then(function (res) {
             // console.log(res)
             if (res.data.callStatus === 'SUCCEED') {
@@ -187,8 +189,9 @@ export default {
     }
   },
   mounted () {
+    console.log(global.getToken())
     if (global.getToken()) {
-      this.$router.push('/personal')
+      // this.$router.push('/personal')
     }
   },
   components: {
@@ -203,6 +206,8 @@ export default {
 .loginCon{
   background: url('../images/loginbg.png') no-repeat;
   background-size: cover;
+  padding-top: 50px;
+  padding-bottom: 20px;
 }
 .h75{
   height: 75px;

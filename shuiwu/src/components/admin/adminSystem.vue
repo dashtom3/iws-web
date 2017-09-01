@@ -59,13 +59,13 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'system/list?token=' + global.getToken())
+    global.apiPost(this,global.baseUrl + 'system/list?token=' + global.getToken())
     .then(function (res) {
       // console.log(res)
       self.systemlists = res.data.data
     })
     // 请求图片列表
-    axios.post(global.baseUrl + 'system/pic?token=' + global.getToken())
+    global.apiPost(this,global.baseUrl + 'system/pic?token=' + global.getToken())
     .then((res) => {
       // console.log(res)
       self.systemImgs = res.data.data
@@ -80,11 +80,11 @@ export default {
     },
     del (id) {
       var self = this
-      axios.post(global.baseUrl + 'system/delete?token=' + global.getToken() + '&systemId=' + id)
+      global.apiPost(this,global.baseUrl + 'system/delete?token=' + global.getToken() + '&systemId=' + id)
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '删除成功', '/admin/system')
-          axios.post(global.baseUrl + 'system/list?token=' + global.getToken())
+          global.apiPost(self,global.baseUrl + 'system/list?token=' + global.getToken())
           .then(function (res) {
             self.systemlists = res.data.data
           })
@@ -100,12 +100,12 @@ export default {
       var systemMsg = new FormData()
       systemMsg.append('name', this.addsystem.name)
       systemMsg.append('pic', this.addsystem.imgUrl)
-      axios.post(global.baseUrl + 'system/add?token=' + global.getToken(), systemMsg)
+      global.apiPost(this,global.baseUrl + 'system/add?token=' + global.getToken(), systemMsg)
       .then((res) => {
         console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '添加成功', '/admin/system')
-          axios.post(global.baseUrl + 'system/list?token=' + global.getToken())
+          global.apiPost(self,global.baseUrl + 'system/list?token=' + global.getToken())
           .then(function (res) {
             self.systemlists = res.data.data
           })

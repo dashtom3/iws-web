@@ -1,44 +1,86 @@
 <template>
   <div class="controllerdetail">
     <v-header></v-header>
-    <!-- <div class="content">
-      <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <span style="line-height: 36px;"></span>
-          <el-button type="primary">数据查看</el-button>
-        </div>
-        <div v-for="item in groupData.devices" v-if="groupData != null">
-          {{item.name}}
-        </div>
-      </el-card>
-    </div> -->
     <div class="slidebar">
-    <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-      <el-radio-button :label="false">展开</el-radio-button>
-      <el-radio-button :label="true">收起</el-radio-button>
-    </el-radio-group> -->
-    <el-menu default-active="1-4-1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" >
+    <el-menu class="el-menu-vertical-demo" @select="choose">
       <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-search"></i>
           <span slot="title">数据查看</span>
         </template>
-        <el-menu-item-group>
-          <el-menu-item index="1-1" v-for="">选项1</el-menu-item>
-          <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
+        <el-menu-item-group v-if="groupData != null">
+          <el-menu-item :index="'1-'+index" v-for="item,index in groupData.devices">{{item.name}}</el-menu-item>
+          <!-- <el-menu-item index="1-1">选项1</el-menu-item>
+          <el-menu-item index="1-2">选项2</el-menu-item> -->
         </el-menu-item-group>
       </el-submenu>
-      <el-menu-item index="2">
-        <i class="el-icon-edit"></i>
-        <span slot="title">设备控制</span>
-      </el-menu-item>
+      <el-submenu index="2">
+        <template slot="title">
+          <i class="el-icon-edit"></i>
+          <span slot="title">设备控制</span>
+        </template>
+        <el-menu-item-group v-if="groupData != null">
+          <el-menu-item :index="'2-'+index" v-for="item,index in groupData.devices">{{item.name}}</el-menu-item>
+          <!-- <el-menu-item index="1-1">选项1</el-menu-item>
+          <el-menu-item index="1-2">选项2</el-menu-item> -->
+        </el-menu-item-group>
+      </el-submenu>
     </el-menu>
     </div>
-    <div id="container">
+    <div class="content" v-if="paramData != null">
+      <div class="content-title">
+        <span class="title-left">{{paramData.name}}</span>
+        <span class="title-right"><el-button @click="closeParamData" size="small">关闭</el-button></span>
+      </div>
+      <el-row>
+        <el-col :span="2" v-for="(item, index) in paramData.data.data" :key="item.id" >
+          <el-card :body-style="{ padding: '5px' , height:'50px'}">
+            <div><span >{{item.name}}</span></div>
+            <div>
+              <span v-if="item.data == null || item.data == ''" style="color:#20A0FF">暂无数据</span>
+              <span v-else style="color:#20A0FF">{{item.data}}</span>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+    <div class="content" v-if="controlData != null">
+      <div class="content-title">
+        <span class="title-left">{{groupData.devices[controlIndex].name}}</span>
+        <span class="title-right"><el-button @click="closeControlData" size="small">关闭</el-button></span>
+      </div>
+      <el-row>
+        <el-col :span="4" v-for="(item, index) in controlData" :key="item.number" >
+          <el-card :body-style="{ padding: '5px' , height:'50px'}">
+            <div v-if="item.data == '自动' || item.data == '手动'">
+              <span >{{item.name}}</span>
+              <el-switch
+              v-model="item.switchBtn"
+              on-text="自动"
+              off-text="手动"
+              on-color="#13ce66"
+              off-color="#ff4949"
+              @change="changeValue(item,index)" >
+              </el-switch>
+            </div>
+            <div v-if="item.data == '启动' || item.data == '关闭'">
+              <span >{{item.name}}</span>
+              <el-switch
+              v-model="item.switchBtn"
+              on-text="启动"
+              off-text="关闭"
+              on-color="#13ce66"
+              off-color="#ff4949"
+              @change="changeValue(item,index)">
+              </el-switch>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+    <div id="container" v-loading.body="fullscreenLoading" element-loading-text="模型加载中">
         <canvas id="canvas"></canvas>
     </div>
-
     <v-footer></v-footer>
   </div>
 </template>
@@ -51,7 +93,6 @@ import global from '../global/global'
 export default {
   data () {
     return {
-
       groupMsg: {
         groupId: this.$route.params.id
       },
@@ -62,34 +103,110 @@ export default {
         areaId: null,
         writable: 2,
         token: global.getToken()
-      }
+      },
+      paramData: null,
+      controlData: null,
+      controlIndex: null,
+      manual: {
+        deviceId: null,
+        number: null,
+        pumpStatus: null
+      },
+      fullscreenLoading: false
     }
   },
   mounted() {
-    init();
+    init(this);
     animate();
   },
   created () {
     var self = this
     axios.get(global.baseUrl + 'room/groupDetail?'+global.getHttpDataWithToken(this.groupMsg))
     .then((res) => {
-      console.log(res.data.data)
       self.groupData = res.data.data
-      res.data.data.devices.forEach(function(item,index){
-        axios.get(global.baseUrl + 'data/presentData?'+global.getHttpDataWithToken({deviceId:item.id}))
-        .then((res) => {
-          console.log(res.data.data)
-          item.data = res.data.data;
-        })
-      })
+      this.getDeviceData()
+      this.getModelData()
+      // console.log(self.groupData)
     })
+    window.setTimeout(function(){
+      if(this && !this._isDestroyed){ //_isDestroyed 组件是否被销毁
+        return;
+      }
+      this.getDeviceData()
+    },60000)
   },
   methods: {
-    handleOpen(key, keyPath) {
-       console.log(key, keyPath);
+     choose(key, keyPath) {
+       var temp = key.split("-")
+       if(temp[0] == '1'){
+         this.controlData = null
+         this.paramData = this.groupData.devices[temp[1]]
+       }  else {
+         this.paramData = null
+         this.controlIndex = temp[1];
+         this.getControlData(temp[1]);
+       }
      },
-     handleClose(key, keyPath) {
-       console.log(key, keyPath);
+     closeParamData() {
+       this.paramData = null;
+     },
+     closeControlData() {
+       this.controlData = null;
+     },
+     changeValue(item,index){
+
+      //  this.$set(this.controlData.control,index,item)
+      //  console.log(item,index,this.controlData.control)
+       this.manual.deviceId = this.groupData.devices[this.controlIndex].id
+       this.manual.number = item.number
+       this.manual.pumpStatus = item.switchBtn == true ? 1:0
+       global.apiPost(this,global.baseUrl + 'room/manual',global.postHttpDataWithToken(this.manual))
+       .then((res) => {
+         console.log(res.data)
+       })
+     },
+     getDeviceData() {
+       var self = this
+       if(this.groupData != null){
+         this.groupData.devices.forEach(function(item,index){
+           axios.get(global.baseUrl + 'data/presentData?'+global.getHttpDataWithToken({deviceId:item.id}))
+           .then((res) => {
+             item.data = res.data.data;
+           })
+         })
+       }
+     },
+     getControlData(index){
+       var self = this
+       axios.get(global.baseUrl + 'data/pumpStatus?'+global.getHttpDataWithToken({deviceId:self.groupData.devices[index].id}))
+       .then((res) => {
+         res.data.data.forEach(function(item,index){
+           if(item.value == 0) {
+             item.switchBtn = false
+           } else {
+             item.switchBtn = true
+           }
+         })
+         self.groupData.devices[index].control = res.data.data
+         this.controlData = self.groupData.devices[index].control
+       })
+     },
+     getModelData(){
+       var self = this
+       if(this.groupData != null){
+         this.groupData.devices.forEach(function(item,index){
+           axios.get(global.baseUrl + 'data/modelData?'+global.getHttpDataWithToken({deviceId:item.id}))
+           .then((res) => {
+             item.modelData = res.data.data;
+             self.setModel()
+           })
+         })
+       }
+     },
+     setModel(){
+      //  showFlowDir(true)
+      //  showPressureSprite(0, '25KPA', true)
+      //  showPressureSprite(1, '25KPA', true)
      }
   },
   components: {
@@ -97,7 +214,7 @@ export default {
     'v-footer': footer
   }
 }
-function $(id){return document.getElementById(id);}
+    function $(id){return document.getElementById(id);}
 
     var container;
 
@@ -153,7 +270,7 @@ function $(id){return document.getElementById(id);}
      * 导入模型文件
      * @param fileName: 文件名，不包含文件后缀（如"01"对应模型为"resource/01/01.obj"）
      */
-    function loadFile(fileName){
+    function loadFile(fileName,self){
         var resourcePath = resourceFolder + fileName + "/" + fileName;
         if(!isExist(resourcePath + modelExtension)) {
             return;
@@ -206,6 +323,7 @@ function $(id){return document.getElementById(id);}
                         object.children[i].visible = false;
                         var strs = object.children[i].name.split("_");
                         pressurePositions[strs[2]] = getCenterOfObject(object.children[i]);
+                        // console.log(pressurePositions)
                     }
 
                     //泵
@@ -255,7 +373,7 @@ function $(id){return document.getElementById(id);}
 
                 // CONTROLS
                 cameraControls.target.set( center.x, center.y, center.z );
-                loadCompleted(fileName);
+                loadCompleted(fileName,self);
                 loadArrow();
             }, onProgress, onError );
         });
@@ -293,13 +411,15 @@ function $(id){return document.getElementById(id);}
                 arrowObj = object;
                 arrowObj.scale.set(0.7, 0.7, 0.7);
                 arrowSize = maxX*0.7;
-                loadCompleted("arrow");
+                loadCompleted("arrow",self);
             }, onProgress, onError);
         });
     }
 
-    function loadCompleted(resourceName) {
+    function loadCompleted(resourceName,self) {
         console.log("load model " + resourceName + " completed");
+        self.fullscreenLoading = false;
+
     }
 
 
@@ -391,6 +511,7 @@ function $(id){return document.getElementById(id);}
             var sprite = makeTextSprite( " " + value + " ",
                 { fontsize: 64, fontface: "Georgia", borderColor: {r:0, g:0, b:255, a:1.0} } );
             sprite.position.set(pressurePositions[index].x, pressurePositions[index].y, pressurePositions[index].z);
+            console.log(pressurePositions)
             pressureSpriteList[index] = sprite;
             scene.add( sprite );
         }
@@ -545,7 +666,9 @@ function $(id){return document.getElementById(id);}
     /**
      * 初始化场景
      */
-    function init() {
+    function init(self) {
+
+        self.fullscreenLoading = true;
         container = $( 'container' );
         camera = new THREE.PerspectiveCamera( 45, container.offsetWidth / container.offsetHeight, 1, 10000000 );
 
@@ -560,7 +683,7 @@ function $(id){return document.getElementById(id);}
         scene.add( directionalLight );
 
         THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-        loadFile("01");
+        loadFile("01",self);
 
         //
         renderer = new THREE.WebGLRenderer({canvas: $( 'canvas' ), antialias: true});
@@ -635,10 +758,38 @@ function $(id){return document.getElementById(id);}
    /*display: inline-block;*/
  }
  .slidebar {
-   width: 150px;
+   width: 20%;
    position: absolute;
  }
  .content {
-   width: 200px;
+   width: 72%;
+   margin-left: 24%;
+   position: absolute;
+   min-height:200px;
+   margin-top: 10px;
+   padding-bottom: 5px;
+   background-color: white;
+   border: 1px solid #f5f5f5;
+ }
+ .block {
+   display: inline-block;
+   width: 7%;
+   height: 40px;
+   padding: 5px;
+   text-align: center;
+ }
+ .content-title {
+   margin: 5px 0px;
+   padding-left: 20px;
+   border-bottom: 1px solid #f5f5f5;
+   height: 30px;
+ }
+ .title-left {
+   font-weight: bold;
+   font-size: 16px;
+ }
+ .title-right {
+   float: right;
+   margin-right: 5px;
  }
 </style>

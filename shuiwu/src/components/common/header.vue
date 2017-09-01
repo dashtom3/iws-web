@@ -55,7 +55,7 @@ export default {
   width: 100%;
 }
 .headCon{
-  width: 1280px;
+  width: 100%;
   margin: 0 auto;
 }
 .headCon a{

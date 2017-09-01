@@ -25,8 +25,6 @@ export default {
   background: #000;
   height: 40px;
   line-height: 40px;
-  margin-top: 20px;
-  clear: both;
   width: 100%;
 }
 .footerCon{

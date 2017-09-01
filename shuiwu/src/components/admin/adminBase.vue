@@ -15,7 +15,7 @@
             <div class="h20"></div>
             <el-select v-model="addBaseMsg.type" placeholder="请选择设备类型" class="pwtc">
               <el-option
-              :key="baseType"
+
               v-for="baseType in baseTypes"
               :label="baseType.name" :value="baseType.id"></el-option>
             </el-select><br>
@@ -23,14 +23,14 @@
             <label for="" class="left15">压力表</label>
             <el-select v-model="addBaseMsg.selectPressure" placeholder="请选择压力表" style="width:160px;margin-right:15px;">
               <el-option
-              :key="pressureList"
+
               v-for="pressureList in pressureLists"
               :label="pressureList.name" :value="pressureList.id"></el-option>
             </el-select>
             <label for="" class="left15">电表</label>
             <el-select v-model="addBaseMsg.selectMeter" placeholder="请选择电表"style="width:160px;">
               <el-option
-              :key="meter"
+
               v-for="meter in meters"
               :label="meter.name" :value="meter.id"></el-option>
             </el-select><br>
@@ -38,7 +38,7 @@
             <label for="" class="left15">流量计</label>
             <el-select v-model="addBaseMsg.selectFlowmeter" placeholder="请选择流量计"style="width:160px;margin-right:15px;">
               <el-option
-              :key="flowmeter"
+
               v-for="flowmeter in flowmeters"
               :label="flowmeter.name" :value="flowmeter.id"
               ></el-option>
@@ -46,7 +46,7 @@
             <label for="" class="left15">PLC控制器</label>
             <el-select v-model="addBaseMsg.selectController" placeholder="请选择PLC控制器"style="width:160px;">
               <el-option
-              :key="controllerList"
+
               v-for="controllerList in controllerLists"
               :label="controllerList.name" :value="controllerList.id"></el-option>
             </el-select>
@@ -169,9 +169,9 @@ export default {
     // 获取设备列表
     getBaseList (args) {
       var self = this
-      axios.get(global.baseUrl + 'device/list?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'device/list?' + global.getHttpData(args))
       .then((res) => {
-        // console.log(res)
+        console.log(res)
         self.baseLists = res.data.data
         self.baseListArgs.currentPage = res.data.currentPage
         self.baseListArgs.totalPage = res.data.totalPage
@@ -181,19 +181,19 @@ export default {
     addBaseClick () {
       this.addBaseAlert = true
       var self = this
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=1')
+      global.apiPost(this,global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=1')
       .then((res) => {
         self.controllerLists = res.data.data
       })
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=2')
+      global.apiPost(this,global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=2')
       .then((res) => {
         self.pressureLists = res.data.data
       })
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=3')
+      global.apiPost(this,global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=3')
       .then((res) => {
         self.flowmeters = res.data.data
       })
-      axios.post(global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=4')
+      global.apiPost(this,global.baseUrl + 'deviceTerm/list?token=' + global.getToken() + '&type=4')
       .then((res) => {
         self.meters = res.data.data
       })
@@ -201,7 +201,7 @@ export default {
     // 获取设备类型
     getbaseTypes () {
       var self = this
-      axios.get(global.baseUrl + 'device/groupType?token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'device/groupType?token=' + global.getToken())
       .then((res) => {
         self.baseTypes = res.data.data
       })
@@ -211,7 +211,7 @@ export default {
       this.editBaseAlert = true
       this.editBaseMsg.id = baseId
       var self = this
-      axios.get(global.baseUrl + 'device/groupDetail?groupId=' + baseId + '&token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'device/groupDetail?groupId=' + baseId + '&token=' + global.getToken())
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.editBaseMsg = res.data.data
@@ -220,7 +220,7 @@ export default {
     },
     editBasePost () {
       var self = this
-      axios.post(global.baseUrl + 'device/update?id=' + this.editBaseMsg.id + '&name=' + this.editBaseMsg.name + '&token=' + global.getToken())
+      global.apiPost(this,global.baseUrl + 'device/update?id=' + this.editBaseMsg.id + '&name=' + this.editBaseMsg.name + '&token=' + global.getToken())
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.editBaseAlert = false
@@ -236,7 +236,7 @@ export default {
       } else {
         this.addBaseMsg.terms = [this.addBaseMsg.selectController, this.addBaseMsg.selectFlowmeter, this.addBaseMsg.selectPressure, this.addBaseMsg.selectMeter].join(',')
         var self = this
-        axios.post(global.baseUrl + 'device/addGroup', global.postHttpData(this.addBaseMsg))
+        global.apiPost(this,global.baseUrl + 'device/addGroup', global.postHttpData(this.addBaseMsg))
         .then((res) => {
           if (res.data.callStatus === 'SUCCEED') {
             self.addBaseAlert = false
@@ -255,7 +255,7 @@ export default {
     },
     deleteBase () {
       var self = this
-      axios.post(global.baseUrl + 'device/delete', global.postHttpDataWithToken(this.baseMsg))
+      global.apiPost(this,global.baseUrl + 'device/delete', global.postHttpDataWithToken(this.baseMsg))
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {

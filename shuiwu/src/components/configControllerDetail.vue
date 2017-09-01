@@ -102,7 +102,7 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'location/detail', global.postHttpDataWithToken(this.locationMsg))
+    global.apiPost(this,global.baseUrl + 'location/detail', global.postHttpDataWithToken(this.locationMsg))
     .then((res) => {
       self.limitionMsg.systemId = res.data.data.systemId
       self.limitionMsg.areaId = res.data.data.areaId
@@ -117,7 +117,7 @@ export default {
         token: global.getToken()
       }
       var self = this
-      axios.get(global.baseUrl + 'room/groupDetail?' + global.getHttpData(groupMsg))
+      global.apiGet(this,global.baseUrl + 'room/groupDetail?' + global.getHttpData(groupMsg))
       .then((res) => {
         self.controllerlists = res.data.data.devices
         self.showData = false
@@ -133,13 +133,13 @@ export default {
     },
     getDate (args) {
       var self = this
-      axios.get(global.baseUrl + 'data/presentData?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'data/presentData?' + global.getHttpData(args))
       .then((res) => {
         self.showData = true
         self.remoteDate = false
         self.controllerDetailInfos = res.data.data.data
       })
-      axios.get(global.baseUrl + 'data/pumpStatus?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'data/pumpStatus?' + global.getHttpData(args))
       .then((res) => {
         self.remoteDates = res.data.data
       })
@@ -147,7 +147,7 @@ export default {
     },
     isOperation () {
       var self = this
-      axios.get(global.baseUrl + 'limitation/checkLimit?' + global.getHttpData(this.limitionMsg))
+      global.apiGet(this,global.baseUrl + 'limitation/checkLimit?' + global.getHttpData(this.limitionMsg))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.remoteDate = true
@@ -164,7 +164,7 @@ export default {
         deviceId: this.deviceMsg.deviceId
       }
       var self = this
-      axios.post(global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
       .then((res) => {
         console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
@@ -180,7 +180,7 @@ export default {
         deviceId: this.deviceMsg.deviceId
       }
       var self = this
-      axios.post(global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'room/manual', global.postHttpDataWithToken(obj))
       .then((res) => {
         console.log(res)
         if (res.data.callStatus === 'SUCCEED') {

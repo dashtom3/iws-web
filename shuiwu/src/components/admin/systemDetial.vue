@@ -394,7 +394,7 @@ export default {
         this.next = false
         this.addressData.isOpen = item
         this.rooms.locationid = id
-        axios.post(global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
+        global.apiPost(this,global.baseUrl + 'location/detail?locationId=' + id + '&token=' + global.getToken())
         .then((res) => {
           self.rooms.roomlist = res.data.data.room
         })
@@ -406,7 +406,7 @@ export default {
       var self = this
       self.tableDate = true
       if (id) {
-        axios.get(global.baseUrl + 'device/groupDetail?groupId=' + id + '&token=' + global.getToken())
+        global.apiGet(this,global.baseUrl + 'device/groupDetail?groupId=' + id + '&token=' + global.getToken())
         .then((res) => {
           self.equipmentControllers = res.data.data.deviceTerms
         })
@@ -457,7 +457,7 @@ export default {
           self.equipmentControllers = []
           self.testResponeMsg = null
           self.addControllerBtn = null
-          axios.get(global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
+          global.apiPost(self,global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
           .then((res) => {
               // console.log(res)
             self.packages = res.data.data
@@ -473,7 +473,7 @@ export default {
     packageIsactive (meal) {
       localStorage.setItem('meal', JSON.stringify(meal))
       var self = this
-      axios.get(global.baseUrl + 'room/groupDetail?groupId=' + meal.groupId + '&token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'room/groupDetail?groupId=' + meal.groupId + '&token=' + global.getToken())
       .then((res) => {
         self.configControllerDetialInfos = res.data.data
       })
@@ -506,7 +506,7 @@ export default {
     },
     editProvince () {
       var self = this
-      axios.post(global.baseUrl + 'area/province?provinceId=' + self.editDate.provinceId)
+      global.apiPost(this,global.baseUrl + 'area/province?provinceId=' + self.editDate.provinceId)
       .then((res) => {
         self.editCitys = res.data.data.city
       })
@@ -519,7 +519,7 @@ export default {
     editCity () {
       var self = this
       if (self.editDate.cityId != null) {
-        axios.post(global.baseUrl + 'area/city?cityId=' + self.editDate.cityId)
+        global.apiPost(this,global.baseUrl + 'area/city?cityId=' + self.editDate.cityId)
         .then((res) => {
           self.editAreas = res.data.data.area
         })
@@ -547,7 +547,7 @@ export default {
     editSetPosition (keywords) {
       if (keywords) {
         var self = this
-        axios.get('https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
+        global.apiGet(this,'https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
         .then((res) => {
           if (res.data.pois[0].location) {
             self.editDate.positionX = res.data.pois[0].location.split(',')[0]
@@ -564,7 +564,7 @@ export default {
     setPosition (keywords) {
       if (keywords) {
         var self = this
-        axios.get('https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
+        global.apiGet(this,'https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
         .then((res) => {
           if (res.data.pois[0].location) {
             self.addressData.center = res.data.pois[0].location.split(',')
@@ -596,7 +596,7 @@ export default {
       addAddressMsg.append('positionY', this.addressData.y)
       addAddressMsg.append('name', this.addressData.name)
       addAddressMsg.append('describes', this.addressData.address)
-      axios.post(global.baseUrl + 'location/add?token=' + global.getToken(), addAddressMsg)
+      global.apiPost(this,global.baseUrl + 'location/add?token=' + global.getToken(), addAddressMsg)
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
@@ -631,7 +631,7 @@ export default {
         searchMsg.append('areaId', this.search.searchArea.areaId)
       }
       var self = this
-      axios.post(global.baseUrl + 'location/query?token=' + global.getToken(), searchMsg)
+      global.apiPost(this,global.baseUrl + 'location/query?token=' + global.getToken(), searchMsg)
       .then((res) => {
         self.addresslists = res.data.data
         if (res.data.callStatus === 'SUCCEED') {
@@ -648,7 +648,7 @@ export default {
       var qingqiu = new FormData()
       qingqiu.append('locationId', id)
       qingqiu.append('token', global.getToken())
-      axios.post(global.baseUrl + 'location/detail', qingqiu)
+      global.apiPost(this,global.baseUrl + 'location/detail', qingqiu)
       .then((res) => {
         self.editAlert = true
         // console.log(res.data)
@@ -672,14 +672,14 @@ export default {
       addAddressMsg.append('positionY', this.editDate.positionY)
       addAddressMsg.append('name', this.editDate.name)
       addAddressMsg.append('describes', this.editDate.describes)
-      axios.post(global.baseUrl + 'location/update?token=' + global.getToken(), addAddressMsg)
+      global.apiPost(this,global.baseUrl + 'location/update?token=' + global.getToken(), addAddressMsg)
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
           self.addressAlert = false
           global.addSuccess(self, '修改成功')
           self.$nextTick(() => {
-            axios.post(global.baseUrl + 'location/list?systemId=' + self.addressData.systemId + '&token=' + global.getToken())
+            global.apiPost(self,global.baseUrl + 'location/list?systemId=' + self.addressData.systemId + '&token=' + global.getToken())
             .then((res) => {
               // console.log(res)
               self.addresslists = res.data.data
@@ -695,7 +695,7 @@ export default {
     },
     deladdress () {
       var self = this
-      axios.post(global.baseUrl + 'location/delete?token=' + global.getToken() + '&locationId=' + this.addressId)
+      global.apiPost(this,global.baseUrl + 'location/delete?token=' + global.getToken() + '&locationId=' + this.addressId)
       .then((res) => {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
@@ -711,10 +711,10 @@ export default {
       this.addRoomAlert = !this.addRoomAlert
       var addroomMsg = new FormData()
       addroomMsg.append('name', this.roomMsg.name)
-      axios.post(global.baseUrl + 'room/add?locationId=' + this.rooms.locationid + '&token=' + global.getToken(), addroomMsg)
+      global.apiPost(this,global.baseUrl + 'room/add?locationId=' + this.rooms.locationid + '&token=' + global.getToken(), addroomMsg)
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
-          axios.post(global.baseUrl + 'location/detail?locationId=' + self.rooms.locationid + '&token=' + global.getToken())
+          global.apiPost(self,global.baseUrl + 'location/detail?locationId=' + self.rooms.locationid + '&token=' + global.getToken())
           .then((res) => {
             // console.log(res)
             self.rooms.roomlist = res.data.data.room
@@ -730,7 +730,7 @@ export default {
         type: 'warning'
       }).then(() => {
         var self = this
-        axios.post(global.baseUrl + 'room/delete?roomId=' + roomId + '&token=' + global.getToken())
+        global.apiPost(this,global.baseUrl + 'room/delete?roomId=' + roomId + '&token=' + global.getToken())
         .then((res) => {
             // console.log(res)
           if (res.data.callStatus === 'SUCCEED') {
@@ -746,7 +746,7 @@ export default {
     roomIsactive (room) {
       var self = this
       this.deviceMsg.roomId = room.id
-      axios.get(global.baseUrl + 'room/groupList?roomId=' + room.id + '&token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'room/groupList?roomId=' + room.id + '&token=' + global.getToken())
       .then((res) => {
         // console.log(res)
         self.packages = res.data.data
@@ -759,7 +759,7 @@ export default {
       this.editRoomBtn = true
       var self = this
       this.addRoomAlert = !this.addRoomAlert
-      axios.post(global.baseUrl + 'room/detail?token=' + global.getToken() + '&roomId=' + roomid)
+      global.apiPost(this,global.baseUrl + 'room/detail?token=' + global.getToken() + '&roomId=' + roomid)
       .then((res) => {
         self.roomMsg = res.data.data
       })
@@ -768,7 +768,7 @@ export default {
       this.roomMsg.location = null
       this.roomMsg.deviceGroups = null
       var self = this
-      axios.post(global.baseUrl + 'room/update', global.postHttpDataWithToken(this.roomMsg))
+      global.apiPost(this,global.baseUrl + 'room/update', global.postHttpDataWithToken(this.roomMsg))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.addRoomAlert = false
@@ -784,7 +784,7 @@ export default {
         groupId: groupId
       }
       var self = this
-      axios.post(global.baseUrl + 'room/start', global.postHttpDataWithToken(groupMsg))
+      global.apiPost(this,global.baseUrl + 'room/start', global.postHttpDataWithToken(groupMsg))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
@@ -797,7 +797,7 @@ export default {
         groupId: groupId
       }
       var self = this
-      axios.post(global.baseUrl + 'room/close', global.postHttpDataWithToken(groupMsg))
+      global.apiPost(this,global.baseUrl + 'room/close', global.postHttpDataWithToken(groupMsg))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
@@ -808,7 +808,7 @@ export default {
     // 获取地点列表
     getAddressLists (args) {
       var self = this
-      axios.post(global.baseUrl + 'location/list', global.postHttpDataWithToken(args))
+      global.apiPost(this,global.baseUrl + 'location/list', global.postHttpDataWithToken(args))
       .then((res) => {
         // console.log(res)
         self.addresslists = res.data.data
@@ -825,23 +825,23 @@ export default {
   created () {
     var self = this
     // 获取城市列表
-    axios.post(global.baseUrl + 'area/areas')
+    global.apiPost(this,global.baseUrl + 'area/areas')
     .then((res) => {
       self.addressData.provinces = res.data.data
       // self.search.searchProvinces = res.data.data
     })
     // 获取设备列表
-    axios.get(global.baseUrl + 'device/list?token=' + global.getToken())
+    global.apiGet(this,global.baseUrl + 'device/list?token=' + global.getToken())
     .then((res) => {
       self.equipmentLists = res.data.data
     })
-    axios.post(global.baseUrl + 'system/detailPack?systemId=' + this.$route.params.id + '&token=' + global.getToken())
+    global.apiPost(this,global.baseUrl + 'system/detailPack?systemId=' + this.$route.params.id + '&token=' + global.getToken())
     .then((res) => {
       // console.log(res)
       self.search.searchProvinces = res.data.data.locationPack
     })
     // 系统详情
-    axios.post(global.baseUrl + 'system/detailPack', global.postHttpDataWithToken(this.addressArgs))
+    global.apiPost(this,global.baseUrl + 'system/detailPack', global.postHttpDataWithToken(this.addressArgs))
     .then((res) => {
       self.systemName = res.data.data.name
     })

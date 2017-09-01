@@ -44,7 +44,7 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'user/detail', global.postHttpDataWithToken())
+    global.apiPost(this,global.baseUrl + 'user/detail', global.postHttpDataWithToken())
     .then(function (res) {
       self.userMsg = res.data.data
     })
@@ -52,7 +52,7 @@ export default {
   methods: {
     update () {
       var self = this
-      axios.post(global.baseUrl + 'user/update', global.postHttpDataWithToken(this.userMsg))
+      global.apiPost(this,global.baseUrl + 'user/update', global.postHttpDataWithToken(this.userMsg))
       .then(function (res) {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {

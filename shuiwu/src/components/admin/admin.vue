@@ -34,7 +34,7 @@ export default {
     goAdmin () {
       var self = this
       if (this.adminName !== '' && this.adminPassword !== '') {
-        axios.post(global.baseUrl + 'user/login', global.postHttpData(this.adminMsg))
+        global.apiPost(this,global.baseUrl + 'user/login', global.postHttpData(this.adminMsg))
         .then(function (res) {
           if (res.data.callStatus === 'SUCCEED') {
             global.success(self, '登录成功', '/admin/user')

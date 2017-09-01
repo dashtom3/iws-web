@@ -55,7 +55,7 @@
             <el-input v-model="formLabelAlign.admin"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="pwd">
-            <el-input type="password"  v-model="formLabelAlign.pwd"></el-input>
+            <el-input v-model="formLabelAlign.pwd"></el-input>
           </el-form-item>
           <el-form-item >
             <el-button @click="addBaseAlert = false">取 消</el-button>
@@ -97,7 +97,7 @@
             <el-input v-model="updateData.username"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input type="password"  v-model="updateData.password"></el-input>
+            <el-input v-model="updateData.password"></el-input>
           </el-form-item>
           <el-form-item >
             <el-button @click="updataVideoAlert = false">取 消</el-button>
@@ -112,26 +112,28 @@
       <span>名称</span>
       <span>地点</span>
       <span>监控地址</span>
+      <!-- <span>账号密码</span> -->
       <span>操作</span>
     </div>
     <div class="baseList baseWidth" v-for="(videoList,index) in getAllVideoListData">
       <span>{{videoList.name}}</span>
-      <span>{{videoList.provinceName+videoList.cityName+videoList.areaName}}</span>
-      <span>{{videoList.ip}}</span>
+      <span>{{videoList.provinceName+videoList.cityName+videoList.areaName}}:{{videoList.locationName}}</span>
+      <!-- <span>{{videoList.username}},{{videoList.password}}</span> -->
+      <span>{{videoList.ip}}:{{videoList.port}}</span>
       <span>
         <i class="controlleredit controllericon" v-on:click="editVideo(videoList.id,index)"></i>
         <i class="controllerdel controllericon" v-on:click="deleteVideoPost(videoList.id,index)"></i>
       </span>
     </div>
     <!-- 分页 -->
-    <!-- <div class="block" v-if="videoListArgs.totalPage > 1">
+    <div class="block" v-if="videoListArgs.totalPage > 1">
       <el-pagination
         @current-change="currentPageChange"
         :current-page.sync="videoListArgs.currentPage"
         layout="total, prev, pager, next"
         :page-count="videoListArgs.totalPage">
       </el-pagination>
-    </div> -->
+    </div>
 
   </div>
 </template>
@@ -295,7 +297,7 @@ export default {
       },
       videoListArgs: {
         currentPage: 1,
-        numberPerPage: 10,
+        numberPerPage: 1,
         totalPage: -1,
         token: global.getToken()
       }
@@ -307,9 +309,10 @@ export default {
   },
   methods: {
     getAllVideoList:function(){
-      axios.get(global.baseUrl + 'hikvision/query'+'?token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'hikvision/query'+'?token=' + global.getToken())
       .then((res) => {
       this.getAllVideoListData = res.data.data;
+
       })
     },
     systemChange:function(system){
@@ -332,7 +335,7 @@ export default {
       var obj = {};
       var token = global.getToken()
       console.log(token)
-      axios.post(global.baseUrl + 'system/listPack',global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'system/listPack',global.postHttpDataWithToken(obj))
       .then((res) => {
         console.log(res,"getVideoLists")
         if (res.data.callStatus === 'SUCCEED') {
@@ -345,7 +348,7 @@ export default {
     },
     getProvinces () {
       var self = this
-      axios.post(global.baseUrl + 'area/areas')
+      global.apiPost(this,global.baseUrl + 'area/areas')
       .then((res) => {
         // console.log(res)
         self.provinces = res.data.data
@@ -375,7 +378,7 @@ export default {
           obj.password = self.updateData.password;
           obj.name = self.updateData.name;
 
-          axios.post(global.baseUrl + 'hikvision/update',global.postHttpDataWithToken(obj))
+          global.apiPost(this,global.baseUrl + 'hikvision/update',global.postHttpDataWithToken(obj))
           .then((res) => {
             console.log(res)
             if (res.data.callStatus === 'SUCCEED') {
@@ -392,7 +395,7 @@ export default {
     },
     editVideoPost () {
       var self = this
-      axios.post(global.baseUrl + 'device/update?id=' + this.editVideoMsg.id + '&name=' + this.editVideoMsg.name + '&token=' + global.getToken())
+      global.apiPost(this,global.baseUrl + 'device/update?id=' + this.editVideoMsg.id + '&name=' + this.editVideoMsg.name + '&token=' + global.getToken())
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           self.editVideoAlert = false
@@ -413,7 +416,7 @@ export default {
             obj.password = self.formLabelAlign.pwd;
             obj.locationId = self.lastVideoId;
             obj.name = self.formLabelAlign.name;
-            axios.post(global.baseUrl + 'hikvision/add',global.postHttpDataWithToken(obj))
+            global.apiPost(this,global.baseUrl + 'hikvision/add',global.postHttpDataWithToken(obj))
             .then((res) => {
               console.log(res)
               if (res.data.callStatus === 'SUCCEED') {
@@ -439,7 +442,7 @@ export default {
           var obj = {
             id:baseId
           };
-          axios.post(global.baseUrl + 'hikvision/delete',global.postHttpDataWithToken(obj))
+          global.apiPost(this,global.baseUrl + 'hikvision/delete',global.postHttpDataWithToken(obj))
           .then((res) => {
             console.log(res)
             if (res.data.callStatus === 'SUCCEED') {
@@ -449,7 +452,7 @@ export default {
               this.$alert('错误',  {confirmButtonText: '确定',});
             }
           })
-          
+
         }).catch(() => {
           this.$message({
             type: 'info',

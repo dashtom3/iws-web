@@ -141,7 +141,7 @@ export default {
         this.timeUpdata()
         var phonenum = new FormData()
         phonenum.append('username', this.phoneMsg.phone)
-        axios.post(global.baseUrl + 'user/getVerifyCode', phonenum)
+        global.apiPost(this,global.baseUrl + 'user/getVerifyCode', phonenum)
         // .then(function (res) {
         //   // console.log(res)
         // })
@@ -158,7 +158,7 @@ export default {
       user.append('address', this.phoneMsg.address)
       user.append('describes', this.phoneMsg.describe)
       // user.append('describes', this.phoneMsg.describes)
-      axios.post(global.baseUrl + 'user/register', user)
+      global.apiPost(this,global.baseUrl + 'user/register', user)
       .then(function (res) {
         // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {

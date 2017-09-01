@@ -40,6 +40,52 @@ export default{
       }
     })
   },
+  apiGet(obj ,url, params = {}) {
+    var self = this
+    return new Promise((resolve, reject) => {
+    axios.get(url, { params })
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+        resolve(res);
+      } else {
+        if(res.data.errorLabel == '操作权限不足') {
+          self.logout()
+          self.success(obj,'请重新登陆','/login')
+          reject();
+        } else {
+          reject(res.data.errorLabel);
+        }
+      }
+    }).catch(err => {
+      self.error(obj,'网络连接错误','')
+      reject();
+    });
+    });
+  },
+  apiPost(obj,url, params) {
+  var self = this
+  return new Promise((resolve, reject) => {
+    axios.post(url, params)
+      .then((res) => {
+        if (res.data.callStatus === 'SUCCEED') {
+          resolve(res);
+        } else {
+          if(res.data.errorLabel == '无操作权限') {
+            self.logout()
+            self.success(obj,'请重新登陆','/login')
+            reject();
+          } else {
+            reject(res.data.errorLabel);
+          }
+        }
+      }).catch(() => {
+        // reject(err);
+        self.error(obj,'网络连接错误','')
+        reject();
+      });
+  });
+},
+
   // 用户退出
   userExit (obj, url) {
     obj.$message({
@@ -148,6 +194,11 @@ export default{
   },
   setUser: function (wateruser) {
     localStorage.setItem('wateruser', JSON.stringify(wateruser))
+  },
+  logout: function(){
+    localStorage.setItem('watertoken', null)
+    localStorage.setItem('watertokentime', null)
+    localStorage.setItem('wateruser', null)
   },
   getToday: function (today) {
     today.setHours(0)

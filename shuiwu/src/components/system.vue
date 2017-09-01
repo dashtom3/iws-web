@@ -119,7 +119,7 @@ export default {
   methods: {
     getNewsLists (args) {
       var self = this
-      axios.get(global.baseUrl + 'news/list?' + global.getHttpData(args))
+      global.apiGet(this,global.baseUrl + 'news/list?' + global.getHttpData(args))
       .then((res) => {
         // console.log(res)
         self.newsLists = res.data.data
@@ -133,7 +133,7 @@ export default {
         userId: userId
       }
       var self = this
-      axios.post(global.baseUrl + 'news/confirm', global.postHttpDataWithToken(obj))
+      global.apiPost(this,global.baseUrl + 'news/confirm', global.postHttpDataWithToken(obj))
       .then((res) => {
         if (res.data.callStatus === 'SUCCEED') {
           global.success(self, '操作成功', '')
@@ -149,7 +149,7 @@ export default {
     },
     getUserLists () {
       var self = this
-      axios.get(global.baseUrl + 'userManage/list?token=' + global.getToken())
+      global.apiGet(this,global.baseUrl + 'userManage/list?token=' + global.getToken())
       .then((res) => {
         self.userLists = res.data.data
       })
@@ -162,7 +162,7 @@ export default {
       }
       var self = this
       self.userDetail = []
-      axios.get(global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
+      global.apiGet(this,global.baseUrl + 'userManage/detail?' + global.getHttpData(personalMsg))
       .then((res) => {
         self.userDetail.push(res.data.data)
       })

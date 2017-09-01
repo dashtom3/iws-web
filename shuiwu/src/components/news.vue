@@ -49,7 +49,7 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'system/list', global.postHttpDataWithToken())
+    global.apiPost(this,global.baseUrl + 'system/list', global.postHttpDataWithToken())
     .then((res) => {
       self.systems = res.data.data
     })

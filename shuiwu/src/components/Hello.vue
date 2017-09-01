@@ -444,7 +444,7 @@ export default {
   },
   created () {
     var self = this
-    axios.post(global.baseUrl + 'area/provinces')
+    global.apiPost(this,global.baseUrl + 'area/provinces')
     .then(function (res) {
       // console.log(res)
       self.provinces = res.data.data

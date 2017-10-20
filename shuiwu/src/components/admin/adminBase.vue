@@ -15,44 +15,47 @@
             <div class="h20"></div>
             <el-select v-model="addBaseMsg.type" placeholder="请选择设备类型" class="pwtc">
               <el-option
-
-              v-for="baseType in baseTypes"
+                v-for="baseType in baseTypes"
               :label="baseType.name" :value="baseType.id"></el-option>
             </el-select><br>
             <div style="height:20px;"></div>
             <label for="" class="left15">压力表</label>
-            <el-select v-model="addBaseMsg.selectPressure" placeholder="请选择压力表" style="width:160px;margin-right:15px;">
+            <el-select v-model="addBaseMsg.selectPressure" placeholder="请选择压力表" style="width:160px;margin-right:15px;" @change="changeC1">
               <el-option
-
               v-for="pressureList in pressureLists"
               :label="pressureList.name" :value="pressureList.id"></el-option>
             </el-select>
             <label for="" class="left15">电表</label>
-            <el-select v-model="addBaseMsg.selectMeter" placeholder="请选择电表"style="width:160px;">
+            <el-select v-model="addBaseMsg.selectMeter" placeholder="请选择电表"style="width:160px;" @change="changeC2">
               <el-option
-
               v-for="meter in meters"
               :label="meter.name" :value="meter.id"></el-option>
             </el-select><br>
             <div style="height:20px;"></div>
             <label for="" class="left15">流量计</label>
-            <el-select v-model="addBaseMsg.selectFlowmeter" placeholder="请选择流量计"style="width:160px;margin-right:15px;">
+            <el-select v-model="addBaseMsg.selectFlowmeter" placeholder="请选择流量计"style="width:160px;margin-right:15px;" @change="changeC3">
               <el-option
-
               v-for="flowmeter in flowmeters"
               :label="flowmeter.name" :value="flowmeter.id"
               ></el-option>
             </el-select>
             <label for="" class="left15">PLC控制器</label>
-            <el-select v-model="addBaseMsg.selectController" placeholder="请选择PLC控制器"style="width:160px;">
+            <el-select v-model="addBaseMsg.selectController" placeholder="请选择PLC控制器"style="width:160px;" @change="changeC4">
               <el-option
-
               v-for="controllerList in controllerLists"
               :label="controllerList.name" :value="controllerList.id"></el-option>
             </el-select>
           </div>
 
         </el-form-item>
+        <!-- <el-form-item label="模型数据" v-if="addBaseMsg.type != null">
+          <div v-for="item in baseModelList[addBaseMsg.type]" style="margin-bottom:5px;text-align:left">
+          <label >{{item}}</label>
+          <el-select placeholder="请选择控制器" v-model="" v-for="bs in baseSelect" v-if="bs != {}">
+            <el-option :label="bs.name" :value="bs.id"></el-option>
+          </el-select>
+        </div>
+        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addBaseAlert = false">取 消</el-button>
@@ -129,6 +132,8 @@ export default {
       editBaseAlert: false,
       baseLists: [],
       baseTypes: [],
+      baseModelList:null,
+      baseSelect: [{},{},{},{}],
       pressureLists: null,
       meters: null,
       flowmeters: null,
@@ -164,6 +169,7 @@ export default {
   created () {
     this.getBaseList(this.baseListArgs)
     this.getbaseTypes()
+    this.getModelList()
   },
   methods: {
     // 获取设备列表
@@ -175,6 +181,45 @@ export default {
         self.baseLists = res.data.data
         self.baseListArgs.currentPage = res.data.currentPage
         self.baseListArgs.totalPage = res.data.totalPage
+      })
+    },
+    getModelList(){
+      this.baseModelList = []
+      global.modeName.forEach(function(item,index){
+        var temp = []
+        item.forEach(function(item2,index2){
+          temp.push({controller:'',name:item2,field:''})
+        })
+        this.baseModelList.push(temp)
+        temp = []
+      })
+    },
+    changeC1(val){
+      this.pressureLists.forEach(function(item,index){
+        if(item.id == val) {
+          this.baseSelect[0] = item
+        }
+      })
+    },
+    changeC2(val){
+      this.meters.forEach(function(item,index){
+        if(item.id == val) {
+          this.this.baseSelect[1] = item
+        }
+      })
+    },
+    changeC3(val){
+      this.flowmeters.forEach(function(item,index){
+        if(item.id == val) {
+          this.baseSelect[2] = item
+        }
+      })
+    },
+    changeC4(val){
+      this.controllerLists.forEach(function(item,index){
+        if(item.id == val) {
+          this.baseSelect[3] = item
+        }
       })
     },
     // 添加设备

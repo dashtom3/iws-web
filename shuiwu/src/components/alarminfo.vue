@@ -23,42 +23,15 @@
         </el-row>
       </div>
       <div class="systemSelect" v-if="contentProvince">
-        <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
-          <el-option
-            label="全部"
-            value="">
-          </el-option>
-          <el-option
-            :key="province.id"
-            v-for="(province, index) in provinces"
-            :label="province.name"
-            :value="province">
-          </el-option>
-        </el-select>
-        <el-select v-model="selectCity" placeholder="请选择市" @change="city">
-          <el-option
-            label="全部"
-            value="">
-          </el-option>
-          <el-option
-            :key="city.id"
-            v-for="(city, index) in citys"
-            :label="city.name"
-            :value="city">
-          </el-option>
-        </el-select>
-        <el-select v-model="selectArea" placeholder="请选择地区" @change="area">
-          <el-option
-            label="全部"
-            value="">
-          </el-option>
-          <el-option
-            :key="area.id"
-            v-for="(area, index) in areas"
-            :label="area.name"
-            :value="area">
-          </el-option>
-        </el-select>
+        <mu-select-field v-model="selectProvince"  label="请选择省份" @change="province">
+          <mu-menu-item v-for="province in provinces" :key="province.id" :value="province" :title="province.name" />
+        </mu-select-field>
+        <mu-select-field v-model="selectCity"  label="请选择城市" @change="city">
+          <mu-menu-item v-for="city in citys" :key="city.id" :value="city" :title="city.name" />
+        </mu-select-field>
+        <mu-select-field v-model="selectArea"  label="请选择地区" @change="area">
+          <mu-menu-item v-for="area in areas" :key="area.id" :value="area" :title="area.name" />
+        </mu-select-field>
       </div>
       <div class="systemSelect" v-if="contentLocation">
         <el-row :gutter="20">
@@ -381,14 +354,14 @@ export default {
       this.selectCity = null
       this.selectArea = null
     },
-    province () {
+    province (value) {
       this.changeEmpty()
       this.dateContent = false
       var self = this
-      if (this.selectProvince) {
+      if (value) {
         this.changeEmpty()
-        this.dateQuery.provinceId = this.selectProvince.provinceId
-        this.citys = this.selectProvince.city
+        this.dateQuery.provinceId = value.provinceId
+        this.citys = value.city
       } else {
         this.citys = []
         this.areas = []
@@ -409,14 +382,14 @@ export default {
       this.contentTime = true
       this.contentMultiple = false
     },
-    city () {
+    city (value) {
       this.dateContent = false
       var self = this
       this.selectArea = null
-      if (this.selectCity) {
+      if (value) {
         this.changeEmpty()
-        this.dateQuery.cityId = this.selectCity.cityId
-        this.areas = this.selectCity.area
+        this.dateQuery.cityId = value.cityId
+        this.areas = value.area
       } else {
         this.areas = []
         this.dateQuery.cityId = null
@@ -433,16 +406,16 @@ export default {
       this.contentTime = true
       this.contentMultiple = false
     },
-    area () {
+    area (value) {
       this.dateContent = false
       var self = this
       this.changeEmpty()
-      if (this.selectArea) {
+      if (value) {
         this.contentLocation = true
         this.emptyFooter()
-        this.dateQuery.areaId = this.selectArea.areaId
+        this.dateQuery.areaId = value.areaId
         this.rooms = []
-        this.locations = this.selectArea.location
+        this.locations = value.location
       } else {
         self.dateQuery.areaId = null
         self.dateQuery.locationId = null

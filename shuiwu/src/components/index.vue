@@ -6,15 +6,14 @@
           <el-carousel-item
           v-for="item in Math.ceil(items.length/3)">
             <div class="index1" v-for="it in 3" v-if="items[(item-1)*3+it-1] != null">
-              <div class="systemImg">
+
                 <div class="imgCon">
-                  <img :src=items[(item-1)*3+it-1].pic alt="">
+                  <img :src=items[(item-1)*3+it-1].pic alt="" >
                 </div>
                 <div class="systemTime">
                   <p class="systemname">{{items[(item-1)*3+it-1].name}}</p>
                   <p class="systemBegin">创建于:&nbsp;{{items[(item-1)*3+it-1].date | date}}</p>
                 </div>
-              </div>
             </div>
           </el-carousel-item>
         </el-carousel>
@@ -118,7 +117,7 @@ export default {
     global.apiPost(this,global.baseUrl + 'system/listPack?token=' + global.getToken())
     .then((res) => {
       console.log(res)
-      self.items = res.data.data
+      self.items = res.data.data.slice(0,3)
       var mydata = res.data.data
       this.tree(mydata)
     })
@@ -160,7 +159,7 @@ export default {
             }, {
               icon: null,
               position: [res.data.data[i].positionX, res.data.data[i].positionY],
-              content: '<div style="width:124px;height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:18px 0 10px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].describes + '</div>',
+              content: '<div style="width:124px;min-height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:12px 0 8px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].name + '</div>',
               events: {
                 mouseover: () => {
                   self.markers[i][1].visible = true
@@ -306,11 +305,25 @@ export default {
   max-height: 600px;
   overflow-y: auto;
 }
+.imgCon{
+  width: 80px;
+  height: 80px;
+  background-color: #fff;
+  border-radius: 40px;
+  float: left;
+  margin-left: 70px;
+  text-align: center;
+}
+.imgCon img{
+  margin-top: 20px;
+  width: 40px;
+  height: 40px;
+}
+
 .systemname{
   font-size: 24px;
   font-family: "Microsoft YaHei";
   color: rgba( 0, 0, 0, 0.8 );
-  margin-bottom: 10px;
 }
 .systemBegin{
   font-size: 14px;
@@ -319,16 +332,17 @@ export default {
   text-align: left;
 }
 /*.systemImg{
-  position: relative;
+  margin-top: 40px;
 }*/
 /*.systemImg img{
   vertical-align: middle;
 }*/
 .systemTime{
-  /*position: absolute;*/
-
+  margin-left: 20px;
   text-align: left;
-  display: inline-block;
+  /*display: inline-block;*/
+  float:left;
+  margin-top: 10px;
 }
 .enterClick{
   position: absolute;
@@ -351,6 +365,7 @@ export default {
   background-color: rgba( 255, 255, 255, .5 );
   box-shadow: 0.5px 0.866px 3px 0px rgb( 31, 31, 31 );
   margin: 0 10px;
+  padding-top: 40px;
 }
 .index1:nth-child(2n){
   border-radius: 6px;
@@ -390,24 +405,7 @@ export default {
   position: relative;
   top: 10px;
 }
-.imgCon{
-  /*position: relative;*/
-  /*left: 40px;
-  top: 35px;
-  width: 80px;
-  height: 80px;
 
-  background-color: #fff;
-  text-align: center;
-
-  line-height: 80px;*/
-  width: 80px;
-  height: 80px;
-  margin-top: 40px;
-  background-color: #fff;
-  border-radius: 40px;
-  display: inline-block;
-}
 /*.ws{
   background: url('../')
 }*/

@@ -22,30 +22,17 @@
         </el-row>
       </div>
       <div class="systemSelect" v-if="contentProvince">
-        <el-select v-model="selectProvince" placeholder="请选择省份" @change="province">
-          <el-option
-            :key="province.id"
-            v-for="(province, index) in provinces"
-            :label="province.name"
-            :value="province">
-          </el-option>
-        </el-select>
-        <el-select v-model="selectCity" placeholder="请选择市" @change="city">
-          <el-option
-            :key="city.id"
-            v-for="(city, index) in citys"
-            :label="city.name"
-            :value="city">
-          </el-option>
-        </el-select>
-        <el-select v-model="selectArea" placeholder="请选择地区" @change="area">
-          <el-option
-            :key="area.id"
-            v-for="(area, index) in areas"
-            :label="area.name"
-            :value="area">
-          </el-option>
-        </el-select>
+        <mu-select-field v-model="selectProvince"  label="请选择省份" @change="province">
+          <mu-menu-item v-for="province in provinces" :key="province.id" :value="province" :title="province.name" />
+        </mu-select-field>
+
+        <mu-select-field v-model="selectCity"  label="请选择城市" @change="city">
+          <mu-menu-item v-for="city in citys" :key="city.id" :value="city" :title="city.name" />
+        </mu-select-field>
+        <mu-select-field v-model="selectArea"  label="请选择地区" @change="area">
+          <mu-menu-item v-for="area in areas" :key="area.id" :value="area" :title="area.name" />
+        </mu-select-field>
+        
       </div>
 
       <!-- 小区 -->
@@ -229,6 +216,9 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       tableShow: true,
+      testPro: null,
+      testPro:null,
+      testPro:null,
       chartShow: false,
       echart: false,
       tableDataShow: false,
@@ -377,9 +367,10 @@ export default {
       this.deviceTermLists = []
       this.multiSelects = []
     },
-    province () {
+    province (value) {
+      console.log(value)
       this.tableDataShow = false
-      if (this.selectProvince) {
+      if (value) {
         this.changeEmpty()
         this.areas = []
         this.contentLocation = false
@@ -388,7 +379,7 @@ export default {
         this.contentController = false
         this.contentTime = false
         this.contentMultiple = false
-        this.citys = this.selectProvince.city
+        this.citys = value.city
       }
       this.selectCity = null
       this.areas = []
@@ -399,10 +390,11 @@ export default {
       this.contentTime = false
       this.contentMultiple = false
     },
-    city () {
+    city (value) {
+      console.log(value)
       this.tableDataShow = false
       this.selectArea = null
-      if (this.selectCity) {
+      if (value) {
         this.changeEmpty()
         this.areas = []
         this.contentLocation = false
@@ -411,7 +403,7 @@ export default {
         this.contentController = false
         this.contentTime = false
         this.contentMultiple = false
-        this.areas = this.selectCity.area
+        this.areas = value.area
       } else {
         this.areas = []
         this.contentLocation = false
@@ -422,9 +414,10 @@ export default {
         this.contentMultiple = false
       }
     },
-    area () {
+    area (value) {
+      console.log(value)
       this.tableDataShow = false
-      if (this.selectArea) {
+      if (value) {
         this.changeEmpty()
         this.contentLocation = true
         this.contentRoom = false
@@ -434,7 +427,7 @@ export default {
         this.contentMultiple = false
         this.emptyFooter()
         this.rooms = []
-        this.locations = this.selectArea.location
+        this.locations = value.location
       }
     },
     // 获取房间

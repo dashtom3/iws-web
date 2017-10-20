@@ -26,6 +26,14 @@
             position: absolute;
             cursor: pointer;
         }
+        #pumpIndex{
+            top:55px;
+            right:155px;
+            width:40px;
+            height:30px;
+            position: absolute;
+            cursor: pointer;
+        }
         #pumpState{
             top:55px;
             right:105px;
@@ -39,6 +47,14 @@
             right:0px;
             width:100px;
             height:40px;
+            position: absolute;
+            cursor: pointer;
+        }
+        #pressureIndex{
+            top:105px;
+            right: 155px;
+            width:40px;
+            height:30px;
             position: absolute;
             cursor: pointer;
         }
@@ -66,8 +82,10 @@
 <div id="container">
     <canvas id="canvas"></canvas>
     <button type="button" id="flowBtn" onclick="showFlow()">显示水流方向</button>
+    <input type="text" id="pumpIndex">
     <input type="text" id="pumpState">
     <button type="button" id="pumpBtn" onclick="changePump()">改变泵机状态</button>
+    <input type="text" id="pressureIndex">
     <input type="text" id="pressureValue">
     <button type="button" id="pressureBtn" onclick="changePressure()">显示气压值</button>
 </div>
@@ -92,7 +110,7 @@
 
     var clock = new THREE.Clock();
 
-    var transparentMat = new THREE.MeshPhongMaterial({color: 0xcccccc, transparent:true, opacity:0.7});
+//    var transparentMat = new THREE.MeshPhongMaterial({color: 0xcccccc, transparent:true, opacity:0.7});
 
     var resourceFolder = "resource/";
     var modelExtension = ".obj";
@@ -108,11 +126,18 @@
     var pressureSpriteList = {};    //压力值sprite列表
     var pumpStateSpriteList = {};   //泵状态sprite列表
     var pumpObjects = {};           //泵模型对象列表
+    var pumpPipeList = {};          //泵所对应管道列表
+    var pumpGroupList = {};         //泵所对应组模型列表
 
     var pumpState1Material = new THREE.MeshPhongMaterial({color: 0x00ff00});    //状态1颜色值
     var pumpState2Material = new THREE.MeshPhongMaterial({color: 0x0000ff});    //状态2颜色值
     var pumpState3Material = new THREE.MeshPhongMaterial({color: 0xff0000});    //状态3颜色值
 
+    var waterTexture = new THREE.TextureLoader().load("resource/texture/water.png");
+    waterTexture.wrapS = THREE.RepeatWrapping;
+    waterTexture.wrapT = THREE.RepeatWrapping;
+    waterTexture.repeat.set( 2, 2 );
+    var waterMat = new THREE.MeshPhongMaterial({map: waterTexture, side: THREE.DoubleSide, transparent:true, opacity:0.7});
 
     //========测试btn变量========
     var isShowFlow = false;
@@ -185,18 +210,26 @@
                     //管道
                     if(object.children[i].name.slice(0, 5) === "pipe_") {
                         object.children[i].oldmat = object.children[i].material;
-                        pipeObjects.push(object.children[i]);
+                        var strs = object.children[i].name.split("_");
+                        if(strs.length >= 3 && strs[1] === "pump") {
+                            if(pumpPipeList[strs[2]] === undefined) {
+                                pumpPipeList[strs[2]] = [];
+                            }
+                            pumpPipeList[strs[2]].push(object.children[i]);
+                        } else {
+                            pipeObjects.push(object.children[i]);
+                        }
                     }
 
                     //气压表位置
-                    if(object.children[i].name.slice(0, 10) === "pressure_q") {
+                    if(object.children[i].name.slice(0, 9) === "pressure_") {
                         object.children[i].visible = false;
                         var strs = object.children[i].name.split("_");
-                        pressurePositions[strs[2]] = getCenterOfObject(object.children[i]);
+                        pressurePositions[strs[1]] = getCenterOfObject(object.children[i]);
                     }
 
                     //泵
-                    if(object.children[i].name.slice(0, 2) === "b_") {
+                    if(object.children[i].name.slice(0, 5) === "pump_") {
                         var strs = object.children[i].name.split("_");
                         object.children[i].oldmat = object.children[i].material;
                         if(pumpObjects[strs[1]] === undefined) {
@@ -205,8 +238,17 @@
                         pumpObjects[strs[1]].push(object.children[i]);
                     }
 
+                    //泵所对应组
+                    if(object.children[i].name.slice(0, 6) === "group_") {
+                        var strs = object.children[i].name.split("_");
+                        if(pumpGroupList[strs[1]] === undefined){
+                            pumpGroupList[strs[1]] = [];
+                        }
+                        pumpGroupList[strs[1]].push(object.children[i]);
+                    }
+
                     //泵位置
-                    if(object.children[i].name.slice(0, 8) === "state_b_") {
+                    if(object.children[i].name.slice(0, 11) === "state_pump_") {
                         object.children[i].visible = false;
                         var strs = object.children[i].name.split("_");
                         var sprite = makeTextSprite( " 停止 ",
@@ -238,7 +280,7 @@
                 }
 
                 boundingSphere.radius = Math.sqrt( maxRadiusSq );
-                camera.position.set(center.x+boundingSphere.radius, center.y, center.z);
+                camera.position.set(center.x, center.y + 2500, center.z + boundingSphere.radius + 1000 );
 
                 // CONTROLS
                 cameraControls.target.set( center.x, center.y, center.z );
@@ -293,7 +335,7 @@
     /**
      * 显示或隐藏水流
      */
-    function showFlowDir(bShow){
+    function showFlowDir(bShow) {
         if(bShow) {
             //显示水流箭头
             for(var flowPair in flowPositions) {
@@ -303,7 +345,7 @@
             }
             //透明化管道
             for(var i=0; i<pipeObjects.length; i++) {
-                pipeObjects[i].material = transparentMat;
+                pipeObjects[i].material = waterMat;
             }
         }
         else{
@@ -394,24 +436,52 @@
             return;
         switch (state) {
             case 0:
+                changePumpVisible(index, true);
                 changePumpMat(index);
                 changePumpStateSprite(index, "停止");
+                changePumpPipeMat(index, false);
                 break;
             case 1:
+                changePumpVisible(index, true);
                 changePumpMat(index, pumpState1Material);
                 changePumpStateSprite(index, "变频");
+                changePumpPipeMat(index, true);
                 break;
             case 2:
+                changePumpVisible(index, true);
                 changePumpMat(index, pumpState2Material);
                 changePumpStateSprite(index, "工频");
+                changePumpPipeMat(index, true);
                 break;
             case 3:
+                changePumpVisible(index, true);
                 changePumpMat(index, pumpState3Material);
                 changePumpStateSprite(index, "故障");
+                changePumpPipeMat(index, false);
+                break;
+            case 4:
+                changePumpVisible(index, false);
                 break;
             default:
                 break;
         }
+    }
+
+
+    /**
+     * 改变泵的显隐（顺便修改管道的显隐）
+     * @param index 泵的编号
+     * @param visible 显示或隐藏
+     */
+    function changePumpVisible(index, visible) {
+        for(var i=0; i<pumpObjects[index].length; ++i)
+            pumpObjects[index][i].visible = visible;
+        for(var i=0; i<pumpPipeList[index].length; ++i)
+            pumpPipeList[index][i].visible = visible;
+        for(var i=0; i<pumpGroupList[index].length; ++i)
+            pumpGroupList[index][i].visible = visible;
+        if(pumpStateSpriteList[index] != undefined && pumpStateSpriteList[index] != null)
+            pumpStateSpriteList[index].visible = visible;
     }
 
     //更改泵的材质
@@ -421,6 +491,15 @@
                 pumpObjects[index][i].material = mat;
             else
                 pumpObjects[index][i].material = pumpObjects[index][i].oldmat;
+        }
+    }
+    //更改泵所对应管道状态
+    function changePumpPipeMat(index, isWork) {
+        for(var i=0; i<pumpPipeList[index].length; ++i) {
+            if(isWork)
+                pumpPipeList[index][i].material = waterMat;
+            else
+                pumpPipeList[index][i].material = pumpPipeList[index][i].oldmat;
         }
     }
     //更改泵的状态sprite
@@ -482,7 +561,6 @@
         var context = canvas.getContext('2d');
         context.font = "Bold " + fontsize + "px " + fontface;
 
-        // get size data (height depends only on font size)
         var metrics = context.measureText( message );
         var textWidth = metrics.width;
 
@@ -547,7 +625,7 @@
         scene.add( directionalLight );
 
         THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-        loadFile("01");
+        loadFile("888");            //导入模型文件
 
         //
         renderer = new THREE.WebGLRenderer({canvas: $( 'canvas' ), antialias: true});
@@ -579,6 +657,7 @@
             var delta = clock.getDelta();
             cameraControls.update(delta);
         }
+        waterTexture.offset.y = (clock.getElapsedTime()*0.1 * 3 % 1);
 
         renderer.render( scene, camera );
     }
@@ -597,17 +676,19 @@
         isShowFlow = !isShowFlow;
     }
     function changePump() {
+        var index = parseInt($("pumpIndex").value);
         var state = parseInt($("pumpState").value);
-        changePumpState("1", state);
+        changePumpState(index, state);
     }
     function changePressure() {
+        var index = parseInt($("pressureIndex").value);
         if(!isShowPressure) {
             $("pressureBtn").innerHTML = "隐藏气压值";
             var value = $("pressureValue").value;
-            showPressureSprite("0", value, true);
+            showPressureSprite(index, value, true);
         } else {
             $("pressureBtn").innerHTML = "显示气压值";
-            showPressureSprite("0", "", false);
+            showPressureSprite(index, "", false);
         }
         isShowPressure = !isShowPressure;
     }

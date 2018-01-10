@@ -101,7 +101,8 @@ export default{
       }
     })
   },
-  baseUrl: 'http://61.190.61.78:6784/iws/api/',
+  // baseUrl: 'http://61.190.61.78:6784/iws/api/',
+  baseUrl: 'http://localhost:8080/iws/api/',
   setHeight: function (value) {
     var wh = document.body.scrollHeight
     value.style.minHeight = wh - 100 + 'px'

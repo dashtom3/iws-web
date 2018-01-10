@@ -5,15 +5,20 @@ import BaiduMap from 'vue-baidu-map'
 import AMap from 'vue-amap'
 // import '../theme/index.css'
 import 'element-ui/lib/theme-default/index.css'
-import tags from '@/components/common/navbar'
+// import tags from '@/components/common/navbar'
+const tags = resolve => require(['@/components/common/navbar'], resolve)
 import login from '@/components/login'
 import register from '@/components/register'
-import aboutUs from '@/components/aboutUs'
+// import aboutUs from '@/components/aboutUs'
+const aboutUs = resolve => require(['@/components/aboutUs'], resolve)
 import personal from '@/components/personal'
 import index from '@/components/index'
-import detail from '@/components/configControllerDetail'
-import device from '@/components/device'
-import dataview from '@/components/dataview'
+// import detail from '@/components/configControllerDetail'
+const detail = resolve => require(['@/components/configControllerDetail'], resolve)
+// import device from '@/components/device'
+const device = resolve => require(['@/components/device'], resolve)
+//import dataview from '@/components/dataview'
+const dataview = resolve => require(['@/components/dataview'], resolve)
 import alarminfo from '@/components/alarminfo'
 import video from '@/components/video'
 import news from '@/components/news'
@@ -21,15 +26,33 @@ import newshistory from '@/components/newshistory'
 import unconfirmed from '@/components/unconfirmed'
 import myNews from '@/components/myNews'
 import system from '@/components/system'
-import admin from '@/components/admin/admin'
-import adm from '@/components/admin/adm'
-import adminUser from '@/components/admin/adminUser'
-import adminRoles from '@/components/admin/adminRoles'
-import adminSystem from '@/components/admin/adminSystem'
-import systemDetial from '@/components/admin/systemDetial'
-import adminBase from '@/components/admin/adminBase'
-import adminVideo from '@/components/admin/adminVideo'
-import adminController from '@/components/admin/adminController'
+// import admin from '@/components/admin/admin'
+const admin = resolve => require(['@/components/admin/admin'], resolve)
+
+// import adm from '@/components/admin/adm'
+const adm = resolve => require(['@/components/admin/adm'], resolve)
+
+// import adminUser from '@/components/admin/adminUser'
+const adminUser = resolve => require(['@/components/admin/adminUser'], resolve)
+
+// import adminRoles from '@/components/admin/adminRoles'
+const adminRoles = resolve => require(['@/components/admin/adminRoles'], resolve)
+
+// import adminSystem from '@/components/admin/adminSystem'
+const adminSystem = resolve => require(['@/components/admin/adminSystem'], resolve)
+
+// import systemDetial from '@/components/admin/systemDetial'
+const systemDetial = resolve => require(['@/components/admin/systemDetial'], resolve)
+
+// import adminBase from '@/components/admin/adminBase'
+const adminBase = resolve => require(['@/components/admin/adminBase'], resolve)
+
+// import adminVideo from '@/components/admin/adminVideo'
+const adminVideo = resolve => require(['@/components/admin/adminVideo'], resolve)
+
+// import adminController from '@/components/admin/adminController'
+const adminController = resolve => require(['@/components/admin/adminController'], resolve)
+
 // import test from '@/components/test'
 import demo from '@/components/demo'
 var VueResource = require('vue-resource')

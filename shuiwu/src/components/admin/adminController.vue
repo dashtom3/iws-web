@@ -10,7 +10,6 @@
         <el-form-item label="类型" :label-width="width">
           <el-select v-model="addControllerDate.type" placeholder="请选择类型" >
             <el-option
-            :key="type"
             v-for="type in controllerTypes"
             :label="type.name" :value="type.id"></el-option>
           </el-select>
@@ -22,7 +21,16 @@
           <el-input v-model="addControllerDate.describes" auto-complete="off" class="w800" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="通讯协议" :label-width="width">
+          <el-select v-model="addControllerDate.protocol" placeholder="请选择通讯协议" >
+            <el-option :label="'TCP'" :value="'TCP'"></el-option>
+            <el-option :label="'MODBUS'" :value="'MODBUS'"></el-option>
+          </el-select>
+        </el-form-item>
+        <!-- <el-form-item label="通讯协议" :label-width="width">
           <el-input v-model="addControllerDate.protocol" auto-complete="off" class="w800 btc wj800" placeholder="请编辑"></el-input>
+        </el-form-item> -->
+        <el-form-item label="起始寄存器地址" :label-width="width" v-if="addControllerDate.protocol == 'TCP'">
+          <el-input v-model="addControllerDate.start" auto-complete="off" class="w800 btc wj800" placeholder="请编辑"></el-input>
         </el-form-item>
         <el-form-item label="字段数" :label-width="width">
           <el-input v-model="addControllerDate.count" auto-complete="off" class="w800 btc" placeholder="请编辑"></el-input>
@@ -40,7 +48,6 @@
             <label class="m20">参数类型</label>
             <el-select v-model="field.roleId" placeholder="请选择类型">
               <el-option
-              :key="parameter"
               v-for="parameter in ParameterType"
               :label="parameter.describes" :value="parameter.id"></el-option>
             </el-select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -202,7 +209,8 @@ export default {
         protocol: null,
         fields: [],
         count: null,
-        controllerId: null
+        controllerId: null,
+        start: null,
       },
       controllerDetial: '',
       field: {
@@ -273,7 +281,7 @@ export default {
         self.addControllerAlert = false
         this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
         var xhr = new XMLHttpRequest()
-        xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes)
+        xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes + '&start=' + this.addControllerDate.start)
         xhr.setRequestHeader('Content-Type', 'application/json')
         xhr.send(this.addControllerDate.fields)
         xhr.onreadystatechange = function () {

@@ -19,7 +19,7 @@
         </el-carousel>
       </div>
     </div>
-    <p class="mapTitle"><span></span>GPS地图显示</p>
+    <p class="mapTitle"><span></span>GIS地图显示</p>
     <div class="mapCon">
       <transition name="slide-fade">
          <div v-if="showLeftNav" class="leftNav">
@@ -63,7 +63,9 @@
         <li v-for="addressRoomList in addressRoomLists" class="addressRoomlist">
           <p class="roomTitle" style="line-height:40px;">{{addressRoomList.name}}</p>
           <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/device/' + configControllerList.groupId" target="_blank">
-            <img :src="imgUrl+configControllerList.pic" alt="">
+            <!-- <img :src="imgUrl+configControllerList.pic" alt=""> -->
+            <img src="../images/nopic.png" v-if="configControllerList.pic == null" alt="">
+            <img :src="configControllerList.pic" alt="">
             <p>{{configControllerList.name}}</p>
           </a>
         </li>
@@ -141,50 +143,64 @@ export default {
       global.apiPost(this,global.baseUrl + 'location/list?systemId=0', global.postHttpDataWithToken())
       .then((res) => {
         var self = this
+        var j = 0;
         for (let i in res.data.data) {
-          var arr = [
-            {
-              icon: res.data.data[i].system.pic,
-              position: [res.data.data[i].positionX, res.data.data[i].positionY],
-              events: {
-                mouseover: () => {
-                  self.markers[i][1].visible = true
+          if(res.data.data[i].system != null){
+            var arr = [
+              {
+                icon: res.data.data[i].pic,
+                position: [res.data.data[i].positionX, res.data.data[i].positionY],
+                events: {
+                  mouseover: () => {
+                    console.log(i,j)
+                    // arr[1].visible = true
+                    self.markers[i][1].visible = true
+                  },
+                  mouseout: () => {
+                    console.log(i,j)
+                    // arr[1].visible = true
+                    self.markers[i][1].visible = true
+                  }
                 },
-                mouseout: () => {
-                  self.markers[i][1].visible = true
-                }
-              },
-              visible: true,
-              draggable: false
-            }, {
-              icon: null,
-              position: [res.data.data[i].positionX, res.data.data[i].positionY],
-              content: '<div style="width:124px;min-height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:12px 0 8px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].name + '</div>',
-              events: {
-                mouseover: () => {
-                  self.markers[i][1].visible = true
+                visible: true,
+                draggable: false
+              }, {
+                icon: null,
+                position: [res.data.data[i].positionX, res.data.data[i].positionY],
+                content: '<div style="width:124px;min-height:70px;text-align:center;color:#fff;background-color:rgba(0,0,0,.4);border-radius:4px;position:absolute;z-index:-1;top:-52px;left:15px;"><p style="margin:12px 0 8px 0;color:#fff;font-size:14px;">' + res.data.data[i].system.name + '</p>' + res.data.data[i].name + '</div>',
+                events: {
+                  mouseover: () => {
+                    console.log(i,j)
+                    // arr[1].visible = true
+                    self.markers[i][1].visible = true
+                  },
+                  mouseout: () => {
+                    console.log(i,j)
+                    // arr[1].visible = false
+                    self.markers[i][1].visible = false
+                  },
+                  click: () => {
+                    // console.log(123)
+                    global.apiPost(self,global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
+                    .then((res) => {
+                      self.addressAlert = true
+                      self.addressRoomLists = res.data.data.room
+                      console.log(self.addressRoomLists)
+                      self.locationId = res.data.data.id
+                    })
+                  }
                 },
-                mouseout: () => {
-                  self.markers[i][1].visible = false
-                },
-                click: () => {
-                  // console.log(123)
-                  global.apiPost(self,global.baseUrl + 'location/detail?locationId=' + res.data.data[i].id + '&token=' + global.getToken())
-                  .then((res) => {
-                    self.addressAlert = true
-                    self.addressRoomLists = res.data.data.room
-                    console.log(self.addressRoomLists)
-                    self.locationId = res.data.data.id
-                  })
-                }
-              },
-              visible: false,
-              draggable: false
-            }
-          ]
-          self.markers.push(arr)
+                visible: false,
+                draggable: false
+              }
+            ]
+            // j++
+            self.markers.push(arr)
+          } else {
+            self.markers.push(null)
+          }
         }
-        // console.log(self.markers)
+        console.log(self.markers)
       })
     },
     filterNode (value, data, node) {

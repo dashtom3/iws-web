@@ -79,7 +79,8 @@
       </el-row>
     </div>
     <div id="container" v-loading.body="fullscreenLoading" :element-loading-text="'模型加载中..'+loadPercent">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" v-if="protocol == 'MODBUS'"></canvas>
+          <img src="../images/dataTCP.jpg" style="width:100%;height:100%" v-if="protocol == 'TCP'"></canvas>
     </div>
     <v-footer></v-footer>
   </div>
@@ -96,6 +97,7 @@ export default {
       groupMsg: {
         groupId: this.$route.params.id
       },
+      protocol:null,
       groupData: null,
       isCollapse: true,
       limitionMsg: {
@@ -129,9 +131,15 @@ export default {
         self.fullscreenLoading = false;
       }else {
         self.groupData = res.data.data
-        fileType = self.groupData.typeId
-        init(this);
-        animate();
+        if(self.groupData.devices != null && self.groupData.devices.length>0) {
+          self.protocol = self.groupData.devices[0].protocol
+          self.fullscreenLoading = false;
+        } else {
+          fileType = self.groupData.typeId
+          init(this);
+          animate();
+        }
+
       }
       // console.log(self.groupData)
     })

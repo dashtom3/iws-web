@@ -3,11 +3,11 @@
     <el-row :gutter="20">
       <el-col :span="2"><span class="back p5" v-on:click="back"><<返回系统</span>&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
       <el-col :span="2">
-      <el-select v-model="search.searchProvince" placeholder="选择省份" @change="searchProvince">
+      <el-select v-model="search.searchProvince" placeholder="选择省份" value-key="id" @change="searchProvince">
         <el-option
-        label="全部" value=""></el-option>
+        label="全部" value="" ></el-option>
         <el-option
-        :key="province"
+        :key="province.id"
         v-for="province in search.searchProvinces"
         :label="province.name" :value="province"></el-option>
       </el-select>
@@ -43,24 +43,24 @@
     <el-dialog title="添加新地点" v-model="addressAlert">
       <el-form :model="addressData">
         <el-form-item label="地点名称">
-          &nbsp;&nbsp; <el-input v-model="addressData.name" auto-complete="off" class="w800 w400"></el-input>
+          &nbsp;&nbsp; <el-input v-model="addressData.name"  auto-complete="off" class="w800 w400"></el-input>
         </el-form-item>
         <el-form-item label="省/市/地区">
-          <el-select v-model="addressData.selectProvince" placeholder="选择省份" @change="province">
+          <el-select v-model="addressData.selectProvince" value-key="id" placeholder="选择省份" @change="province">
             <el-option
-            :key="province"
+            :key="province.id"
             v-for="province in addressData.provinces"
             :label="province.name" :value="province"></el-option>
           </el-select>
-          <el-select v-model="addressData.selectCity" placeholder="选择市" @change="city">
+          <el-select v-model="addressData.selectCity"  value-key="id" placeholder="选择市" @change="city">
             <el-option
-            :key="city"
+            :key="city.id"
             v-for="city in addressData.citys"
             :label="city.name" :value="city"></el-option>
           </el-select>
-          <el-select v-model="addressData.selectArea" placeholder="选择区域" @change="area">
+          <el-select v-model="addressData.selectArea" value-key="id" placeholder="选择区域" @change="area">
             <el-option
-            :key="area"
+            :key="area.id"
             v-for="area in addressData.areas"
             :label="area.name" :value="area"></el-option>
           </el-select>
@@ -150,13 +150,13 @@
                   <el-form-item label="名称" :label-width="width">
                     <el-input v-model="deviceMsg.name" auto-complete="off"></el-input>
                   </el-form-item>
-                  <el-form-item label="端口号" :label-width="width">
+                  <el-form-item label="IP端口号" :label-width="width">
                     <el-input v-model="deviceMsg.port" auto-complete="off"></el-input>
                   </el-form-item>
                   <el-form-item label="选择设备" :label-width="width">
-                    <el-select v-model="deviceMsg.selectDeviceId" placeholder="选择设备" @change="selectDevice(deviceMsg.selectDeviceId)">
+                    <el-select v-model="deviceMsg.selectDeviceId" placeholder="选择设备" @change="selectDevice(deviceMsg.selectDeviceId)" value-key="id">
                       <el-option
-                      :key="equipmentList"
+                      :key="equipmentList.id"
                       v-for="equipmentList in equipmentLists"
                       :label="equipmentList.name" :value="equipmentList.id"></el-option>
                     </el-select>
@@ -229,14 +229,14 @@
           </div>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">省/市/区：</label>
-            <select class="select el-select-dropdown__list" id="editProvince" v-model="editDate.provinceId"  @change="editProvince">
+            <select class="select el-select-dropdown__list" id="editProvince" v-model="editDate.provinceId" value-key="id"  @change="editProvince">
               <option v-for="province in addressData.provinces" :value="province.provinceId" class="el-select-dropdown__item">{{province.name}}</option>
             </select>
-            <select class="select" v-model="editDate.cityId" @change="editCity" id="editCity">
+            <select class="select" v-model="editDate.cityId" value-key="id" @change="editCity" id="editCity">
               <option class="el-select-dropdown__item"
               v-for="city in editCitys" :value="city.cityId">{{city.name}}</option>
             </select>
-            <select class="select" v-model="editDate.areaId" @change="editArea" id="editArea">
+            <select class="select" v-model="editDate.areaId" value-key="id" @change="editArea" id="editArea">
               <option class="el-select-dropdown__item"
               v-for="area in editAreas" :value="area.areaId">{{area.name}}</option>
             </select>
@@ -319,6 +319,9 @@ export default {
       },
       packages: [], // 泵房下配置的控制器列表
       next: false,
+      // provinces: null,
+      // citys: null,
+      // areas: null,
       addressData: {
         systemId: this.$route.params.id,
         provinces: null,
@@ -447,6 +450,7 @@ export default {
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.send(JSON.stringify(this.deviceMsg.terms))
       xhr.onreadystatechange = function () {
+        console.log(xhr.responseText)
         if (JSON.parse(xhr.responseText).callStatus === 'SUCCEED') {
           global.addSuccess(self, '添加成功')
           self.deviceMsg.name = null
@@ -533,43 +537,50 @@ export default {
       }
     },
     area () {
-      this.searchMsg.keywords = this.addressData.selectProvince.name + this.addressData.selectArea.name
-      this.setPosition(this.searchMsg.keywords)
+      // this.searchMsg.keywords = this.addressData.selectProvince.name + this.addressData.selectArea.name
+      // this.setPosition(this.searchMsg.keywords)
     },
     editArea () {
-      var provinceName = document.getElementById('editProvince')
-      var areaName = document.getElementById('editArea')
-      this.editDate.provinceName = provinceName.options[provinceName.selectedIndex].text
-      this.editDate.areaName = areaName.options[areaName.selectedIndex].text
-      this.searchMsg.keywords = this.editDate.provinceName + this.editDate.areaName
-      this.editSetPosition(this.searchMsg.keywords)
+      // var provinceName = document.getElementById('editProvince')
+      // var areaName = document.getElementById('editArea')
+      // this.editDate.provinceName = provinceName.options[provinceName.selectedIndex].text
+      // this.editDate.areaName = areaName.options[areaName.selectedIndex].text
+      // this.searchMsg.keywords = this.editDate.provinceName + this.editDate.areaName
+      // this.editSetPosition(this.searchMsg.keywords)
     },
     editSetPosition (keywords) {
       if (keywords) {
         var self = this
-        global.apiGet(this,'https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
+        global.mapGet(this,global.getHttpData({address:keywords,output:'JSON'}))
         .then((res) => {
-          if (res.data.pois[0].location) {
-            self.editDate.positionX = res.data.pois[0].location.split(',')[0]
-            self.editDate.positionY = res.data.pois[0].location.split(',')[1]
+          console.log(res.data)
+          if (res.data.geocodes.length>0) {
+            console.log(res.data.geocodes[0].location.split(','))
+            self.editDate.center = res.data.geocodes[0].location.split(',')
+            self.editDate.positionX = res.data.geocodes[0].location.split(',')[0]
+            self.editDate.positionY = res.data.geocodes[0].location.split(',')[1]
           }
         })
       }
     },
     // 高德地图
     addressDetail () {
-      this.searchMsg.keywords += this.addressData.address
+      console.log(this.addressData.address)
+      this.searchMsg.keywords = this.addressData.address
       this.setPosition(this.searchMsg.keywords)
     },
     setPosition (keywords) {
+      // console.log(global.getHttpData(this.searchMsg))
       if (keywords) {
         var self = this
-        global.apiGet(this,'https://restapi.amap.com/v3/place/text?' + global.getHttpData(this.searchMsg))
+        global.mapGet(this,global.getHttpData({address:keywords,output:'JSON'}))
         .then((res) => {
-          if (res.data.pois[0].location) {
-            self.addressData.center = res.data.pois[0].location.split(',')
-            self.addressData.x = res.data.pois[0].location.split(',')[0]
-            self.addressData.y = res.data.pois[0].location.split(',')[1]
+          console.log(res.data)
+          if (res.data.geocodes.length>0) {
+            console.log(res.data.geocodes[0].location.split(','))
+            self.addressData.center = res.data.geocodes[0].location.split(',')
+            self.addressData.x = res.data.geocodes[0].location.split(',')[0]
+            self.addressData.y = res.data.geocodes[0].location.split(',')[1]
           }
         })
       }
@@ -579,8 +590,8 @@ export default {
       var areaName = document.getElementById('editArea')
       this.editDate.provinceName = provinceName.options[provinceName.selectedIndex].text
       this.editDate.areaName = areaName.options[areaName.selectedIndex].text
-      this.searchMsg.keywords = this.editDate.provinceName + this.editDate.areaName
-      this.searchMsg.keywords += this.editDate.describes
+      // this.searchMsg.keywords = this.editDate.provinceName + this.editDate.areaName
+      this.searchMsg.keywords = this.editDate.describes
       this.editSetPosition(this.searchMsg.keywords)
     },
     // 添加地点
@@ -828,6 +839,7 @@ export default {
     global.apiPost(this,global.baseUrl + 'area/areas')
     .then((res) => {
       self.addressData.provinces = res.data.data
+      // console.log(self.provinces);
       // self.search.searchProvinces = res.data.data
     })
     // 获取设备列表

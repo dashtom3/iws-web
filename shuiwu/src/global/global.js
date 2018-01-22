@@ -44,11 +44,33 @@ export default{
       }
     })
   },
+  mapGet(obj ,url) {
+    var self = this
+    console.log(obj,url)
+    return new Promise((resolve, reject) => {
+      console.log(resolve,reject)
+    axios.get('https://restapi.amap.com/v3/geocode/geo?key=06523358ff86b422149a52ecc4d8a0bb'+url)
+      .then((res) => {
+        console.log(res)
+        if (res.data.status === '1') {
+        resolve(res);
+      } else {
+        self.error(obj,'高德地图访问出现问题','')
+      }
+    }).catch(err => {
+      self.error(obj,'网络连接错误','')
+      // reject();
+    });
+    });
+  },
   apiGet(obj ,url, params = {}) {
     var self = this
+    console.log(obj,url,params)
     return new Promise((resolve, reject) => {
+      console.log(resolve,reject)
     axios.get(url, { params })
       .then((res) => {
+        console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
         resolve(res);
       } else {

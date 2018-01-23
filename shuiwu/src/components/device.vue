@@ -97,7 +97,7 @@ export default {
       groupMsg: {
         groupId: this.$route.params.id
       },
-      protocol:null,
+      protocol:'MODBUS',
       groupData: null,
       isCollapse: true,
       limitionMsg: {
@@ -133,13 +133,15 @@ export default {
         self.groupData = res.data.data
         if(self.groupData.devices != null && self.groupData.devices.length>0) {
           self.protocol = self.groupData.devices[0].protocol
-          self.fullscreenLoading = false;
-        } else {
-          fileType = self.groupData.typeId
-          init(this);
-          animate();
+          if(self.protocol == 'MODBUS') {
+            fileType = self.groupData.typeId == 0 ? 1:self.groupData.typeId
+            init(this);
+            animate();
+          } else {
+            self.getDeviceData()
+            self.fullscreenLoading = false;
+          }
         }
-
       }
       // console.log(self.groupData)
     })
@@ -147,8 +149,9 @@ export default {
       if(this && !this._isDestroyed){ //_isDestroyed 组件是否被销毁
         return;
       }
+      console.log('windows reload')
       this.getDeviceData()
-    },60000)
+    },1000)
 
   },
   created () {

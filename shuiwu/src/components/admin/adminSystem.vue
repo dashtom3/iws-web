@@ -122,7 +122,7 @@ export default {
   border-radius: 4px;
   background-color: rgb( 255, 255, 255 );
   box-shadow: 0.5px 0.866px 5px 0px rgb( 174, 174, 174 );
-  width: 459px;
+  width: 45%;
   height: 201px;
   margin: 0 40px 40px 0;
   position: relative;

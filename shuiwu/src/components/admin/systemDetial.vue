@@ -118,7 +118,7 @@
         <!-- 房间套餐之类的 -->
         <transition name="slide-fade">
         <div class="areaListDetial">
-          <el-col :span="3" class="bor1">
+          <el-col :span="6" class="bor1">
                 <a href="javascript:;" class="addRoom" v-on:click="addRoomAlert = !addRoomAlert">添加泵房</a><br>
 
                 <!-- 添加泵房 -->
@@ -141,7 +141,7 @@
                      <span v-on:click="roomIsactive(room)">{{room.name}}</span>&nbsp;&nbsp;<i class="el-icon-arrow-right"></i>
                 </p>
           </el-col>
-          <el-col :span="3" class="bor1" v-show="addPackage">
+          <el-col :span="6" class="bor1" v-show="addPackage">
               <a href="javascript:;" class="addRoom" v-on:click="addPackageAlert = true">添加设备</a><br>
 
               <!-- 配置控制器 -->
@@ -186,10 +186,10 @@
 
               <!-- 配置后的控制器列表 -->
               <p class="roomlist" v-for="meal in packages" :class="{ isActive: meal.isActive }" v-on:click="packageIsactive(meal)">
-                   {{meal.name}}&nbsp;&nbsp;<i class="el-icon-arrow-right"></i>
+                   {{meal.name}}&nbsp;&nbsp;<br>({{meal.port}})<i class="el-icon-arrow-right"></i>
               </p>
           </el-col>
-          <el-col :span="18" class="bor1" v-if="next" style="position:relative">
+          <el-col :span="12" class="bor1" v-if="next" style="position:relative">
               <a href="javascript:;" class="addRoom">控制器列表</a>
               <span style="float:right;position:absolute;top:25px;right:25px;">
                 <el-button type="primary" size="small" :disabled="configControllerDetialInfos.status === 1" v-on:click="openConfigController(configControllerDetialInfos.groupId)">开启</el-button>

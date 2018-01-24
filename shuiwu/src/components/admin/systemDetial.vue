@@ -118,8 +118,8 @@
         <!-- 房间套餐之类的 -->
         <transition name="slide-fade">
         <div class="areaListDetial">
-          <el-col :span="6" class="bor1">
-                <a href="javascript:;" class="addRoom" v-on:click="addRoomAlert = !addRoomAlert">添加泵房</a><br>
+          <el-col :span="4" class="bor1">
+                <a href="javascript:;" class="addRoom" v-on:click="roomAdd">添加泵房</a><br>
 
                 <!-- 添加泵房 -->
                 <el-dialog title="添加泵房" v-model="addRoomAlert" size="tiny">
@@ -130,7 +130,7 @@
                   </el-form>
                   <div slot="footer" class="dialog-footer">
                     <el-button @click="addRoomAlert = false">取 消</el-button>
-                    <el-button type="primary" @click="addroom" v-if="addRoomBtn">确 定</el-button>
+                    <el-button type="primary" @click="addroom" v-if="!editRoomBtn">确 定</el-button>
                     <el-button type="primary" @click="editroom" v-if="editRoomBtn">确 定</el-button>
                   </div>
                 </el-dialog>
@@ -141,7 +141,7 @@
                      <span v-on:click="roomIsactive(room)">{{room.name}}</span>&nbsp;&nbsp;<i class="el-icon-arrow-right"></i>
                 </p>
           </el-col>
-          <el-col :span="6" class="bor1" v-show="addPackage">
+          <el-col :span="4" class="bor1" v-show="addPackage">
               <a href="javascript:;" class="addRoom" v-on:click="addPackageAlert = true">添加设备</a><br>
 
               <!-- 配置控制器 -->
@@ -186,10 +186,13 @@
 
               <!-- 配置后的控制器列表 -->
               <p class="roomlist" v-for="meal in packages" :class="{ isActive: meal.isActive }" v-on:click="packageIsactive(meal)">
-                   {{meal.name}}&nbsp;&nbsp;<br>({{meal.port}})<i class="el-icon-arrow-right"></i>
+                <i class="el-icon-delete" v-on:click="deviceDelete(meal)"></i>&nbsp;&nbsp;
+                   {{meal.name}}&nbsp;&nbsp;
+                   <!-- <br>({{meal.port}}) -->
+                   <i class="el-icon-arrow-right"></i>
               </p>
           </el-col>
-          <el-col :span="12" class="bor1" v-if="next" style="position:relative">
+          <el-col :span="16" class="bor1" v-if="next" style="position:relative">
               <a href="javascript:;" class="addRoom">控制器列表</a>
               <span style="float:right;position:absolute;top:25px;right:25px;">
                 <el-button type="primary" size="small" :disabled="configControllerDetialInfos.status === 1" v-on:click="openConfigController(configControllerDetialInfos.groupId)">开启</el-button>
@@ -200,6 +203,7 @@
 
               <p class="roomlist listDetial" v-for="configControllerDetialInfo in configControllerDetialInfos.devices">
                 <span style="text-align:left;">名称：{{configControllerDetialInfo.termName}}</span>
+                <span>IP：{{configControllerDetialInfo.port}}</span>
                 <span>状态：{{controllerStatus[configControllerDetialInfos.status]}}</span>
                 <span>站号：{{configControllerDetialInfo.number}}</span>
               </p>
@@ -290,7 +294,6 @@ export default {
       addressAlert: false,
       editAlert: false,
       delAlert: false,
-      addRoomBtn: true,
       editRoomBtn: false,
       addPackageAlert: false,
       width: '80px',
@@ -415,6 +418,10 @@ export default {
         })
       }
       return false
+    },
+    roomAdd(){
+      this.addRoomAlert = !this.addRoomAlert
+      this.editRoomBtn = false
     },
     configController (name, controllerId, index, value) {
       var controllerObj = {
@@ -733,6 +740,28 @@ export default {
         }
       })
     },
+    deviceDelete(item) {
+      this.$confirm('确定删除该设备?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var self = this
+        global.apiPost(this,global.baseUrl + 'device/delete?groupId=' + item.groupId + '&token=' + global.getToken())
+        .then((res) => {
+            // console.log(res)
+          if (res.data.callStatus === 'SUCCEED') {
+            self.$message({
+              type: 'success',
+              message: '删除成功!',
+              onClose: null
+            })
+          }
+        }).catch(()=>{
+          global.error(self,'删除失败','')
+        })
+      })
+    },
     // 删除泵房
     roomDelete (item, id, roomId) {
       this.$confirm('确定删除该泵房?', {
@@ -766,7 +795,6 @@ export default {
       this.isOpen = room
     },
     roomEdit (roomid) {
-      this.addRoomBtn = false
       this.editRoomBtn = true
       var self = this
       this.addRoomAlert = !this.addRoomAlert
@@ -801,6 +829,8 @@ export default {
           global.success(self, '操作成功', '')
           self.packageIsactive(JSON.parse(localStorage.getItem('meal')))
         }
+      }).catch(()=>{
+        global.error(self, '启动失败','')
       })
     },
     closeConfigController (groupId) {
@@ -1087,7 +1117,7 @@ export default {
 }
 .listDetial span{
   display: inline-block;
-  width: 30%;
+  width: 24%;
 }
 .bor1{
   border: 1px solid;

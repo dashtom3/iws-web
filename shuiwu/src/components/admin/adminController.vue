@@ -51,7 +51,7 @@
               v-for="parameter in ParameterType"
               :label="parameter.describes" :value="parameter.id"></el-option>
             </el-select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span v-show="field.roleId === 1">
+            <span v-show="field.roleId === 1 || field.roleId === 10 ">
               <div class="h20"></div>
               <label class="" style="margin-right:20px">倍率</label>
               <el-input v-model="field.multiple" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
@@ -59,6 +59,8 @@
               <el-input v-model="field.max" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
               <label class="m20">下限</label>
               <el-input v-model="field.min" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
+              <label class="m20">小数</label>
+              <el-input v-model="field.length" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
               <label class="m20" v-if="addControllerDate.type === 2">地址</label>
               <el-input v-model="field.address" auto-complete="off" class="w200 w100" placeholder="请编辑" v-if="addControllerDate.type === 2"></el-input>
             </span>
@@ -75,6 +77,7 @@
             <span class="parameterrate w80">倍率</span>
             <span class="parametertop w80">上限</span>
             <span class="parameterbottom w80">下限</span>
+            <span class="parameterbottom w80">小数</span>
             <span class="parameterbottom w80">地址</span>
             <span class="parameteros w80">操作</span>
           </div>
@@ -87,6 +90,7 @@
             <span class="parameterrate w80">{{fieldMsg.multiple}}</span>
             <span class="parametertop w80">{{fieldMsg.max}}</span>
             <span class="parameterbottom w80">{{fieldMsg.min}}</span>
+            <span class="parameterbottom w80">{{fieldMsg.length}}</span>
             <span class="parameteros w80" v-on:click="delControllerType(index)" style="cursor:pointer;color:red;">删除</span>
           </div>
         </div>
@@ -222,6 +226,7 @@ export default {
         min: null,
         max: null,
         multiple: null,
+        length:null,
         address: null
       },
       controllerId: null,
@@ -309,6 +314,7 @@ export default {
         number: this.field.number,
         roleId: this.field.roleId,
         multiple: this.field.multiple,
+        length: this.field.length,
         address: this.field.address
       }
       for (let i in this.field) {

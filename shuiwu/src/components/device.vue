@@ -145,13 +145,17 @@ export default {
       }
       // console.log(self.groupData)
     })
-    window.setTimeout(function(){
-      if(this && !this._isDestroyed){ //_isDestroyed 组件是否被销毁
-        return;
-      }
+    setInterval(() => {
       console.log('windows reload')
-      this.getDeviceData()
-    },1000)
+            this.getDeviceData()
+        }, 15000)
+    // window.setTimeout(function(){
+    //   if(this && !this._isDestroyed){ //_isDestroyed 组件是否被销毁
+    //     return;
+    //   }
+    //   console.log('windows reload')
+    //   this.getDeviceData()
+    // },1000)
 
   },
   created () {

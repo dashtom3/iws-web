@@ -32,7 +32,7 @@
         <mu-select-field v-model="selectArea"  label="请选择地区" @change="area">
           <mu-menu-item v-for="area in areas" :key="area.id" :value="area" :title="area.name" />
         </mu-select-field>
-        
+
       </div>
 
       <!-- 小区 -->

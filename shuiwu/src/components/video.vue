@@ -8,36 +8,36 @@
       <div class="selectOne">
         <!-- 系统 -->
         <p class="selectTitle">请选择系统</p>
-        <el-select placeholder="请选择" v-model="system" @change="systemChange">
-          <el-option  v-for="(system,index) in systems"  :key="system.name"  :label="system.name"  :value="system"></el-option>
+        <el-select placeholder="请选择" v-model="system" value-key="id" @change="systemChange">
+          <el-option  v-for="(system,index) in systems"  :key="system.id"  :label="system.name"  :value="system"></el-option>
         </el-select>
       </div>
       <div class="selectOne">
         <!-- 省区 -->
         <p class="selectTitle">请选择省区</p>
-        <el-select placeholder="请选择" v-model="province" @change="provinceChange" :disabled="provinces.length==0">
-          <el-option  v-for="(province,index) in provinces"  :key="province.name"  :label="province.name"  :value="province"></el-option>
+        <el-select placeholder="请选择" v-model="province" value-key="provinceId" @change="provinceChange" :disabled="provinces.length==0">
+          <el-option  v-for="(province,index) in provinces"  :key="province.provinceId"  :label="province.name"  :value="province"></el-option>
         </el-select>
       </div>
       <div class="selectOne">
         <!-- 市 -->
         <p class="selectTitle">请选择市区</p>
-        <el-select placeholder="请选择" v-model="city" @change="cityChange" :disabled="citys.length==0">
-          <el-option  v-for="(city,index) in citys"  :key="city.name"  :label="city.name"  :value="city"></el-option>
+        <el-select placeholder="请选择" v-model="city" value-key="cityId" @change="cityChange" :disabled="citys.length==0">
+          <el-option  v-for="(city,index) in citys"  :key="city.cityId"  :label="city.name"  :value="city"></el-option>
         </el-select>
       </div>
       <div class="selectOne">
         <!-- 区 -->
         <p class="selectTitle">请选择区域</p>
-        <el-select placeholder="请选择" v-model="area" @change="ariaChange" :disabled="arias.length==0">
-          <el-option  v-for="(aria,index) in arias"  :key="aria.name"  :label="aria.name"  :value="aria"></el-option>
+        <el-select placeholder="请选择" v-model="area" value-key="areaId" @change="areaChange" :disabled="areas.length==0">
+          <el-option  v-for="(area,index) in areas"  :key="area.areaId"  :label="area.name"  :value="area"></el-option>
         </el-select>
       </div>
       <div class="selectOne">
         <!-- last -->
         <p class="selectTitle">请选择地点</p>
-        <el-select placeholder="请选择" v-model="last" @change="lastChange" :disabled="lasts.length==0">
-          <el-option  v-for="(last,index) in lasts"  :key="last.name"  :label="last.name"  :value="last"></el-option>
+        <el-select placeholder="请选择" v-model="last" value-key="id" @change="lastChange" :disabled="lasts.length==0">
+          <el-option  v-for="(last,index) in lasts"  :key="last.id"  :label="last.name"  :value="last"></el-option>
         </el-select>
       </div>
       <div  v-if="tableData.length!=0">
@@ -112,7 +112,7 @@ export default {
       systems:[],
       provinces:[],
       citys:[],
-      arias:[],
+      areas:[],
       lasts:[],
       tableData:[],
     }
@@ -129,6 +129,9 @@ export default {
   watch:{
     dialogTableVisible:function(){
       this.showAllVideo = !this.dialogTableVisible;
+    },
+    deleMyVideoListWrap:function(){
+      this.showAllVideo = !this.deleMyVideoListWrap;
     },
   },
   methods: {
@@ -181,10 +184,10 @@ export default {
       this.citys = province.city;
     },
     cityChange:function(city){
-      this.arias = city.area;
+      this.areas = city.area;
     },
-    ariaChange:function(aria){
-      this.lasts = aria.location;
+    areaChange:function(area){
+      this.lasts = area.location;
     },
     lastChange:function(last){
       global.apiGet(this,global.baseUrl + 'hikvision/query?locationId='+last.id+'&token=' + global.getToken())
@@ -194,7 +197,8 @@ export default {
       })
     },
     deleteMyVideoCont:function(){
-      this.deleMyVideoListWrap = true;
+      var that=this;
+      that.deleMyVideoListWrap = true;
     },
     addMyVideoCont:function(){
       var that = this;

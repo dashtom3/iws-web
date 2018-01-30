@@ -1,11 +1,13 @@
-﻿// 初始化插件
+// 初始化插件
+
+// 初始化插件
 
 // 全局保存当前选中窗口
 var g_iWndIndex = 0; //可以不用设置这个变量，有窗口参数的接口中，不用传值，开发包会默认使用当前选择窗口
 $(function () {
 	// 检查插件是否已经安装过
     var iRet = WebVideoCtrl.I_CheckPluginInstall();
-		var str = "请使用以下版本浏览器或者检查插件WebComponentsKit.exe是否安装\nIE6~IE11、Chrome31~Chrome44、Firefox30~Firefox51、Safari5.0.2+";
+		var str = "请使用以下版本浏览器或者检查插件WebComponents.exe是否安装\nIE6~IE11、Chrome31~Chrome44、Firefox30~Firefox51、Safari5.0.2+";
 		var flag = true;
 		var isAlertOnce = sessionStorage.getItem("alertOnec");
 		if(isAlertOnce){
@@ -18,7 +20,7 @@ $(function () {
 				return;
 			} else if (-1 == iRet) {
 				sessionStorage.setItem("alertOnec",true)
-		        // alert("您还未安装过插件，双击开发包目录里的WebComponentsKit.exe安装！");
+		        // alert("您还未安装过插件，双击开发包目录里的WebComponents.exe安装！");
 						var userClickOk = confirm("您还未安装过插件，点击确定下载安装！");
 						if(userClickOk){
 							window.open("http://61.190.61.78:6784/iws/api/hikvision/downloadComponent");
@@ -26,11 +28,9 @@ $(function () {
 				return;
 		    }
 		}
-
-
 	// 初始化插件参数及插入插件
 	WebVideoCtrl.I_InitPlugin(500, 300, {
-        bWndFull: true,//是否支持单窗口双击全屏，默认支持 true:支持 false:不支持
+		 bWndFull: true,//是否支持单窗口双击全屏，默认支持 true:支持 false:不支持
         iWndowType: 1,
 		cbSelWnd: function (xmlDoc) {
 			g_iWndIndex = $(xmlDoc).find("SelectWnd").eq(0).text();
@@ -42,7 +42,7 @@ $(function () {
 
 	// 检查插件是否最新
 	if (-1 == WebVideoCtrl.I_CheckPluginVersion()) {
-		alert("检测到新的插件版本，双击开发包目录里的WebComponentsKit.exe升级！");
+		alert("检测到新的插件版本，双击开发包目录里的WebComponents.exe升级！");
 		return;
 	}
 
@@ -66,11 +66,11 @@ $(function () {
     $("#endtime").val(szCurTime + " 23:59:59");
 });
 
-// 显示操作信息
-function showOPInfo(szInfo) {
-	szInfo = "<div>" + dateFormat(new Date(), "yyyy-MM-dd hh:mm:ss") + " " + szInfo + "</div>";
-	$("#opinfo").html(szInfo + $("#opinfo").html());
-}
+// // 显示操作信息
+// function showOPInfo(szInfo) {
+// 	szInfo = "<div>" + dateFormat(new Date(), "yyyy-MM-dd hh:mm:ss") + " " + szInfo + "</div>";
+// 	$("#opinfo").html(szInfo + $("#opinfo").html());
+// }
 
 // 显示回调信息
 function showCBInfo(szInfo) {
@@ -133,7 +133,7 @@ function clickGetLocalCfg() {
 	$("#playbackFilePath").val($(xmlDoc).find("PlaybackFilePath").eq(0).text());
     $("#protocolType").val($(xmlDoc).find("ProtocolType").eq(0).text());
 
-	showOPInfo("本地配置获取成功！");
+	console.log("本地配置获取成功！");
 }
 
 // 设置本地参数
@@ -162,7 +162,7 @@ function clickSetLocalCfg() {
 	} else {
 		szInfo = "本地配置设置失败！";
 	}
-	showOPInfo(szInfo);
+	console.log(szInfo);
 }
 
 // 窗口分割数
@@ -170,6 +170,7 @@ function changeWndNum(iType) {
 	iType = parseInt(iType, 10);
 	WebVideoCtrl.I_ChangeWndNum(iType);
 }
+
 // 登录
 function clickLogin() {
 	console.log("login")
@@ -177,51 +178,38 @@ function clickLogin() {
 		szPort = $("#port").val(),
 		szUsername = $("#username").val(),
 		szPassword = $("#password").val();
+
 	if ("" == szIP || "" == szPort) {
-		console.log("szIP || szPort")
+    console.log("szIP || szPort")
 		return;
 	}
+
 	var iRet = WebVideoCtrl.I_Login(szIP, 1, szPort, szUsername, szPassword, {
 		success: function (xmlDoc) {
 			console.log(szIP + " 登录成功！")
-			setTimeout(function(){
+
+			$("#loginip").prepend("<option value='" + szIP + "'>" + szIP + "</option>");
+			setTimeout(function () {
+				$("#loginip").val(szIP);
+				getChannelInfo();
+			}, 10);
+			setTimeout(function () {
 				clickStartRealPlay();
-			},500);
+			}, 500);
 		},
 		error: function () {
 			console.log(szIP + " 登录失败！")
 		}
 	});
+
 	if (-1 == iRet) {
 		console.log(szIP + " 已登录过！")
 	}
 }
-// function clickLogin(obj) {
-// 	console.log("进来了")
-// 	var szIP = obj.ip,
-// 		szPort = obj.port,
-// 		szUsername = obj.user,
-// 		szPassword = obj.pwd;
-// 	var iRet = WebVideoCtrl.I_Login(szIP, 1, szPort, szUsername, szPassword, {
-// 		success: function (xmlDoc) {
-// 			console.log(szIP+"登录成功！")
-// 			setTimeout(function(){
-// 				console.log("开始执行clickStartRealPlay_lzy")
-// 				clickStartRealPlay_lzy(obj)；
-// 			},1000);
-// 		},
-// 		error: function () {
-// 			console.log(szIP+"登录失败！")
-// 		}
-// 	});
-// 	if (-1 == iRet) {
-// 		console.log(szIP+"已登录过！")
-// 	}
-// }
 
 // 退出
 function clickLogout() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		szInfo = "";
 
 	if (szIP == "") {
@@ -232,17 +220,17 @@ function clickLogout() {
 	if (0 == iRet) {
 		szInfo = "退出成功！";
 
-		$("#ip option[value='" + szIP + "']").remove();
+		$("#loginip option[value='" + szIP + "']").remove();
 		getChannelInfo();
 	} else {
 		szInfo = "退出失败！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 获取设备信息
 function clickGetDeviceInfo() {
-	var szIP = $("#ip").val();
+	var szIP = $("#loginip").val();
 
 	if ("" == szIP) {
 		return;
@@ -250,7 +238,6 @@ function clickGetDeviceInfo() {
 
 	WebVideoCtrl.I_GetDeviceInfo(szIP, {
 		success: function (xmlDoc) {
-alert($(xmlDoc))
 			var arrStr = [];
 			arrStr.push("设备名称：" + $(xmlDoc).find("deviceName").eq(0).text() + "\r\n");
 			arrStr.push("设备ID：" + $(xmlDoc).find("deviceID").eq(0).text() + "\r\n");
@@ -260,19 +247,20 @@ alert($(xmlDoc))
 			arrStr.push("主控版本：" + $(xmlDoc).find("firmwareVersion").eq(0).text() + " " + $(xmlDoc).find("firmwareReleasedDate").eq(0).text() + "\r\n");
 			arrStr.push("编码版本：" + $(xmlDoc).find("encoderVersion").eq(0).text() + " " + $(xmlDoc).find("encoderReleasedDate").eq(0).text() + "\r\n");
 
-			showOPInfo(szIP + " 获取设备信息成功！");
+			console.log(szIP + " 获取设备信息成功！");
 			alert(arrStr.join(""));
 		},
 		error: function () {
-			showOPInfo(szIP + " 获取设备信息失败！");
+			console.log(szIP + " 获取设备信息失败！");
 		}
 	});
 }
 
 // 获取通道
 function getChannelInfo() {
-	var szIP = $("#ip").val(),
-		oSel = $("#channels").empty();
+	var szIP = $("#loginip").val(),
+		oSel = $("#channels").empty(),
+		nAnalogChannel = 0;
 
 	if ("" == szIP) {
 		return;
@@ -283,19 +271,20 @@ function getChannelInfo() {
 		async: false,
 		success: function (xmlDoc) {
 			var oChannels = $(xmlDoc).find("VideoInputChannel");
+			nAnalogChannel = oChannels.length;
 
 			$.each(oChannels, function (i) {
-				var id = $(this).find("id").eq(0).text(),
+				var id = parseInt($(this).find("id").eq(0).text(), 10),
 					name = $(this).find("name").eq(0).text();
 				if ("" == name) {
-					name = "Camera " + (i < 9 ? "0" + (i + 1) : (i + 1));
+					name = "Camera " + (id < 9 ? "0" + id : id);
 				}
 				oSel.append("<option value='" + id + "' bZero='false'>" + name + "</option>");
 			});
-			showOPInfo(szIP + " 获取模拟通道成功！");
+			console.log(szIP + " 获取模拟通道成功！");
 		},
 		error: function () {
-			showOPInfo(szIP + " 获取模拟通道失败！");
+			console.log(szIP + " 获取模拟通道失败！");
 		}
 	});
 	// 数字通道
@@ -305,21 +294,21 @@ function getChannelInfo() {
 			var oChannels = $(xmlDoc).find("InputProxyChannelStatus");
 
 			$.each(oChannels, function (i) {
-				var id = $(this).find("id").eq(0).text(),
+				var id = parseInt($(this).find("id").eq(0).text(), 10),
 					name = $(this).find("name").eq(0).text(),
 					online = $(this).find("online").eq(0).text();
 				if ("false" == online) {// 过滤禁用的数字通道
 					return true;
 				}
 				if ("" == name) {
-					name = "IPCamera " + (i < 9 ? "0" + (i + 1) : (i + 1));
+					name = "IPCamera " + ((id - nAnalogChannel) < 9 ? "0" + (id - nAnalogChannel) : (id - nAnalogChannel));
 				}
 				oSel.append("<option value='" + id + "' bZero='false'>" + name + "</option>");
 			});
-			showOPInfo(szIP + " 获取数字通道成功！");
+			console.log(szIP + " 获取数字通道成功！");
 		},
 		error: function () {
-			showOPInfo(szIP + " 获取数字通道失败！");
+			console.log(szIP + " 获取数字通道失败！");
 		}
 	});
 	// 零通道
@@ -329,26 +318,26 @@ function getChannelInfo() {
 			var oChannels = $(xmlDoc).find("ZeroVideoChannel");
 
 			$.each(oChannels, function (i) {
-				var id = $(this).find("id").eq(0).text(),
+				var id = parseInt($(this).find("id").eq(0).text(), 10),
 					name = $(this).find("name").eq(0).text();
 				if ("" == name) {
-					name = "Zero Channel " + (i < 9 ? "0" + (i + 1) : (i + 1));
+					name = "Zero Channel " + (id < 9 ? "0" + id : id);
 				}
 				if ("true" == $(this).find("enabled").eq(0).text()) {// 过滤禁用的零通道
 					oSel.append("<option value='" + id + "' bZero='true'>" + name + "</option>");
 				}
 			});
-			showOPInfo(szIP + " 获取零通道成功！");
+			console.log(szIP + " 获取零通道成功！");
 		},
 		error: function () {
-			showOPInfo(szIP + " 获取零通道失败！");
+			console.log(szIP + " 获取零通道失败！");
 		}
 	});
 }
 
 // 获取数字通道
 function clickGetDigitalChannelInfo() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		iAnalogChannelNum = 0;
 
 	$("#digitalchannellist").empty();
@@ -401,44 +390,43 @@ function clickGetDigitalChannelInfo() {
 				objTd.width = "25%";
 				objTd.innerHTML = proxyProtocol;
 			});
-			showOPInfo(szIP + " 获取数字通道成功！");
+			console.log(szIP + " 获取数字通道成功！");
 		},
 		error: function () {
-			showOPInfo(szIP + " 没有数字通道！");
+			console.log(szIP + " 没有数字通道！");
 		}
 	});
 }
 
 // 开始预览
 function clickStartRealPlay() {
-	console.log('')
 	var oWndInfo = WebVideoCtrl.I_GetWindowStatus(g_iWndIndex),
 		szIP = $("#loginip").val(),
 		iStreamType = parseInt($("#streamtype").val(), 10),
 		iChannelID = parseInt($("#channels").val(), 10),
-		bZeroChannel = false,
-		// bZeroChannel = $("#channels option").eq($("#channels").get(0).selectedIndex).attr("bZero") == "true" ? true : false,
+		bZeroChannel = $("#channels option").eq($("#channels").get(0).selectedIndex).attr("bZero") == "true" ? true : false,
 		szInfo = "";
-		console.log(szIP,"this is now szIP")
+
 	if ("" == szIP) {
-		console.log(" now szIP is null")
 		return;
 	}
+
 	if (oWndInfo != null) {// 已经在播放了，先停止
 		WebVideoCtrl.I_Stop();
 	}
+
 	var iRet = WebVideoCtrl.I_StartRealPlay(szIP, {
 		iStreamType: iStreamType,
 		iChannelID: iChannelID,
 		bZeroChannel: bZeroChannel
 	});
+	console.log(szIP+" "+iRet);
 	if (0 == iRet) {
 		szInfo = "开始预览成功！";
 	} else {
 		szInfo = "开始预览失败！";
 	}
-	console.log(szInfo)
-	// showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 停止预览
@@ -453,7 +441,7 @@ function clickStopRealPlay() {
 		} else {
 			szInfo = "停止预览失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -480,7 +468,7 @@ function clickOpenSound() {
 		} else {
 			szInfo = "打开声音失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -496,7 +484,7 @@ function clickCloseSound() {
 		} else {
 			szInfo = "关闭声音失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -513,7 +501,7 @@ function clickSetVolume() {
 		} else {
 			szInfo = "音量设置失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -531,7 +519,7 @@ function clickCapturePic() {
 		} else {
 			szInfo = "抓图失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -549,7 +537,7 @@ function clickStartRecord() {
 		} else {
 			szInfo = "开始录像失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -565,13 +553,13 @@ function clickStopRecord() {
 		} else {
 			szInfo = "停止录像失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
 // 获取对讲通道
 function clickGetAudioInfo() {
-	var szIP = $("#ip").val();
+	var szIP = $("#loginip").val();
 
 	if ("" == szIP) {
 		return;
@@ -586,17 +574,17 @@ function clickGetAudioInfo() {
 
 				oSel.append("<option value='" + id + "'>" + id + "</option>");
 			});
-			showOPInfo(szIP + " 获取对讲通道成功！");
+			console.log(szIP + " 获取对讲通道成功！");
 		},
 		error: function () {
-			showOPInfo(szIP + " 获取对讲通道失败！");
+			console.log(szIP + " 获取对讲通道失败！");
 		}
 	});
 }
 
 // 开始对讲
 function clickStartVoiceTalk() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		iAudioChannel = parseInt($("#audiochannels").val(), 10),
 		szInfo = "";
 
@@ -616,12 +604,12 @@ function clickStartVoiceTalk() {
 	} else {
 		szInfo = "开始对讲失败！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 停止对讲
 function clickStopVoiceTalk() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		iRet = WebVideoCtrl.I_StopVoiceTalk(),
 		szInfo = "";
 
@@ -634,7 +622,7 @@ function clickStopVoiceTalk() {
 	} else {
 		szInfo = "停止对讲失败！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 启用电子放大
@@ -649,7 +637,7 @@ function clickEnableEZoom() {
 		} else {
 			szInfo = "启用电子放大失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -665,7 +653,7 @@ function clickDisableEZoom() {
 		} else {
 			szInfo = "禁用电子放大失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -681,7 +669,7 @@ function clickEnable3DZoom() {
 		} else {
 			szInfo = "启用3D放大失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -697,7 +685,7 @@ function clickDisable3DZoom() {
 		} else {
 			szInfo = "禁用3D放大失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -711,7 +699,8 @@ var g_bPTZAuto = false;
 function mouseDownPTZControl(iPTZIndex) {
 	var oWndInfo = WebVideoCtrl.I_GetWindowStatus(g_iWndIndex),
 		bZeroChannel = $("#channels option").eq($("#channels").get(0).selectedIndex).attr("bZero") == "true" ? true : false,
-		iPTZSpeed = $("#ptzspeed").val();
+		iPTZSpeed = $("#ptzspeed").val(),
+		bStop = false;
 
 	if (bZeroChannel) {// 零通道不支持云台
 		return;
@@ -720,20 +709,22 @@ function mouseDownPTZControl(iPTZIndex) {
 	if (oWndInfo != null) {
 		if (9 == iPTZIndex && g_bPTZAuto) {
 			iPTZSpeed = 0;// 自动开启后，速度置为0可以关闭自动
+			bStop = true;
 		} else {
 			g_bPTZAuto = false;// 点击其他方向，自动肯定会被关闭
+			bStop = false;
 		}
 
-		WebVideoCtrl.I_PTZControl(iPTZIndex, false, {
+		WebVideoCtrl.I_PTZControl(iPTZIndex, bStop, {
 			iPTZSpeed: iPTZSpeed,
 			success: function (xmlDoc) {
 				if (9 == iPTZIndex) {
 					g_bPTZAuto = !g_bPTZAuto;
 				}
-				showOPInfo(oWndInfo.szIP + " 开启云台成功！");
+				console.log(oWndInfo.szIP + " 开启云台成功！");
 			},
 			error: function () {
-				showOPInfo(oWndInfo.szIP + " 开启云台失败！");
+				console.log(oWndInfo.szIP + " 开启云台失败！");
 			}
 		});
 	}
@@ -746,10 +737,10 @@ function mouseUpPTZControl() {
 	if (oWndInfo != null) {
 		WebVideoCtrl.I_PTZControl(1, true, {
 			success: function (xmlDoc) {
-				showOPInfo(oWndInfo.szIP + " 停止云台成功！");
+				console.log(oWndInfo.szIP + " 停止云台成功！");
 			},
 			error: function () {
-				showOPInfo(oWndInfo.szIP + " 停止云台失败！");
+				console.log(oWndInfo.szIP + " 停止云台失败！");
 			}
 		});
 	}
@@ -763,10 +754,10 @@ function clickSetPreset() {
 	if (oWndInfo != null) {
 		WebVideoCtrl.I_SetPreset(iPresetID, {
 			success: function (xmlDoc) {
-				showOPInfo(oWndInfo.szIP + " 设置预置点成功！");
+				console.log(oWndInfo.szIP + " 设置预置点成功！");
 			},
 			error: function () {
-				showOPInfo(oWndInfo.szIP + " 设置预置点失败！");
+				console.log(oWndInfo.szIP + " 设置预置点失败！");
 			}
 		});
 	}
@@ -780,10 +771,10 @@ function clickGoPreset() {
 	if (oWndInfo != null) {
 		WebVideoCtrl.I_GoPreset(iPresetID, {
 			success: function (xmlDoc) {
-				showOPInfo(oWndInfo.szIP + " 调用预置点成功！");
+				console.log(oWndInfo.szIP + " 调用预置点成功！");
 			},
 			error: function () {
-				showOPInfo(oWndInfo.szIP + " 调用预置点失败！");
+				console.log(oWndInfo.szIP + " 调用预置点失败！");
 			}
 		});
 	}
@@ -792,7 +783,7 @@ function clickGoPreset() {
 // 搜索录像
 var iSearchTimes = 0;
 function clickRecordSearch(iType) {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		iChannelID = $("#channels").val(),
 		bZeroChannel = $("#channels option").eq($("#channels").get(0).selectedIndex).attr("bZero") == "true" ? true : false,
 		szStartTime = $("#starttime").val(),
@@ -875,15 +866,15 @@ function clickRecordSearch(iType) {
 					objTd.innerHTML = "<a href='javascript:;' onclick='clickStartDownloadRecord(" + i + ");'>下载</a>";
 					$("#downloadTd" + i).data("playbackURI", szPlaybackURI);
 				}
-				showOPInfo(szIP + " 搜索录像文件成功！");
+				console.log(szIP + " 搜索录像文件成功！");
 			} else if("NO MATCHES" === $(xmlDoc).find("responseStatusStrg").eq(0).text()) {
 				setTimeout(function() {
-					showOPInfo(szIP + " 没有录像文件！");
+					console.log(szIP + " 没有录像文件！");
 				}, 50);
 			}
 		},
 		error: function () {
-			showOPInfo(szIP + " 搜索录像文件失败！");
+			console.log(szIP + " 搜索录像文件失败！");
 		}
 	});
 }
@@ -891,7 +882,7 @@ function clickRecordSearch(iType) {
 // 开始回放
 function clickStartPlayback() {
 	var oWndInfo = WebVideoCtrl.I_GetWindowStatus(g_iWndIndex),
-		szIP = $("#ip").val(),
+		szIP = $("#loginip").val(),
 		bZeroChannel = $("#channels option").eq($("#channels").get(0).selectedIndex).attr("bZero") == "true" ? true : false,
 		iChannelID = $("#channels").val(),
 		szStartTime = $("#starttime").val(),
@@ -914,9 +905,9 @@ function clickStartPlayback() {
 
 	if (bChecked) {// 启用转码回放
 		var oTransCodeParam = {
-			TransFrameRate: "14",// 0：全帧率，5：1，6：2，7：4，8：6，9：8，10：10，11：12，12：16，14：15，15：18，13：20，16：22
-			TransResolution: "1",// 255：Auto，3：4CIF，2：QCIF，1：CIF
-			TransBitrate: "19"// 2：32K，3：48K，4：64K，5：80K，6：96K，7：128K，8：160K，9：192K，10：224K，11：256K，12：320K，13：384K，14：448K，15：512K，16：640K，17：768K，18：896K，19：1024K，20：1280K，21：1536K，22：1792K，23：2048K，24：3072K，25：4096K，26：8192K
+			TransFrameRate: "16",// 0：全帧率，5：1，6：2，7：4，8：6，9：8，10：10，11：12，12：16，14：15，15：18，13：20，16：22
+			TransResolution: "2",// 255：Auto，3：4CIF，2：QCIF，1：CIF
+			TransBitrate: "23"// 2：32K，3：48K，4：64K，5：80K，6：96K，7：128K，8：160K，9：192K，10：224K，11：256K，12：320K，13：384K，14：448K，15：512K，16：640K，17：768K，18：896K，19：1024K，20：1280K，21：1536K，22：1792K，23：2048K，24：3072K，25：4096K，26：8192K
 		};
 		iRet = WebVideoCtrl.I_StartPlayback(szIP, {
 			iChannelID: iChannelID,
@@ -937,7 +928,7 @@ function clickStartPlayback() {
 	} else {
 		szInfo = "开始回放失败！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 停止回放
@@ -952,14 +943,14 @@ function clickStopPlayback() {
 		} else {
 			szInfo = "停止回放失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
 // 开始倒放
 function clickReversePlayback() {
 	var oWndInfo = WebVideoCtrl.I_GetWindowStatus(g_iWndIndex),
-		szIP = $("#ip").val(),
+		szIP = $("#loginip").val(),
 		bZeroChannel = $("#channels option").eq($("#channels").get(0).selectedIndex).attr("bZero") == "true" ? true : false,
 		iChannelID = $("#channels").val(),
 		szStartTime = $("#starttime").val(),
@@ -989,7 +980,7 @@ function clickReversePlayback() {
 	} else {
 		szInfo = "开始倒放失败！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 单帧
@@ -1004,7 +995,7 @@ function clickFrame() {
 		} else {
 			szInfo = "单帧播放失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -1020,7 +1011,7 @@ function clickPause() {
 		} else {
 			szInfo = "暂停失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -1036,7 +1027,7 @@ function clickResume() {
 		} else {
 			szInfo = "恢复失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -1052,7 +1043,7 @@ function clickPlaySlow() {
 		} else {
 			szInfo = "慢放失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -1068,7 +1059,7 @@ function clickPlayFast() {
 		} else {
 			szInfo = "快放失败！";
 		}
-		showOPInfo(oWndInfo.szIP + " " + szInfo);
+		console.log(oWndInfo.szIP + " " + szInfo);
 	}
 }
 
@@ -1080,9 +1071,9 @@ function clickGetOSDTime() {
 		var szTime = WebVideoCtrl.I_GetOSDTime();
 		if (szTime != -1) {
 			$("#osdtime").val(szTime);
-			showOPInfo(oWndInfo.szIP + " 获取OSD时间成功！");
+			console.log(oWndInfo.szIP + " 获取OSD时间成功！");
 		} else {
-			showOPInfo(oWndInfo.szIP + " 获取OSD时间失败！");
+			console.log(oWndInfo.szIP + " 获取OSD时间失败！");
 		}
 	}
 }
@@ -1091,7 +1082,7 @@ function clickGetOSDTime() {
 var iDownloadID = -1;
 var tDownloadProcess = 0;
 function clickStartDownloadRecord(i) {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		szChannelID = $("#channels").val(),
 		szFileName = szIP + "_" + szChannelID + "_" + new Date().getTime(),
 		szPlaybackURI = $("#downloadTd" + i).data("playbackURI");
@@ -1105,11 +1096,11 @@ function clickStartDownloadRecord(i) {
 	if (iDownloadID < 0) {
 		var iErrorValue = WebVideoCtrl.I_GetLastError();
 		if (34 == iErrorValue) {
-			showOPInfo(szIP + " 已下载！");
+			console.log(szIP + " 已下载！");
 		} else if (33 == iErrorValue) {
-			showOPInfo(szIP + " 空间不足！");
+			console.log(szIP + " 空间不足！");
 		} else {
-			showOPInfo(szIP + " 下载失败！");
+			console.log(szIP + " 下载失败！");
 		}
 	} else {
 		$("<div id='downProcess' class='freeze'></div>").appendTo("body");
@@ -1142,7 +1133,7 @@ function downProcess() {
 
 			WebVideoCtrl.I_StopDownloadRecord(iDownloadID);
 
-            		showOPInfo("录像下载完成");
+            		console.log("录像下载完成");
 			clearInterval(tDownloadProcess);
 			tDownloadProcess = 0;
 			m_iDownloadID = -1;
@@ -1158,7 +1149,7 @@ function downProcess() {
 
 // 导出配置文件
 function clickExportDeviceConfig() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		szInfo = "";
 
 	if ("" == szIP) {
@@ -1172,12 +1163,12 @@ function clickExportDeviceConfig() {
 	} else {
 		szInfo = "导出配置文件失败！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 // 导入配置文件
 function clickImportDeviceConfig() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		szFileName = $("#configFile").val();
 
 	if ("" == szIP) {
@@ -1206,11 +1197,11 @@ function clickImportDeviceConfig() {
 				setTimeout("reconnect('" + szIP + "')", 20000);
 			},
 			error: function () {
-				showOPInfo(szIP + " 重启失败！");
+				console.log(szIP + " 重启失败！");
 			}
 		});
 	} else {
-		showOPInfo(szIP + " 导入失败！");
+		console.log(szIP + " 导入失败！");
 	}
 }
 
@@ -1229,7 +1220,7 @@ function reconnect(szIP) {
 // 开始升级
 m_tUpgrade = 0;
 function clickStartUpgrade(szIP) {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		szFileName = $("#upgradeFile").val();
 
 	if ("" == szIP) {
@@ -1245,7 +1236,7 @@ function clickStartUpgrade(szIP) {
 	if (0 == iRet) {
 		m_tUpgrade = setInterval("getUpgradeStatus('" + szIP + "')", 1000);
 	} else {
-		showOPInfo(szIP + " 升级失败！");
+		console.log(szIP + " 升级失败！");
 	}
 }
 
@@ -1257,7 +1248,7 @@ function getUpgradeStatus(szIP) {
 		if (iProcess < 0) {
 			clearInterval(m_tUpgrade);
 			m_tUpgrade = 0;
-			showOPInfo(szIP + " 获取进度失败！");
+			console.log(szIP + " 获取进度失败！");
 			return;
 		} else if (iProcess < 100) {
 			if (0 == $("#restartDiv").length) {
@@ -1293,23 +1284,23 @@ function getUpgradeStatus(szIP) {
 					setTimeout("reconnect('" + szIP + "')", 20000);
 				},
 				error: function () {
-					showOPInfo(szIP + " 重启失败！");
+					console.log(szIP + " 重启失败！");
 				}
 			});
 		}
 	} else if (iStatus == 1) {
 		WebVideoCtrl.I_StopUpgrade();
-		showOPInfo(szIP + " 升级失败！");
+		console.log(szIP + " 升级失败！");
 		clearInterval(m_tUpgrade);
 		m_tUpgrade = 0;
 	} else if (iStatus == 2) {
 		mWebVideoCtrl.I_StopUpgrade();
-		showOPInfo(szIP + " 语言不匹配！");
+		console.log(szIP + " 语言不匹配！");
 		clearInterval(m_tUpgrade);
 		m_tUpgrade = 0;
 	} else {
 		mWebVideoCtrl.I_StopUpgrade();
-		showOPInfo(szIP + " 获取状态失败！");
+		console.log(szIP + " 获取状态失败！");
 		clearInterval(m_tUpgrade);
 		m_tUpgrade = 0;
 	}
@@ -1327,7 +1318,7 @@ function clickCheckPluginVersion() {
 
 // 远程配置库
 function clickRemoteConfig() {
-	var szIP = $("#ip").val(),
+	var szIP = $("#loginip").val(),
 		iDevicePort = parseInt($("#deviceport").val(), 10) || "",
 		szInfo = "";
 
@@ -1345,17 +1336,16 @@ function clickRemoteConfig() {
 	} else {
 		szInfo = "调用远程配置库成功！";
 	}
-	showOPInfo(szIP + " " + szInfo);
+	console.log(szIP + " " + szInfo);
 }
 
 function clickRestoreDefault() {
-    var szIP = $("#ip").val(),
+    var szIP = $("#loginip").val(),
         szMode = "basic";
     WebVideoCtrl.I_RestoreDefault(szIP, szMode, {
-        timeout: 30000,
         success: function (xmlDoc) {
             $("#restartDiv").remove();
-            showOPInfo(szIP + " 恢复默认参数成功！");
+            console.log(szIP + " 恢复默认参数成功！");
             //恢复完成后需要重启
             WebVideoCtrl.I_Restart(szIP, {
                 success: function (xmlDoc) {
@@ -1371,12 +1361,12 @@ function clickRestoreDefault() {
                     setTimeout("reconnect('" + szIP + "')", 20000);
                 },
                 error: function () {
-                    showOPInfo(szIP + " 重启失败！");
+                    console.log(szIP + " 重启失败！");
                 }
             });
         },
         error: function () {
-            showOPInfo(szIP + " 恢复默认参数失败！");
+            console.log(szIP + " 恢复默认参数失败！");
         }
     });
 }
@@ -1388,10 +1378,10 @@ function PTZZoomIn() {
         WebVideoCtrl.I_PTZControl(10, false, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 调焦+成功！");
+                console.log(oWndInfo.szIP + " 调焦+成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  调焦+失败！");
+                console.log(oWndInfo.szIP + "  调焦+失败！");
             }
         });
     }
@@ -1404,10 +1394,10 @@ function PTZZoomout() {
         WebVideoCtrl.I_PTZControl(11, false, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 调焦-成功！");
+                console.log(oWndInfo.szIP + " 调焦-成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  调焦-失败！");
+                console.log(oWndInfo.szIP + "  调焦-失败！");
             }
         });
     }
@@ -1420,10 +1410,10 @@ function PTZZoomStop() {
         WebVideoCtrl.I_PTZControl(11, true, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 调焦停止成功！");
+                console.log(oWndInfo.szIP + " 调焦停止成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  调焦停止失败！");
+                console.log(oWndInfo.szIP + "  调焦停止失败！");
             }
         });
     }
@@ -1436,10 +1426,10 @@ function PTZFocusIn() {
         WebVideoCtrl.I_PTZControl(12, false, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 聚焦+成功！");
+                console.log(oWndInfo.szIP + " 聚焦+成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  聚焦+失败！");
+                console.log(oWndInfo.szIP + "  聚焦+失败！");
             }
         });
     }
@@ -1452,10 +1442,10 @@ function PTZFoucusOut() {
         WebVideoCtrl.I_PTZControl(13, false, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 聚焦-成功！");
+                console.log(oWndInfo.szIP + " 聚焦-成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  聚焦-失败！");
+                console.log(oWndInfo.szIP + "  聚焦-失败！");
             }
         });
     }
@@ -1468,10 +1458,10 @@ function PTZFoucusStop() {
         WebVideoCtrl.I_PTZControl(12, true, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 聚焦停止成功！");
+                console.log(oWndInfo.szIP + " 聚焦停止成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  聚焦停止失败！");
+                console.log(oWndInfo.szIP + "  聚焦停止失败！");
             }
         });
     }
@@ -1484,10 +1474,10 @@ function PTZIrisIn() {
         WebVideoCtrl.I_PTZControl(14, false, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 光圈+成功！");
+                console.log(oWndInfo.szIP + " 光圈+成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  光圈+失败！");
+                console.log(oWndInfo.szIP + "  光圈+失败！");
             }
         });
     }
@@ -1500,10 +1490,10 @@ function PTZIrisOut() {
         WebVideoCtrl.I_PTZControl(15, false, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 光圈-成功！");
+                console.log(oWndInfo.szIP + " 光圈-成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  光圈-失败！");
+                console.log(oWndInfo.szIP + "  光圈-失败！");
             }
         });
     }
@@ -1516,10 +1506,10 @@ function PTZIrisStop() {
         WebVideoCtrl.I_PTZControl(14, true, {
             iWndIndex: g_iWndIndex,
             success: function (xmlDoc) {
-                showOPInfo(oWndInfo.szIP + " 光圈停止成功！");
+                console.log(oWndInfo.szIP + " 光圈停止成功！");
             },
             error: function () {
-                showOPInfo(oWndInfo.szIP + "  光圈停止失败！");
+                console.log(oWndInfo.szIP + "  光圈停止失败！");
             }
         });
     }
@@ -1564,9 +1554,9 @@ function clickGetDeviceIP() {
 	szDeviceInfo = WebVideoCtrl.I_GetIPInfoByMode(iDeviceMode, szAddress, iPort, szDeviceID);
 
 	if ("" == szDeviceInfo) {
-		showOPInfo("设备IP和端口解析失败！");
+		console.log("设备IP和端口解析失败！");
 	} else {
-		showOPInfo("设备IP和端口解析成功！");
+		console.log("设备IP和端口解析成功！");
 
 		var arrTemp = szDeviceInfo.split("-");
 		$("#loginip").val(arrTemp[0]);

@@ -6,7 +6,6 @@
           <el-carousel-item
           v-for="item in Math.ceil(items.length/3)">
             <div class="index1" v-for="it in 3" v-if="items[(item-1)*3+it-1] != null">
-
                 <div class="imgCon">
                   <img :src=items[(item-1)*3+it-1].pic alt="" >
                 </div>
@@ -119,7 +118,7 @@ export default {
     global.apiPost(this,global.baseUrl + 'system/listPack?token=' + global.getToken())
     .then((res) => {
       console.log(res)
-      self.items = res.data.data.slice(0,3)
+      self.items = res.data.data
       var mydata = res.data.data
       this.tree(mydata)
     })

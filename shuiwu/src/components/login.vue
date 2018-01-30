@@ -203,11 +203,15 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.login{
+  height: 100vh;
+}
 .loginCon{
   background: url('../images/loginbg.png') no-repeat;
   background-size: cover;
   padding-top: 50px;
   padding-bottom: 20px;
+  height: 100%;
 }
 .h75{
   height: 75px;

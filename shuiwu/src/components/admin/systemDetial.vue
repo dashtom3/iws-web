@@ -451,7 +451,7 @@ export default {
     },
     // 添加配置控制器
     addControllerDevice () {
-      // var self = this
+      var self = this
       var xhr = new XMLHttpRequest()
       xhr.open('POST', global.baseUrl + 'room/addDevice?name=' + this.deviceMsg.name + '&token=' + global.getToken() + '&port=' + this.deviceMsg.port + '&roomId=' + this.deviceMsg.roomId + '&infoId=' + this.deviceMsg.selectDeviceId)
       xhr.setRequestHeader('Content-Type', 'application/json')
@@ -468,7 +468,7 @@ export default {
           self.equipmentControllers = []
           self.testResponeMsg = null
           self.addControllerBtn = null
-          global.apiPost(self,global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
+          global.apiGet(self,global.baseUrl + 'room/groupList?roomId=' + self.deviceMsg.roomId + '&token=' + global.getToken())
           .then((res) => {
               // console.log(res)
             self.packages = res.data.data

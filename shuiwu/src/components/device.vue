@@ -74,6 +74,10 @@
               @change="changeValue(item,index)">
               </el-switch>
             </div>
+            <div v-if="(item.data != '启动' && item.data != '关闭') && (item.data != '自动' && item.data != '手动')">
+              <span >{{item.name}}</span><br>
+              <span >{{item.data}}{{item.unit}}</span>&nbsp;&nbsp;<el-button plain size="mini" @click="changeNum(item)">设定</el-button>
+            </div>
           </el-card>
         </el-col>
       </el-row>
@@ -82,6 +86,17 @@
         <canvas id="canvas" v-if="protocol == 'MODBUS'"></canvas>
           <img src="../images/dataTCP.jpg" style="width:100%;height:100%" v-if="protocol == 'TCP'"></canvas>
     </div>
+    <el-dialog
+      :title="timeItem.name"
+      :visible="timeItemShow"
+      width="30%"
+      >
+      <span>设置：</span><el-input v-model="timeItem.pumpStatus" width="70%"></el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="timeItemShow = false">取 消</el-button>
+        <el-button type="primary" @click="changeNumCertain">确 定</el-button>
+      </span>
+    </el-dialog>
     <v-footer></v-footer>
   </div>
 </template>
@@ -114,6 +129,12 @@ export default {
         deviceId: null,
         number: null,
         pumpStatus: null
+      },
+      timeItemShow:false,
+      timeItem:{
+        pumpStatus:null,
+        number:null,
+        name:null
       },
       fullscreenLoading: false,
       modelEnums: {
@@ -148,14 +169,7 @@ export default {
     setInterval(() => {
       console.log('windows reload')
             this.getDeviceData()
-        }, 15000)
-    // window.setTimeout(function(){
-    //   if(this && !this._isDestroyed){ //_isDestroyed 组件是否被销毁
-    //     return;
-    //   }
-    //   console.log('windows reload')
-    //   this.getDeviceData()
-    // },1000)
+        }, 50000)
 
   },
   created () {
@@ -192,6 +206,24 @@ export default {
      },
      closeControlData() {
        this.controlData = null;
+     },
+     changeNum(item){
+       console.log(item)
+       this.timeItem = item
+       this.timeItemShow = true
+     },
+     changeNumCertain(){
+       var self = this
+       this.manual.deviceId = this.groupData.devices[this.controlIndex].id
+       this.manual.number = this.timeItem.number
+       this.manual.pumpStatus = this.timeItem.pumpStatus
+
+       global.apiPost(this,global.baseUrl + 'room/manual',global.postHttpDataWithToken(this.manual))
+       .then((res) => {
+         self.timeItemShow = false
+         self.timeItem.data = this.timeItem.pumpStatus
+         console.log(res.data)
+       })
      },
      changeValue(item,index){
 

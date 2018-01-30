@@ -47,11 +47,11 @@
             <el-input v-model="field.describes" auto-complete="off" class="w200" placeholder="请编辑"></el-input>
             <label class="m20">参数类型</label>
             <el-select v-model="field.roleId" placeholder="请选择类型">
-              <el-option
+              <el-option v-if="parameter.protocol == addControllerDate.protocol"
               v-for="parameter in ParameterType"
               :label="parameter.describes" :value="parameter.id"></el-option>
             </el-select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span v-show="field.roleId === 1 || field.roleId === 10 ">
+            <span v-show="field.roleId === 1 || field.roleId === 10 || field.roleId === 9 ">
               <div class="h20"></div>
               <label class="" style="margin-right:20px">倍率</label>
               <el-input v-model="field.multiple" auto-complete="off" class="w200 w100" placeholder="请编辑"></el-input>
@@ -286,7 +286,11 @@ export default {
         self.addControllerAlert = false
         this.addControllerDate.fields = JSON.stringify(this.addControllerDate.fields)
         var xhr = new XMLHttpRequest()
-        xhr.open('POST', global.baseUrl + 'deviceTerm/add?name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes + '&start=' + this.addControllerDate.start)
+        var temp = 'name=' + this.addControllerDate.name + '&token=' + global.getToken() + '&count=' + this.addControllerDate.count + '&protocol=' + this.addControllerDate.protocol + '&type=' + this.addControllerDate.type + '&describes=' + this.addControllerDate.describes
+        if(this.addControllerDate.start != null) {
+          temp = temp + '&start=' + this.addControllerDate.start
+        }
+        xhr.open('POST', global.baseUrl + 'deviceTerm/add?'+temp)
         xhr.setRequestHeader('Content-Type', 'application/json')
         xhr.send(this.addControllerDate.fields)
         xhr.onreadystatechange = function () {

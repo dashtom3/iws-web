@@ -6,6 +6,7 @@
           <el-carousel-item
           v-for="item in Math.ceil(items.length/3)">
             <div class="index1" v-for="it in 3" v-if="items[(item-1)*3+it-1] != null">
+
                 <div class="imgCon">
                   <img :src=items[(item-1)*3+it-1].pic alt="" >
                 </div>
@@ -60,11 +61,11 @@
       v-model="addressAlert">
       <ul class="maxHeight">
         <li v-for="addressRoomList in addressRoomLists" class="addressRoomlist">
-          <p class="roomTitle" style="line-height:40px;">{{addressRoomList.name}}</p>
+          <p class="roomTitle" >{{addressRoomList.name}}</p>
           <a class="configControllerlist" v-for="configControllerList in addressRoomList.deviceGroups" :href="'/device/' + configControllerList.groupId" target="_blank">
             <!-- <img :src="imgUrl+configControllerList.pic" alt=""> -->
             <img src="../images/nopic.png" v-if="configControllerList.pic == null" alt="">
-            <img :src="configControllerList.pic" alt="">
+            <img :src="configControllerList.pic" alt="" v-if="configControllerList.pic != null">
             <p>{{configControllerList.name}}</p>
           </a>
         </li>
@@ -118,7 +119,7 @@ export default {
     global.apiPost(this,global.baseUrl + 'system/listPack?token=' + global.getToken())
     .then((res) => {
       console.log(res)
-      self.items = res.data.data
+      self.items = res.data.data.slice(0,3)
       var mydata = res.data.data
       this.tree(mydata)
     })
@@ -221,6 +222,7 @@ export default {
       // console.log(data)
       if (data.position) {
         this.center = data.position
+        this.zoom = 13
       } else {
         return false
       }
@@ -299,6 +301,8 @@ export default {
   text-align: center;
   width: 22%;
   margin: 5px;
+  background-color: white;
+  border-radius: 4px;
 }
 .configControllerlist img {
   width: 100%;
@@ -308,6 +312,7 @@ export default {
   color: #696969;
   position: relative;
   top: -60px;
+  line-height: 20px;
 }
 .roomTitle{
   text-align: center;

@@ -469,7 +469,7 @@ export default {
 }
 .el-carousel{
   height: 220px;
-  padding-top: 55px;
+  padding-top: 50px;
   text-align: center;
 }
 .indexPoster{

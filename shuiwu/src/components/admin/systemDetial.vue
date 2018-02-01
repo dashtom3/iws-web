@@ -2,8 +2,9 @@
   <div class="systemDetial">
     <el-row :gutter="20">
       <el-col :span="2"><span class="back p5" v-on:click="back"><<返回系统</span>&nbsp;&nbsp;&nbsp;&nbsp;</el-col>
+      <!-- <el-form-item label="省/市/地区"> -->
       <el-col :span="2">
-      <el-select v-model="search.searchProvince" placeholder="选择省份" value-key="id" @change="searchProvince">
+      <el-select v-model="search.searchProvince" placeholder="选择省份" value-key="name" @change="searchProvince">
         <el-option
         label="全部" value="" ></el-option>
         <el-option
@@ -13,25 +14,26 @@
       </el-select>
       </el-col>
       <el-col :span="2">
-      <el-select v-model="search.searchCity" placeholder="选择市" @change="searchCity">
+      <el-select v-model="search.searchCity" placeholder="选择市" value-key="name" @change="searchCity">
         <el-option
         label="全部" value=""></el-option>
         <el-option
-        :key="city"
+        :key="city.id"
         v-for="city in search.searchCitys"
         :label="city.name" :value="city"></el-option>
       </el-select>
       </el-col>
       <el-col :span="2">
-      <el-select v-model="search.searchArea" placeholder="选择地区">
+      <el-select v-model="search.searchArea" value-key="name" placeholder="选择地区" @change="searchArea">
         <el-option
         label="全部" value=""></el-option>
         <el-option
-        :key="area"
+        :key="area.id"
         v-for="area in search.searchAreas"
         :label="area.name" :value="area"></el-option>
       </el-select>
       </el-col>
+    <!-- </el-form-item> -->
       <el-col :span='2'>
         <el-button type="primary" @click="searchByArea">查找</el-button>
       </el-col>
@@ -543,6 +545,9 @@ export default {
         this.search.searchAreas = this.search.searchCity.area
       }
     },
+    searchArea(){
+
+    },
     area () {
       // this.searchMsg.keywords = this.addressData.selectProvince.name + this.addressData.selectArea.name
       // this.setPosition(this.searchMsg.keywords)
@@ -560,9 +565,9 @@ export default {
         var self = this
         global.mapGet(this,global.getHttpData({address:keywords,output:'JSON'}))
         .then((res) => {
-          console.log(res.data)
+          // console.log(res.data)
           if (res.data.geocodes.length>0) {
-            console.log(res.data.geocodes[0].location.split(','))
+            // console.log(res.data.geocodes[0].location.split(','))
             self.editDate.center = res.data.geocodes[0].location.split(',')
             self.editDate.positionX = res.data.geocodes[0].location.split(',')[0]
             self.editDate.positionY = res.data.geocodes[0].location.split(',')[1]
@@ -572,7 +577,7 @@ export default {
     },
     // 高德地图
     addressDetail () {
-      console.log(this.addressData.address)
+      // console.log(this.addressData.address)
       this.searchMsg.keywords = this.addressData.address
       this.setPosition(this.searchMsg.keywords)
     },
@@ -582,9 +587,9 @@ export default {
         var self = this
         global.mapGet(this,global.getHttpData({address:keywords,output:'JSON'}))
         .then((res) => {
-          console.log(res.data)
+          // console.log(res.data)
           if (res.data.geocodes.length>0) {
-            console.log(res.data.geocodes[0].location.split(','))
+            // console.log(res.data.geocodes[0].location.split(','))
             self.addressData.center = res.data.geocodes[0].location.split(',')
             self.addressData.x = res.data.geocodes[0].location.split(',')[0]
             self.addressData.y = res.data.geocodes[0].location.split(',')[1]
@@ -869,7 +874,7 @@ export default {
     global.apiPost(this,global.baseUrl + 'area/areas')
     .then((res) => {
       self.addressData.provinces = res.data.data
-      // console.log(self.provinces);
+      console.log(self.addressData.provinces);
       // self.search.searchProvinces = res.data.data
     })
     // 获取设备列表
@@ -881,6 +886,7 @@ export default {
     .then((res) => {
       // console.log(res)
       self.search.searchProvinces = res.data.data.locationPack
+      console.log(self.search.searchProvinces);
     })
     // 系统详情
     global.apiPost(this,global.baseUrl + 'system/detailPack', global.postHttpDataWithToken(this.addressArgs))

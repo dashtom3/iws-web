@@ -65,12 +65,12 @@ export default{
   },
   apiGet(obj ,url, params = {}) {
     var self = this
-    console.log(obj,url,params)
+    // console.log(obj,url,params)
     return new Promise((resolve, reject) => {
-      console.log(resolve,reject)
+      // console.log(resolve,reject)
     axios.get(url, { params })
       .then((res) => {
-        console.log(res)
+        // console.log(res)
         if (res.data.callStatus === 'SUCCEED') {
         resolve(res);
       } else {

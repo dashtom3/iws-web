@@ -61,21 +61,21 @@
          </el-select>
        </el-form-item>
        <el-form-item label="省/市/区" :label-width="formLabelWidth">
-         <el-select v-model="addRoleInfo.selectProvince" placeholder="选择省份" @change="province">
+         <el-select v-model="addRoleInfo.selectProvince" placeholder="选择省份" value-key="name" @change="province">
            <el-option
            :key="province.id"
            v-for="province in addRoleInfo.provinces"
            :label="province.name"
            :value="province"></el-option>
          </el-select>
-         <el-select v-model="addRoleInfo.selectCity" placeholder="选择市" @change="city">
+         <el-select v-model="addRoleInfo.selectCity" placeholder="选择市" value-key="name" @change="city">
            <el-option
            :key="city.id"
            v-for="city in addRoleInfo.citys"
            :label="city.name"
            :value="city"></el-option>
          </el-select>
-         <el-select v-model="addRoleInfo.selectArea" placeholder="选择地区">
+         <el-select v-model="addRoleInfo.selectArea" value-key="name" placeholder="选择地区">
            <el-option
            :key="area.id"
            v-for="area in addRoleInfo.areas"
@@ -146,7 +146,7 @@ export default {
           { data: '只读', state: '1' },
           { data: '读写', state: '2' }
         ],
-        selectJurisdiction: '',
+        selectJurisdiction: 1,
         systemId: '',
         areaId: '',
         date1: '',
@@ -217,22 +217,27 @@ export default {
     },
     // 增加标签
     addTag () {
-      this.tags.push(this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].name + ' ' + this.addRoleInfo.selectProvince.name + this.addRoleInfo.selectCity.name + this.addRoleInfo.selectArea.name + this.addRoleInfo.jurisdictions[this.addRoleInfo.selectJurisdiction].data)
-      if (this.addRoleInfo.selectArea === '') {
-        if (this.addRoleInfo.selectCity === '') {
-          this.addRoleInfo.areaId = this.addRoleInfo.selectProvince.provinceId
+      var temp = this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].name + ' ' + this.addRoleInfo.selectProvince.name
+      temp = this.addRoleInfo.selectCity.name == null ? temp : temp + this.addRoleInfo.selectCity.name
+      temp = this.addRoleInfo.selectArea.name == null ? temp : temp + this.addRoleInfo.selectArea.name
+      temp = temp + this.addRoleInfo.jurisdictions[this.addRoleInfo.selectJurisdiction].data
+        this.tags.push( temp )
+        if (this.addRoleInfo.selectArea === '') {
+          if (this.addRoleInfo.selectCity === '') {
+            this.addRoleInfo.areaId = this.addRoleInfo.selectProvince.provinceId
+          } else {
+            this.addRoleInfo.areaId = this.addRoleInfo.selectCity.cityId
+          }
         } else {
-          this.addRoleInfo.areaId = this.addRoleInfo.selectCity.cityId
+          this.addRoleInfo.areaId = this.addRoleInfo.selectArea.areaId
         }
-      } else {
-        this.addRoleInfo.areaId = this.addRoleInfo.selectArea.areaId
-      }
-      var msg = {
-        systemId: this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].id,
-        areaId: this.addRoleInfo.areaId,
-        limitation: this.addRoleInfo.jurisdictions[this.addRoleInfo.selectJurisdiction].state
-      }
-      this.addRoleInfo.subitem.push(msg)
+        var msg = {
+          systemId: this.addRoleInfo.systemlists[this.addRoleInfo.selectSystem].id,
+          areaId: this.addRoleInfo.areaId,
+          limitation: this.addRoleInfo.jurisdictions[this.addRoleInfo.selectJurisdiction].state
+        }
+        this.addRoleInfo.subitem.push(msg)
+
     },
     // 删除标签
     delTag (item, num) {
@@ -248,7 +253,7 @@ export default {
       this.tagsMsg = []
       this.addRoleInfo.selectSystem = null
       this.addRoleInfo.selectProvince = null
-      this.addRoleInfo.selectJurisdiction = null
+      this.addRoleInfo.selectJurisdiction = 0
       this.addRoleInfo.subitem = []
       // console.log(this.addRoleInfo)
     },
@@ -275,7 +280,7 @@ export default {
       this.roleAlert = true
       this.addRoleInfo.selectSystem = null
       this.addRoleInfo.selectProvince = null
-      this.addRoleInfo.selectJurisdiction = null
+      this.addRoleInfo.selectJurisdiction = 0
       this.tags = []
       var self = this
       global.apiPost(this,global.baseUrl + 'role/detail?roleId=' + id + '&token=' + global.getToken())

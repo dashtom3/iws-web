@@ -259,18 +259,24 @@ export default {
     },
     addRole () {
       var self = this
-      this.roleAlert = false
-      var subitem = JSON.stringify(this.addRoleInfo.subitem)
-      var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'role/add?name=' + this.addRoleInfo.name + '&token=' + global.getToken())
-      xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.send(subitem)
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          global.addSuccess(self, '添加成功')
-          self.getRoleLists(self.rolelistArgs)
+      // console.log(this.addRoleInfo.name)
+      if(this.addRoleInfo.name == "" || this.addRoleInfo.name == null) {
+        global.error(self, '角色名称不能为空',null)
+      } else {
+        this.roleAlert = false
+        var subitem = JSON.stringify(this.addRoleInfo.subitem)
+        var xhr = new XMLHttpRequest()
+        xhr.open('POST', global.baseUrl + 'role/add?name=' + this.addRoleInfo.name + '&token=' + global.getToken())
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        xhr.send(subitem)
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            global.addSuccess(self, '添加成功')
+            self.getRoleLists(self.rolelistArgs)
+          }
         }
       }
+
     },
     // 修改角色
     edit (id) {
@@ -294,17 +300,21 @@ export default {
       })
     },
     editRole () {
-      var self = this
-      this.roleAlert = false
-      var subitem = JSON.stringify(this.addRoleInfo.subitem)
-      var xhr = new XMLHttpRequest()
-      xhr.open('POST', global.baseUrl + 'role/update?id=' + this.roleId + '&name=' + this.addRoleInfo.name + '&token=' + global.getToken())
-      xhr.setRequestHeader('Content-Type', 'application/json')
-      xhr.send(subitem)
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          global.addSuccess(self, '修改成功')
-          self.getRoleLists(self.rolelistArgs)
+      if(this.addRoleInfo.name == "" || this.addRoleInfo.name == null) {
+        global.error(this,"角色名称不能为空",null)
+      } else {
+        var self = this
+        this.roleAlert = false
+        var subitem = JSON.stringify(this.addRoleInfo.subitem)
+        var xhr = new XMLHttpRequest()
+        xhr.open('POST', global.baseUrl + 'role/update?id=' + this.roleId + '&name=' + this.addRoleInfo.name + '&token=' + global.getToken())
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        xhr.send(subitem)
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            global.addSuccess(self, '修改成功')
+            self.getRoleLists(self.rolelistArgs)
+          }
         }
       }
     },

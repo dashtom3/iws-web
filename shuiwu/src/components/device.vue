@@ -123,6 +123,7 @@ export default {
       },
       loadPercent:"0%",
       paramData: null,
+      paramIndex:null,
       controlData: null,
       controlIndex: null,
       manual: {
@@ -169,8 +170,7 @@ export default {
     setInterval(() => {
       console.log('windows reload')
             this.getDeviceData()
-        }, 50000)
-
+        }, 15000)
   },
   created () {
 
@@ -180,6 +180,7 @@ export default {
        var temp = key.split("-")
        if(temp[0] == '1'){
          this.controlData = null
+         this.paramIndex = temp[1]
          this.paramData = this.groupData.devices[temp[1]]
        }  else {
          this.paramData = null
@@ -221,8 +222,14 @@ export default {
        global.apiPost(this,global.baseUrl + 'room/manual',global.postHttpDataWithToken(this.manual))
        .then((res) => {
          self.timeItemShow = false
-         self.timeItem.data = this.timeItem.pumpStatus
+         if(res.callStatus == "FAILED") {
+           global.error(this,'控制失败',null)
+         } else{
+           self.timeItem.data = this.timeItem.pumpStatus
+         }
          console.log(res.data)
+       }).catch(()=>{
+         global.error(this,'控制失败',null)
        })
      },
      changeValue(item,index){
@@ -234,7 +241,14 @@ export default {
        this.manual.pumpStatus = item.switchBtn == true ? 1:0
        global.apiPost(this,global.baseUrl + 'room/manual',global.postHttpDataWithToken(this.manual))
        .then((res) => {
-         console.log(res.data)
+         console.log(res)
+         if(res.callStatus == "FAILED") {
+           global.error(this,'控制失败',null)
+           item.switchBtn = !item.switchBtn
+         }
+       }).catch(()=>{
+         global.error(this,'控制失败',null)
+         item.switchBtn = !item.switchBtn
        })
      },
      getDeviceData() {
@@ -244,7 +258,12 @@ export default {
            axios.get(global.baseUrl + 'data/presentData?'+global.getHttpDataWithToken({deviceId:item.id}))
            .then((res) => {
              item.data = res.data.data;
+             console.log(res)
              self.showData(res.data.data.data)
+             if(self.paramIndex == index && self.paramData != null) {
+               self.paramData = Object.assign({},self.paramData,self.groupData.devices[index])
+               console.log(self.paramData)
+             }
            })
          })
        }

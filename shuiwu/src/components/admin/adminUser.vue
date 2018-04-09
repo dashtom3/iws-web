@@ -1,6 +1,6 @@
 <template>
   <div class="testUser">
-    <el-row :gutter="20" style="text-align:left;">
+    <!-- <el-row :gutter="20" style="text-align:left;">
       <el-select v-model="userType" placeholder="请选择" @change="changeUserType">
         <el-option
           v-for="item in userTypes"
@@ -12,7 +12,7 @@
       <el-button type="primary"  v-on:click="searchUser">查找</el-button>
       <el-button type="primary"  v-on:click="searchCancel">取消</el-button>
       <div class="h20"></div>
-    </el-row>
+    </el-row> -->
     <el-row :gutter="20" class="userTitle">
       <el-col :span="3"><span>用户名</span></el-col>
       <el-col :span="3"><span>姓名</span></el-col>
@@ -57,6 +57,7 @@ export default {
     return {
       value: '',
       options: [],
+      selectRefresh:true,
       userlist: null,
       userArgs: {
         currentPage: 1,
@@ -80,41 +81,49 @@ export default {
     global.apiPost(this,global.baseUrl + 'role/list?token=' + global.getToken())
     .then((res) => {
       self.options = res.data.data
+      self.options.push({id:0,name:"未分配"})
     })
   },
   methods: {
     setrole (userId, roleId) {
-      var roleMsg = {
-        userId: userId,
-        roleId: roleId,
-        token: global.getToken()
-      }
-      var self = this
-      global.apiGet(this,global.baseUrl + 'userManage/role?' + global.getHttpData(roleMsg))
-      .then((res) => {
-        // console.log(res)
-        if (res.data.callStatus === 'SUCCEED') {
-          global.success(self, '操作成功', '')
-          var arr = []
-          // console.log(self.searchType.split(',').length)
-          for (let i in self.searchType) {
-            var str = i + '=' + self.searchType[i]
-            arr.push(str)
-          }
-          if (!arr.length) {
-            self.getUserList(self.userArgs)
-          }
+      if(this.selectRefresh) {
+        var roleMsg = {
+          userId: userId,
+          roleId: roleId,
+          token: global.getToken()
         }
-      })
+        var self = this
+        global.apiGet(this,global.baseUrl + 'userManage/role?' + global.getHttpData(roleMsg))
+        .then((res) => {
+          // console.log(res)
+          if (res.data.callStatus === 'SUCCEED') {
+            global.success(self, '操作成功', '')
+            // var arr = []
+            // console.log(self.searchType.split(',').length)
+            // for (let i in self.searchType) {
+            //   var str = i + '=' + self.searchType[i]
+            //   arr.push(str)
+            // }
+            // if (!arr.length) {
+            //   self.getUserList(self.userArgs)
+            // }
+          }
+        })
+      }
     },
     getUserList (args) {
       var self = this
       global.apiGet(this,global.baseUrl + 'userManage/list?' + global.getHttpData(args))
       .then((res) => {
-        for (let i in res.data.data) {
-          res.data.data[i].roleId = parseInt(res.data.data[i].roleId)
-        }
+        // for (let i in res.data.data) {
+        //   res.data.data[i].roleId = parseInt(res.data.data[i].roleId)
+        // }
+        self.selectRefresh = false;
+        self.userlist = null;
         self.userlist = res.data.data
+        this.$nextTick(function () {
+          self.selectRefresh = true;
+        })
         self.userArgs.currentPage = res.data.currentPage
         self.userArgs.totalPage = res.data.totalPage
       })

@@ -3,12 +3,12 @@
     <div class="newsbg"></div>
     <div class="newsCon">
       <div class="newsConNav">
-        <el-input
+        <!-- <el-input
           placeholder="请输入搜索内容"
           v-model="searchVal"
           class="searchVal">
         </el-input>
-        <i class="el-icon-search newsEnterClick" v-on:click="searchNews"></i>
+        <i class="el-icon-search newsEnterClick" v-on:click="searchNews"></i> -->
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" router>
           <el-menu-item index="/news/unconfirmed">未确认</el-menu-item>
           <el-menu-item index="/news/myNews">我的消息</el-menu-item>

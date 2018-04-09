@@ -9,7 +9,7 @@
 
       <!-- 用户列表 -->
       <el-col :span="6" style="text-align:center;">
-        <div class="selectController" v-if="userInfo.roleId === 1 || userInfo.roleId === -1">
+        <div class="selectController" v-if="userInfo.roleId === 1 || userInfo.roleId === '-1'">
           <el-select v-model="newsMsg.userName" :placeholder="newsMsg.userId | state" style="inputWidth">
             <el-option
               v-for="item in userLists"
@@ -69,6 +69,7 @@ export default {
     }
   },
   created () {
+    console.log(global.getUser())
     this.getNewsLists(this.newsArgs)
     this.getUserLists()
   },

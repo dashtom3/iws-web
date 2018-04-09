@@ -277,8 +277,10 @@ export default {
     // 添加设备
     addBasePost () {
       if (!this.addBaseMsg.selectController && !this.addBaseMsg.selectFlowmeter && !this.addBaseMsg.selectPressure && !this.addBaseMsg.selectMeter) {
-        alert('请选择至少一种控制器')
-      } else {
+        global.error(this,'请选择至少一种控制器',null)
+      } if(this.addBaseMsg.name == "" || this.addBaseMsg.name == null){
+        global.error(this,'输入设备名称',null)
+      }else {
         this.addBaseMsg.terms = [this.addBaseMsg.selectController, this.addBaseMsg.selectFlowmeter, this.addBaseMsg.selectPressure, this.addBaseMsg.selectMeter].join(',')
         var self = this
         global.apiPost(this,global.baseUrl + 'device/addGroup', global.postHttpData(this.addBaseMsg))

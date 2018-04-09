@@ -76,7 +76,7 @@
         </el-form-item>
       </el-form>
       <div id="demoComponent" class="demo-component">
-        <el-amap vid="amap" zoom="14" :center="addressData.center">
+        <el-amap vid="amap2" :zoom="zoom" :center="addressData.center">
           <el-amap-marker :position="addressData.center"></el-amap-marker>
         </el-amap>
       </div>
@@ -231,7 +231,7 @@
         <form class="el-form editForm">
           <a href="javascript:;" class="redX" v-on:click="editAlert = false">X</a>
           <div class="el-form-item">
-            <label for="" class="el-form-item__label">地点名称：</label><input class="el-input__inner w800" type="text" v-model="editDate.name">
+          <label for="" class="el-form-item__label">地点名称：</label><input class="el-input__inner w400" type="text" v-model="editDate.name">  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;
           </div>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">省/市/区：</label>
@@ -248,7 +248,7 @@
             </select>
           </div>
           <div class="el-form-item">
-            <label for="" class="el-form-item__label">详细地址：</label><input class="el-input__inner w800" type="text" name="" v-model="editDate.describes" v-on:blur="editBlur">
+            <label for="" class="el-form-item__label">详细地址：</label><input class="el-input__inner w400" type="text" name="" v-model="editDate.describes" v-on:blur="editBlur">  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;
           </div>
           <div class="el-form-item">
             <label for="" class="el-form-item__label">经纬度：</label>
@@ -256,8 +256,8 @@
             <span >Y: </span><div class="w800 w50 el-input"><input type="text" autocomplete="off" class="el-input__inner" v-model="editDate.positionY"></div>
           </div>
           <div id="demoComponent" class="demo-component">
-            <el-amap vid="amap" zoom="14" :center="[editDate.positionX, editDate.positionY]">
-              <el-amap-marker :position="[editDate.positionX, editDate.positionY]"></el-amap-marker>
+            <el-amap vid="amap" :zoom="zoom" :center="[parseFloat(editDate.positionX), parseFloat(editDate.positionY)]">
+              <el-amap-marker :position="[parseFloat(editDate.positionX), parseFloat(editDate.positionY)]"></el-amap-marker>
             </el-amap>
           </div>
           <!-- <baidu-map class="map-container" :center="{lng: editDate.positionX, lat: editDate.positionY}" :zoom="zoom" style="width:990px;height:500px;margin:0 auto;" @moving="editCenter" @moveend="editCenter">
@@ -357,11 +357,11 @@ export default {
         y: '39.915',
         isOpen: null
       },
-      center: {
-        lng: 116.404,
-        lat: 39.915
-      },
-      zoom: 15,
+      // center: {
+      //   lng: 116.404,
+      //   lat: 39.915
+      // },
+      zoom: 14,
       search: {
         searchProvinces: null,
         searchProvince: null,
@@ -568,9 +568,11 @@ export default {
           // console.log(res.data)
           if (res.data.geocodes.length>0) {
             // console.log(res.data.geocodes[0].location.split(','))
-            self.editDate.center = res.data.geocodes[0].location.split(',')
-            self.editDate.positionX = res.data.geocodes[0].location.split(',')[0]
-            self.editDate.positionY = res.data.geocodes[0].location.split(',')[1]
+            var temp = [parseFloat(res.data.geocodes[0].location.split(',')[0]),parseFloat(res.data.geocodes[0].location.split(',')[1])]
+            self.editDate.center = temp
+            self.editDate.positionX = temp[0]
+            self.editDate.positionY = temp[1]
+            console.log(self.editDate.center)
           }
         })
       }
@@ -590,9 +592,11 @@ export default {
           // console.log(res.data)
           if (res.data.geocodes.length>0) {
             // console.log(res.data.geocodes[0].location.split(','))
-            self.addressData.center = res.data.geocodes[0].location.split(',')
-            self.addressData.x = res.data.geocodes[0].location.split(',')[0]
-            self.addressData.y = res.data.geocodes[0].location.split(',')[1]
+            var temp = [parseFloat(res.data.geocodes[0].location.split(',')[0]),parseFloat(res.data.geocodes[0].location.split(',')[1])]
+            self.addressData.center = temp
+            self.addressData.x = temp[0]
+            self.addressData.y = temp[1]
+            console.log(self.addressData.center)
           }
         })
       }

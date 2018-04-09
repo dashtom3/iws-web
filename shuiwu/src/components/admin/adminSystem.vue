@@ -96,21 +96,25 @@ export default {
     },
     addSystem () {
       var self = this
-      this.addSystemAlert = false
-      var systemMsg = new FormData()
-      systemMsg.append('name', this.addsystem.name)
-      systemMsg.append('pic', this.addsystem.imgUrl)
-      global.apiPost(this,global.baseUrl + 'system/add?token=' + global.getToken(), systemMsg)
-      .then((res) => {
-        console.log(res)
-        if (res.data.callStatus === 'SUCCEED') {
-          global.success(self, '添加成功', '/admin/system')
-          global.apiPost(self,global.baseUrl + 'system/list?token=' + global.getToken())
-          .then(function (res) {
-            self.systemlists = res.data.data
-          })
-        }
-      })
+      if(this.addsystem.name == "" || this.addsystem.name == null){
+        global.error(this,"系统名称不能为空",null)
+      } else {
+        this.addSystemAlert = false
+        var systemMsg = new FormData()
+        systemMsg.append('name', this.addsystem.name)
+        systemMsg.append('pic', this.addsystem.imgUrl)
+        global.apiPost(this,global.baseUrl + 'system/add?token=' + global.getToken(), systemMsg)
+        .then((res) => {
+          console.log(res)
+          if (res.data.callStatus === 'SUCCEED') {
+            global.success(self, '添加成功', '/admin/system')
+            global.apiPost(self,global.baseUrl + 'system/list?token=' + global.getToken())
+            .then(function (res) {
+              self.systemlists = res.data.data
+            })
+          }
+        })
+      }
     }
   }
 }

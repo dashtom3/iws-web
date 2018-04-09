@@ -1,3 +1,7 @@
+var szIP;
+var szPort;
+var szUsername;
+var szPassword;
 // 初始化插件
 
 // 初始化插件
@@ -174,10 +178,7 @@ function changeWndNum(iType) {
 // 登录
 function clickLogin() {
 	console.log("login")
-	var szIP = $("#loginip").val(),
-		szPort = $("#port").val(),
-		szUsername = $("#username").val(),
-		szPassword = $("#password").val();
+	//console.log(szUsername, szPassword);
 
 	if ("" == szIP || "" == szPort) {
     console.log("szIP || szPort")
